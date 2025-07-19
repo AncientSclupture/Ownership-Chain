@@ -1,44 +1,27 @@
 {
   "canisters": {
-    "Ownership-Chain-backend": {
-      "main": "src/Ownership-Chain-backend/main.mo",
-      "type": "motoko"
+    "llm": {
+      "type": "pull",
+      "id": "w36hm-eqaaa-aaaal-qr76a-cai"
     },
-    "Ownership-Chain-frontend": {
-      "dependencies": [
-        "Ownership-Chain-backend"
-      ],
-      "source": [
-        "src/Ownership-Chain-frontend/dist"
-      ],
+    "backend": {
+      "dependencies": ["llm"],
+      "type": "motoko",
+      "main": "src/backend/main.mo"
+    },
+    "frontend": {
+      "dependencies": ["backend"],
       "type": "assets",
-      "workspace": "Ownership-Chain-frontend"
-    },
-    "internet_identity": {
-      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
-      "frontend": {},
-      "remote": {
-        "id": {
-          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
-        }
-      },
-      "type": "custom",
-      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz"
+      "source": ["src/frontend/dist/"]
     }
   },
   "defaults": {
-    "bitcoin": {
-      "enabled": true,
-      "log_level": "info",
-      "nodes": [
-        "127.0.0.1:18444"
-      ]
-    },
     "build": {
       "args": "",
-      "packtool": ""
+      "packtool": "mops sources"
     }
   },
   "output_env_file": ".env",
-  "version": 1
+  "version": 1,
+  "dfx": "0.25.0"
 }

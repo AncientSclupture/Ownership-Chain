@@ -1,5 +1,4 @@
 # Various IDEs and Editors
-.vscode/
 .idea/
 **/*~
 
@@ -12,9 +11,7 @@
 
 # generated files
 **/declarations/
-
-# rust
-target/
+.mops/
 
 # frontend code
 node_modules/
