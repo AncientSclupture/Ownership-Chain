@@ -1,8 +1,8 @@
 function CreateAvatar({ name = "noname", alias = "unknown" }: { name?: string, alias?: string }) {
-  return name[0] + alias[0];
+    return name[0] + alias[0];
 }
 
-export function UserProfile() {
+export function UserProfile({ setOpenModal }: { setOpenModal: (d: boolean) => void }) {
     return (
         <div className="flex items-center justify-between md:flex-col md:items-start md:space-y-2">
             {/* simple avatar */}
@@ -25,6 +25,11 @@ export function UserProfile() {
                 <p className="font-semibold">20</p>
                 <p className="text-gray-500">Status</p>
                 <p>Verified</p>
+                <div className="space-y-1 col-span-2">
+                    <div className="text-sm font-semibold text-white p-2 w-full bg-blue-500 rounded-sm hover:bg-blue-600 cursor-pointer text-center" onClick={() => setOpenModal(true)}>
+                        Create Asset
+                    </div>
+                </div>
             </div>
         </div>
     );
