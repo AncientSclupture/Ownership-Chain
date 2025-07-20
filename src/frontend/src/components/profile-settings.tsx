@@ -7,9 +7,12 @@ export enum PropertyTypes {
 export function ProfileSettings({
   selectedType,
   setSelectedType,
+  setOpenModal
 }: {
   selectedType: PropertyTypes;
   setSelectedType: (type: PropertyTypes) => void;
+  setOpenModal: (d: boolean) => void;
+
 }) {
   return (
     <div className="hidden md:block space-y-5">
@@ -19,9 +22,8 @@ export function ProfileSettings({
           {Object.values(PropertyTypes).map((type) => (
             <div
               key={type}
-              className={`text-sm lowercase p-2 rounded-md cursor-pointer hover:bg-blue-300 ${
-                selectedType === type ? "font-bold bg-blue-800 text-white hover:bg-blue-800" : ""
-              }`}
+              className={`text-sm lowercase p-2 rounded-md cursor-pointer hover:bg-blue-300 ${selectedType === type ? "font-bold bg-blue-800 text-white hover:bg-blue-800" : ""
+                }`}
               onClick={() => setSelectedType(type)}
             >
               {type}
@@ -34,7 +36,7 @@ export function ProfileSettings({
         <p className="text-sm text-gray-700">
           There are some steps you must fulfill to create new assets
         </p>
-        <div className="font-semibold text-white p-2 w-full bg-blue-500 rounded-sm hover:bg-blue-600 cursor-pointer text-center">
+        <div className="font-semibold text-white p-2 w-full bg-blue-500 rounded-sm hover:bg-blue-600 cursor-pointer text-center" onClick={() => setOpenModal(true)}>
           Click Here To Create Assets
         </div>
       </div>
