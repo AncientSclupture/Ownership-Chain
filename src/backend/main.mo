@@ -445,9 +445,57 @@ actor {
 
     // ASSETS MANAGEMENT
 
+    // STATISTICS
+
+    public query func getPlatformStats() : async {
+        totalAssets : Nat;
+        totalUsers : Nat;
+        totalTransactions : Nat;
+        totalValueLocked : Nat;
+        assetsByType : [(AssetType, Nat)];
+    } {
+        let allAssets = Iter.toArray(assets.vals());
+        var totalValueLocked : Nat = 0;
+        var propertyCount : Nat = 0;
+        var businessCount : Nat = 0;
+        var artworkCount : Nat = 0;
+        var vehicleCount : Nat = 0;
+        var equipmentCount : Nat = 0;
+        var otherCount : Nat = 0;
+
+        for (asset in allAssets.vals()) {
+            totalValueLocked += asset.totalValue;
+            switch (asset.assetType) {
+                case (#Property) { propertyCount += 1 };
+                case (#Business) { businessCount += 1 };
+                case (#Artwork) { artworkCount += 1 };
+                case (#Vehicle) { vehicleCount += 1 };
+                case (#Equipment) { equipmentCount += 1 };
+                case (#Other(_)) { otherCount += 1 };
+            };
+        };
+
+        {
+            totalAssets = assets.size();
+            totalUsers = userProfiles.size();
+            totalTransactions = transactions.size();
+            totalValueLocked = totalValueLocked;
+            assetsByType = [
+                (#Property, propertyCount),
+                (#Business, businessCount),
+                (#Artwork, artworkCount),
+                (#Vehicle, vehicleCount),
+                (#Equipment, equipmentCount),
+                (#Other("Other"), otherCount),
+            ];
+        };
+    };
+
+    // STATISTICS
+
 
     // LLM 
-    
+
     public func prompt(prompt : Text) : async Text {
         await LLM.prompt(#Llama3_1_8B, prompt);
     };
