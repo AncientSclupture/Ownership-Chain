@@ -26,7 +26,7 @@ We Use:
 - [✅ Testing Results](#-testing-patterns)
 - [🔄 CI/CD and Testing](#-cicd-workflow-and-testing)
 - [🔗 Resources & Documentation](#-learning-resources)
-- [🤝 Contributor](#-Teams)
+- [🤝 Contributor](#-teams)
 
 ---
 
