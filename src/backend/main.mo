@@ -511,5 +511,68 @@ actor {
 
     // LLM 
 
+    // QUERIES
 
+    public query func getAsset(assetId : Text) : async ?Asset {
+        assets.get(assetId);
+    };
+
+    public query func getAllAssets() : async [Asset] {
+        Iter.toArray(assets.vals());
+    };
+
+    public query func getAssetsByType(assetType : AssetType) : async [Asset] {
+        let filtered = Array.filter<Asset>(
+            Iter.toArray(assets.vals()),
+            func(asset : Asset) : Bool { asset.assetType == assetType },
+        );
+        filtered;
+    };
+
+    public query func getOwnership(assetId : Text, owner : Principal) : async ?Ownership {
+        switch (ownerships.get(assetId)) {
+            case null { null };
+            case (?ownershipMap) { ownershipMap.get(owner) };
+        };
+    };
+
+    public query func getAssetOwners(assetId : Text) : async [(Principal, Ownership)] {
+        switch (ownerships.get(assetId)) {
+            case null { [] };
+            case (?ownershipMap) { Iter.toArray(ownershipMap.entries()) };
+        };
+    };
+
+    public query func getUserAssets(user : Principal) : async [(Text, Nat)] {
+        switch (assetsByUser.get(user)) {
+            case null { [] };
+            case (?userAssetMap) { Iter.toArray(userAssetMap.entries()) };
+        };
+    };
+
+    public query func getUserProfile(user : Principal) : async ?UserProfile {
+        userProfiles.get(user);
+    };
+
+    public query func getTransaction(transactionId : Text) : async ?Transaction {
+        transactions.get(transactionId);
+    };
+
+    public query func getAssetTransactions(assetId : Text) : async [Transaction] {
+        let filtered = Array.filter<Transaction>(
+            Iter.toArray(transactions.vals()),
+            func(tx : Transaction) : Bool { tx.assetId == assetId },
+        );
+        filtered;
+    };
+
+    public query func getUserTransactions(user : Principal) : async [Transaction] {
+        let filtered = Array.filter<Transaction>(
+            Iter.toArray(transactions.vals()),
+            func(tx : Transaction) : Bool { tx.from == user or tx.to == user },
+        );
+        filtered;
+    };
+
+    // QUERIES
 };
