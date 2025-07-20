@@ -1,12 +1,4 @@
-'use client';
-
-import React from "react";
-import { backendService } from "./services/backendService";
-
 function App() {
-  React.useEffect(() => {
-    console.log(backendService.getAsset('1'));
-  }, []);
 
   return (
     <div>
