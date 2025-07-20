@@ -1,28 +1,47 @@
-export function AssetCard() {
+import { Asset } from "../types/rwa";
+
+export function reduceSentences(sent: string, num: number = 200){
+    return sent.length <= num ? sent : sent.slice(0, num) + "...";
+}
+
+export function AssetCard({
+    id,
+    name,
+    description,
+    totalValue,
+    status,
+    createdAt,
+    location,
+    totalSupply
+}: Asset) {
+    const statusText = Object.keys(status)[0] || "Unknown";
+    const readableDate = new Date(Number(createdAt / 1_000_000n)).toLocaleDateString();
+    const locationText = location.join(", ") || "Not specified";
+
     return (
-        <div className="p-5 shadow-sm hover:shadow-2xl rounded-md space-y-3 border-[1px] border-gray-200 cursor-pointer">
+        <div className="p-5 shadow-sm hover:shadow-2xl rounded-md space-y-3 border-[1px] border-gray-200 cursor-pointer md:flex md:flex-col md:h-[26vw] md:justify-between">
             {/* header card */}
             <div className="w-full flex items-center justify-between">
-                <p className="capitalize text-[3vw] md:text-[1.5vw]">Asset Name</p>
-                <p className="text-[2vw] md:text-[1vw] font-bold p-1.5 text-blue-600 rounded-lg">Asset ID</p>
+                <p className="capitalize text-[3vw] md:text-[1.5vw]">{name}</p>
+                <p className="text-[2vw] md:text-[1vw] font-bold p-1.5 text-blue-600 rounded-lg">{id}</p>
             </div>
 
             {/* content card */}
-            <div className="space-y-2 md:text-[1.2vw]">
-                <p className="text-gray-600">
-                    Excepteur duis laborum minim pariatur incididunt ex irure laborum mollit pariatur elit esse nisi.
+            <div className="space-y-2 md:text-[1.2vw] md:h-[85%]">
+                <p className="text-gray-600 md:h-[35%] ">
+                    {reduceSentences(description)}
                 </p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-700">
                     <p className="font-semibold">Value</p>
-                    <p>100</p>
+                    <p>{totalValue}</p>
                     <p className="font-semibold">Created In</p>
-                    <p>10-12-2020</p>
+                    <p>{readableDate}</p>
                     <p className="font-semibold">Status</p>
-                    <p>Available</p>
+                    <p>{statusText}</p>
                     <p className="font-semibold">Supply</p>
-                    <p>Location</p>
+                    <p>{totalSupply}</p>
                     <p className="font-semibold">Locations</p>
-                    <p>EN</p>
+                    <p>{locationText}</p>
                 </div>
             </div>
 
