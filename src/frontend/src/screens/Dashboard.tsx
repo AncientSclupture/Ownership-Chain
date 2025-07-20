@@ -1,5 +1,7 @@
 import { ActivityLayout } from "../components/layout";
 import React, { useState } from "react";
+import { backendService } from "../services/backendService"
+import { Asset } from "../types/rwa";
 import { AssetCard } from "../components/asset-card";
 
 enum PropertyTypes {
@@ -12,15 +14,18 @@ enum PropertyTypes {
 }
 
 function Dashboard() {
-  const [retrivedData, setRetrivedData] = useState([]);
+  const [retrivedData, setRetrivedData] = useState<Asset[]>([]);
   const [load, setLoad] = useState(true);
   const [selectedType, setSelectedType] = useState<PropertyTypes | "All">("All");
 
 
   React.useEffect(() => {
     const callAssets = async () => {
+      const data = await backendService.getAllAssets();
+      setRetrivedData(data);
 
       setLoad(false);
+      console.log(data);
     }
 
     callAssets();
@@ -35,7 +40,7 @@ function Dashboard() {
 
   return (
     <ActivityLayout isLoadPage={load}>
-      <div className="p-10 shadow-md">
+      <div className="p-10 shadow-md min-h-screen">
         {/* filter data */}
         <div>
           {/* start selector here */}
