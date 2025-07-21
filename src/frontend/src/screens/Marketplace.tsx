@@ -1,5 +1,5 @@
 import { ActivityLayout } from "../components/layout";
-import React, { useState } from "react";
+import React from "react";
 import { backendService } from "../services/backendService"
 import { Asset } from "../types/rwa";
 import { AssetCard } from "../components/asset-card";
@@ -14,9 +14,9 @@ enum PropertyTypes {
 }
 
 function Markeatplace() {
-  const [retrivedData, setRetrivedData] = useState<Asset[]>([]);
-  const [load, setLoad] = useState(true);
-  const [selectedType, setSelectedType] = useState<PropertyTypes | "All">("All");
+  const [retrivedData, setRetrivedData] = React.useState<Asset[]>([]);
+  const [load, setLoad] = React.useState(true);
+  const [selectedType, setSelectedType] = React.useState<PropertyTypes | "All">("All");
 
 
   React.useEffect(() => {
