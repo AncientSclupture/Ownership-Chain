@@ -325,12 +325,12 @@ actor {
     };
 
     // FRACTIONAL OWNERSHIP
-    public func buyTokens(
+    public shared (msg) func buyTokens(
         assetId : Text,
         amount : Nat,
         pricePerToken : Nat,
     ) : async Result.Result<Text, Text> {
-        let caller = Principal.fromText("anonymous"); // msg.caller
+        let caller : Principal = msg.caller;
 
         switch (assets.get(assetId)) {
             case null { #err("Asset not found") };

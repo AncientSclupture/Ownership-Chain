@@ -1,5 +1,5 @@
 import { backend } from "../../../declarations/backend";
-import { Asset, AssetType, Result } from "../types/rwa";
+import { Asset, AssetType, PlatformStats, Result } from "../types/rwa";
 
 export const backendService = {
   /**
@@ -56,5 +56,17 @@ export const backendService = {
     }
   },
 
+  /**
+   * Retrieves platform-wide statistics
+   * @returns Promise with platform statistics
+   */
+  async getPlatformStats(): Promise<PlatformStats | null> {
+    try {
+      return await backend.getPlatformStats();
+    } catch (error) {
+      console.error('Error fetching platform stats:', error);
+      return null;
+    }
+  },
 
 };

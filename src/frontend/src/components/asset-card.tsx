@@ -1,6 +1,7 @@
+import { Link } from "react-router-dom";
 import { Asset } from "../types/rwa";
 
-export function reduceSentences(sent: string, num: number = 200){
+export function reduceSentences(sent: string, num: number = 200) {
     return sent.length <= num ? sent : sent.slice(0, num) + "...";
 }
 
@@ -19,7 +20,7 @@ export function AssetCard({
     const locationText = location.join(", ") || "Not specified";
 
     return (
-        <div className="p-5 shadow-sm hover:shadow-2xl rounded-md space-y-3 border-[1px] border-gray-200 cursor-pointer md:flex md:flex-col md:h-[26vw] md:justify-between">
+        <div className="p-5 shadow-sm hover:shadow-2xl rounded-md space-y-3 border-[1px] border-gray-200 md:flex md:flex-col md:h-[26vw] md:justify-between">
             {/* header card */}
             <div className="w-full flex items-center justify-between">
                 <p className="capitalize text-[3vw] md:text-[1.5vw]">{name}</p>
@@ -46,8 +47,8 @@ export function AssetCard({
             </div>
 
             {/* footer card */}
-            <button className="font-semibold text-white p-2 w-full bg-blue-500 rounded-lg hover:bg-blue-800">
-                Details
+            <button className="font-semibold text-white p-2 w-full bg-blue-500 rounded-lg hover:bg-blue-800 cursor-pointer">
+                <Link to={`/marketplace/:${id}`}>Intrested To Buy</Link>
             </button>
         </div>
     );
