@@ -116,7 +116,7 @@ Ownership-Chain/
 │   │   │   ├── index.css                 # Global styles with Tailwind
 │   │   │   ├── components/               # Reusable UI components
 │   │   │   ├── services/                 # Canister service layers
-│   │   │   └── views/                    # Page-level components
+│   │   │   └── screens/                  # Page-level components
 │   │   ├── assets/                       # Static assets (images, icons)
 │   │   ├── tests/                        # Frontend unit tests
 │   │   ├── index.html                    # Frontend entry point
