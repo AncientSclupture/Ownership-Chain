@@ -70,6 +70,10 @@ export const backendService = {
     }
   },
 
+  /**
+   * Retrieves user profiles
+   * @returns Promise with platform statistics
+   */
   async getProfiles(): Promise<GetUserProfileResult | null> {
     try {
       const data = await backend.getUserProfile();
@@ -78,7 +82,22 @@ export const backendService = {
       console.error('Error fetching user profile:', error);
       return null;
     }
-  }
+  },
+
+  /**
+   * Retrieves asset information by ID
+   * @param assetId Asset ID to retrieve
+   * @returns Promise with asset data or null if not found
+   */
+  async getAsset(assetId: string): Promise<Asset | null> {
+    try {
+      const result = await backend.getAsset(assetId);
+      return result[0] ?? null;
+    } catch (error) {
+      console.error('Error fetching asset:', error);
+      return null;
+    }
+  },
 
 
 };
