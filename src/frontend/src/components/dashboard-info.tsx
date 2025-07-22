@@ -1,5 +1,5 @@
 import { PlatformStats } from "../types/rwa";
-import findwaylogo from "../assets/findwaylogo.png"
+import findwaylogo from "../assets/findwaylogo.png";
 import { Link } from "react-router-dom";
 
 export function DashboardInfo({retreivedData}: {retreivedData : PlatformStats | null}){

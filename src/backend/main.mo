@@ -345,6 +345,11 @@ actor {
                     return #err("Not enough tokens available for sale");
                 };
 
+                // asset owner tidak dapat membeli assetsnya sendiri
+                if (asset.owner == caller) {
+                    return #err("You cannot buy your own asset");
+                };
+
                 let totalPrice = amount * pricePerToken;
                 let transactionId = generateTransactionId();
 
@@ -417,7 +422,10 @@ actor {
     };
 
     // ASSET STATUS MANAGEMENT
-    public func updateAssetStatus(assetId : Text, newStatus : AssetStatus) : async Result.Result<(), Text> {
+    public func updateAssetStatus(
+        assetId : Text,
+        newStatus : AssetStatus,
+    ) : async Result.Result<(), Text> {
         switch (assets.get(assetId)) {
             case null { #err("Asset not found") };
             case (?asset) {

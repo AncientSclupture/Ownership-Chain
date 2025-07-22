@@ -32,23 +32,21 @@ export function CreateAssetsModal(
         Array(steps.length).fill(false)
     );
 
+    // formsData
+    const [formData, setFormData] = React.useState<formDataInterface | null>(null);
+
     const handleOkClick = () => {
+        if (!validateStep()) {
+            alert("Please complete the required fields before proceeding.");
+            return;
+        }
+
         const updated = [...completedSteps];
         updated[currentStep] = true;
         setCompletedSteps(updated);
 
         if (currentStep < steps.length - 1) {
             setCurrentStep(currentStep + 1);
-        }
-
-        if (currentStep === 3) {
-            if (
-                formData?.totalValue === 0 ||
-                formData?.totalSupply === 0
-            ) {
-                alert("Total value and supply must be greater than zero");
-                return;
-            }
         }
 
         console.log(formData);
@@ -82,6 +80,11 @@ export function CreateAssetsModal(
             formData.metadata
         );
 
+        if (!validateStep()) {
+            alert("Please complete all required fields.");
+            return;
+        }
+
         if ("ok" in result) {
             alert("Asset created successfully! ID: " + result.ok);
             setOpenModal(false);
@@ -93,10 +96,29 @@ export function CreateAssetsModal(
         }
     };
 
+    const validateStep = (): boolean => {
+        if (!formData) return false;
 
-
-    // formsData
-    const [formData, setFormData] = React.useState<formDataInterface | null>(null);
+        switch (currentStep) {
+            case 0:
+                return !!formData.name && !!formData.description;
+            case 1:
+                return formData.assetType !== undefined;
+            case 2:
+                return formData.documents.length > 0;
+            case 3:
+                return (
+                    formData.totalValue > 0 &&
+                    formData.totalSupply > 0 &&
+                    !!formData.location &&
+                    formData.metadata.length > 0
+                );
+            case 4:
+                return agree;
+            default:
+                return false;
+        }
+    };
 
     return (
         <div className={`fixed top-0 bg-white/50 z-[99] w-full h-screen ${openModal ? "" : "hidden"}`}>

@@ -25,7 +25,7 @@ export function UserProfile({ setOpenModal }: { setOpenModal: (d: boolean) => vo
                 <p className="font-semibold">20</p>
                 <p className="text-gray-500">Status</p>
                 <p>Verified</p>
-                <div className="space-y-1 col-span-2">
+                <div className="space-y-1 col-span-2 md:hidden">
                     <div className="text-sm font-semibold text-white p-2 w-full bg-blue-500 rounded-sm hover:bg-blue-600 cursor-pointer text-center" onClick={() => setOpenModal(true)}>
                         Create Asset
                     </div>
