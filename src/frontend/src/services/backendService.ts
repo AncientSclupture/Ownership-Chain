@@ -9,6 +9,7 @@ export const backendService = {
   async getAllAssets(): Promise<Asset[]> {
     try {
       const res = await backend.getAllAssets();
+      console.log(backend);
       return res;
     } catch (error) {
       console.error('Error fetching all assets:', error);

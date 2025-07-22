@@ -25,7 +25,6 @@ function Markeatplace() {
       setRetrivedData(data);
 
       setLoad(false);
-      console.log(data);
     }
 
     callAssets();

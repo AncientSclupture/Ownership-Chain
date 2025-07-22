@@ -39,25 +39,6 @@
         "editor.quickSuggestions": {
           "strings": "on"
         },
-        "github.copilot.chat.codeGeneration.instructions": [
-          {
-            "file": "general.instructions.md"
-          },
-          {
-            "file": "motoko.instructions.md"
-          },
-          {
-            "file": "typescript.instructions.md"
-          }
-        ],
-        "github.copilot.chat.testGeneration.instructions": [
-          {
-            "file": "backend-test.instructions.md"
-          },
-          {
-            "file": "frontend-test.instructions.md"
-          }
-        ],
         "settingsSync.ignoredExtensions": ["*"],
         "settingsSync.ignoredSettings": [
           "github.copilot.chat.codeGeneration.instructions",

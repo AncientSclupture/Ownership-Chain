@@ -10,8 +10,8 @@ npm install
 # Set up dfx identity for codespace
 echo "🔑 Setting up dfx identity..."
 dfxvm install 0.25.0
-dfx identity new codespace_dev --storage-mode=plaintext || echo "Identity may already exist"
-dfx identity use codespace_dev      
+dfx identity new findway_dev --storage-mode=plaintext || echo "Identity may already exist"
+dfx identity use findway_dev      
 dfx start --background             
 dfx stop
 
@@ -24,8 +24,12 @@ mops install
 echo "🔧 Installing utilities..."
 apt-get update && apt-get install -y jq curl
 
-# Install Ollama for local LLM support
-echo "🤖 Installing Ollama for LLM support..."
-curl -fsSL https://ollama.com/install.sh | sh
 
-echo "✅ Development environment setup complete!"
+echo "🤖 Checking for Ollama installation..."
+
+if command -v ollama >/dev/null 2>&1; then
+    echo "✅ Ollama is already installed. Version: $(ollama --version)"
+else
+    echo "📦 Installing Ollama for LLM support..."
+    curl -fsSL https://ollama.com/install.sh | sh
+fi

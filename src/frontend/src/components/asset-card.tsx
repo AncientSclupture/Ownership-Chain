@@ -30,7 +30,7 @@ export function AssetCard({
             {/* content card */}
             <div className="space-y-2 md:text-[1.2vw] md:h-[85%]">
                 <p className="text-gray-600 md:h-[35%] ">
-                    {reduceSentences(description)}
+                    {reduceSentences(description, 100)}
                 </p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-700">
                     <p className="font-semibold">Value</p>

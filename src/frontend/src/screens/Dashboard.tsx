@@ -21,7 +21,6 @@ function Dashboard() {
       setRetrievedData(data);
 
       setLoad(false);
-      console.log(data, retreivedData);
     }
 
     callAssets();

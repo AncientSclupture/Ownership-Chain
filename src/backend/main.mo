@@ -376,8 +376,8 @@ actor {
 
     // DIVIDEND DISTRIBUTION
     public func distributeDividend(
-        assetId : Text, 
-        totalDividend : Nat
+        assetId : Text,
+        totalDividend : Nat,
     ) : async Result.Result<Nat, Text> {
         switch (assets.get(assetId)) {
             case null { #err("Asset not found") };
@@ -493,8 +493,7 @@ actor {
 
     // STATISTICS
 
-
-    // LLM 
+    // LLM
 
     public func prompt(prompt : Text) : async Text {
         await LLM.prompt(#Llama3_1_8B, prompt);
@@ -509,7 +508,7 @@ actor {
         };
     };
 
-    // LLM 
+    // LLM
 
     // QUERIES
 
