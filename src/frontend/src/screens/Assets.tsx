@@ -4,14 +4,21 @@ import { UserProfile } from "../components/profile";
 import { ProfileSettings, PropertyTypes } from "../components/profile-settings";
 import { CreateAssetsModal } from "../components/create-assets-modal";
 
+import { backendService } from "../services/backendService";
+import { GetUserProfileResult } from "../types/rwa";
+
 function Assets() {
   const [load, setLoad] = React.useState(true);
   const [selectedType, setSelectedType] = React.useState<PropertyTypes>(PropertyTypes.MyAssets);
+  const [data, setData] = React.useState<GetUserProfileResult | null>(null)
   const [openModal, setOpenModal] = React.useState(false);
 
   React.useEffect(() => {
     const callData = async () => {
-      // Simulate async loading
+      const retreivedData = await backendService.getProfiles();
+      setData(retreivedData);
+      console.log(data);
+
       setLoad(false);
     };
 
@@ -24,7 +31,7 @@ function Assets() {
         <div className="w-full flex flex-col md:flex-row justify-center md:justify-between items-center space-y-5 md:space-y-0 md:gap-4">
           {/* Sidebar Profile */}
           <div className="w-full md:w-[40%] shadow-lg min-h-[20vw] md:h-[80vh] border border-gray-300 rounded-lg p-5 md:order-2 md:space-y-5">
-            <UserProfile setOpenModal={setOpenModal} />
+            <UserProfile setOpenModal={setOpenModal} userprof={data?.profile} />
             <ProfileSettings selectedType={selectedType} setSelectedType={setSelectedType} setOpenModal={setOpenModal} />
           </div>
 

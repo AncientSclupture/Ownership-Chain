@@ -144,6 +144,26 @@ actor {
         "TXN_" # Nat.toText(transactionCounter);
     };
 
+    // USER Profile Ensure
+    private func ensureUserProfile(user : Principal) : async () {
+        switch (userProfiles.get(user)) {
+            case (?_existing) {};
+            case null {
+                let anonymousProfile : UserProfile = {
+                    principal = user;
+                    name = null;
+                    alias = null;
+                    verified = false;
+                    createdAt = Time.now();
+                    totalAssets = 0;
+                    totalValue = 0;
+                };
+
+                userProfiles.put(user, anonymousProfile);
+            };
+        };
+    };
+
     // USER MANAGEMENT
 
     public shared (msg) func createUserProfile(
@@ -171,6 +191,50 @@ actor {
         };
     };
 
+    private func updateUserProfileStats(user : Principal) : async () {
+        switch (userProfiles.get(user)) {
+            case null {
+                // just for sure
+                await ensureUserProfile(user);
+            };
+            case (?profile) {
+                var totalAssetCount : Nat = 0;
+                var totalPortfolioValue : Nat = 0;
+
+                switch (assetsByUser.get(user)) {
+                    case null {};
+                    case (?userAssetMap) {
+                        for ((assetId, tokenAmount) in userAssetMap.entries()) {
+                            if (tokenAmount > 0) {
+                                totalAssetCount += 1;
+
+                                switch (assets.get(assetId)) {
+                                    case null {};
+                                    case (?asset) {
+                                        let valuePerToken = asset.totalValue / asset.totalSupply;
+                                        totalPortfolioValue += (tokenAmount * valuePerToken);
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+
+                let updatedProfile : UserProfile = {
+                    principal = profile.principal;
+                    name = profile.name;
+                    alias = profile.alias;
+                    verified = profile.verified;
+                    createdAt = profile.createdAt;
+                    totalAssets = totalAssetCount;
+                    totalValue = totalPortfolioValue;
+                };
+
+                userProfiles.put(user, updatedProfile);
+            };
+        };
+    };
+
     private func updateUserAssets(
         user : Principal,
         assetId : Text,
@@ -193,6 +257,87 @@ actor {
                 };
             };
         };
+
+        await updateUserProfileStats(user);
+    };
+
+    public shared (msg) func getUserProfile() : async ?{
+        profile : UserProfile;
+        assets : [(Text, Nat, Nat)]; // (assetId, tokenAmount, currentValue)
+        recentTransactions : [Transaction];
+    } {
+        let user : Principal = msg.caller;
+
+        switch (userProfiles.get(user)) {
+            case null {
+                await ensureUserProfile(user);
+
+                switch (userProfiles.get(user)) {
+                    case null { null };
+                    case (?newProfile) {
+                        ?{
+                            profile = newProfile;
+                            assets = [];
+                            recentTransactions = [];
+                        };
+                    };
+                };
+            };
+            case (?profile) {
+                var assetsList : [(Text, Nat, Nat)] = [];
+
+                switch (assetsByUser.get(user)) {
+                    case null {};
+                    case (?userAssetMap) {
+                        for ((assetId, tokenAmount) in userAssetMap.entries()) {
+                            if (tokenAmount > 0) {
+                                switch (assets.get(assetId)) {
+                                    case null {};
+                                    case (?asset) {
+                                        let valuePerToken = asset.totalValue / asset.totalSupply;
+                                        let currentValue = tokenAmount * valuePerToken;
+                                        assetsList := Array.append(
+                                            assetsList,
+                                            [(assetId, tokenAmount, currentValue)],
+                                        );
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+
+                let userTransactions = Array.filter<Transaction>(
+                    Iter.toArray(transactions.vals()),
+                    func(tx : Transaction) : Bool {
+                        tx.from == user or tx.to == user;
+                    },
+                );
+
+                let sortedTx = Array.sort<Transaction>(
+                    userTransactions,
+                    func(a : Transaction, b : Transaction) : {
+                        #less;
+                        #equal;
+                        #greater;
+                    } {
+                        if (a.timestamp > b.timestamp) #less else if (a.timestamp < b.timestamp) #greater else #equal;
+                    },
+                );
+
+                let recentTx = if (sortedTx.size() > 10) {
+                    Array.subArray<Transaction>(sortedTx, 0, 10);
+                } else {
+                    sortedTx;
+                };
+
+                ?{
+                    profile = profile;
+                    assets = assetsList;
+                    recentTransactions = recentTx;
+                };
+            };
+        };
     };
 
     // USER MANAGEMENT
@@ -203,8 +348,15 @@ actor {
         switch (assets.get(assetId)) {
             case null { 0 };
             case (?asset) {
-                // all tokens are available for sale
-                asset.totalSupply;
+                switch (ownerships.get(assetId)) {
+                    case null { 0 };
+                    case (?ownershipMap) {
+                        switch (ownershipMap.get(asset.owner)) {
+                            case null { 0 };
+                            case (?ownership) { ownership.amount };
+                        };
+                    };
+                };
             };
         };
     };
@@ -216,8 +368,32 @@ actor {
         pricePerToken : Nat,
     ) : async () {
         switch (ownerships.get(assetId)) {
-            case null {}; // just to be sure
+            case null {};
             case (?ownershipMap) {
+                switch (assets.get(assetId)) {
+                    case null {};
+                    case (?asset) {
+                        // Update owner asal
+                        switch (ownershipMap.get(asset.owner)) {
+                            case null {};
+                            case (?ownerOwnership) {
+                                if (ownerOwnership.amount >= amount) {
+                                    let updatedOwnerOwnership : Ownership = {
+                                        assetId = ownerOwnership.assetId;
+                                        owner = ownerOwnership.owner;
+                                        amount = ownerOwnership.amount - amount; // KURANGI
+                                        percentage = await calculatePercentage(assetId, ownerOwnership.amount - amount);
+                                        purchaseDate = ownerOwnership.purchaseDate;
+                                        purchasePrice = ownerOwnership.purchasePrice;
+                                    };
+                                    ownershipMap.put(asset.owner, updatedOwnerOwnership);
+                                };
+                            };
+                        };
+                    };
+                };
+
+                // Update buyer ownership
                 let now = Time.now();
 
                 switch (ownershipMap.get(buyer)) {
@@ -277,6 +453,8 @@ actor {
     ) : async Result.Result<Text, Text> {
         let caller : Principal = msg.caller;
 
+        await ensureUserProfile(caller);
+
         if (totalSupply == 0) {
             return #err("Total supply must be greater than 0");
         };
@@ -302,10 +480,8 @@ actor {
 
         assets.put(assetId, asset);
 
-        // ownership asset saat ini
         let ownershipMap = TrieMap.TrieMap<Principal, Ownership>(Principal.equal, Principal.hash);
 
-        // pemilik utama mendapat 100% ownership awalnya
         let initialOwnership : Ownership = {
             assetId = assetId;
             owner = caller;
@@ -318,8 +494,9 @@ actor {
         ownershipMap.put(caller, initialOwnership);
         ownerships.put(assetId, ownershipMap);
 
-        // Update user's asset list
         await updateUserAssets(caller, assetId, totalSupply);
+
+        await updateUserProfileStats(caller);
 
         #ok(assetId);
     };
@@ -332,6 +509,8 @@ actor {
     ) : async Result.Result<Text, Text> {
         let caller : Principal = msg.caller;
 
+        await ensureUserProfile(caller);
+
         switch (assets.get(assetId)) {
             case null { #err("Asset not found") };
             case (?asset) {
@@ -339,13 +518,11 @@ actor {
                     return #err("Asset is not available for trading");
                 };
 
-                // Cek apakah ada token yang tersedia untuk dijual
                 let availableTokens = await getAvailableTokens(assetId);
                 if (availableTokens < amount) {
                     return #err("Not enough tokens available for sale");
                 };
 
-                // asset owner tidak dapat membeli assetsnya sendiri
                 if (asset.owner == caller) {
                     return #err("You cannot buy your own asset");
                 };
@@ -353,13 +530,10 @@ actor {
                 let totalPrice = amount * pricePerToken;
                 let transactionId = generateTransactionId();
 
-                // Dalam implementasi nyata, perlu integrasi dengan payment system
-                // Untuk sekarang, assume payment berhasil
-
                 let transaction : Transaction = {
                     id = transactionId;
                     assetId = assetId;
-                    from = asset.owner; // Simplified - dalam kenyataan bisa dari multiple sellers
+                    from = asset.owner;
                     to = caller;
                     amount = amount;
                     pricePerToken = pricePerToken;
@@ -371,8 +545,9 @@ actor {
 
                 transactions.put(transactionId, transaction);
 
-                // Update ownership
                 await updateOwnership(assetId, caller, amount, pricePerToken);
+
+                await updateUserProfileStats(caller);
 
                 #ok(transactionId);
             };
@@ -536,13 +711,6 @@ actor {
         filtered;
     };
 
-    public query func getOwnership(assetId : Text, owner : Principal) : async ?Ownership {
-        switch (ownerships.get(assetId)) {
-            case null { null };
-            case (?ownershipMap) { ownershipMap.get(owner) };
-        };
-    };
-
     public query func getAssetOwners(assetId : Text) : async [(Principal, Ownership)] {
         switch (ownerships.get(assetId)) {
             case null { [] };
@@ -550,15 +718,12 @@ actor {
         };
     };
 
-    public query func getUserAssets(user : Principal) : async [(Text, Nat)] {
+    public shared (msg) func getUserAssets() : async [(Text, Nat)] {
+        let user : Principal = msg.caller;
         switch (assetsByUser.get(user)) {
             case null { [] };
             case (?userAssetMap) { Iter.toArray(userAssetMap.entries()) };
         };
-    };
-
-    public query func getUserProfile(user : Principal) : async ?UserProfile {
-        userProfiles.get(user);
     };
 
     public query func getTransaction(transactionId : Text) : async ?Transaction {
@@ -573,7 +738,8 @@ actor {
         filtered;
     };
 
-    public query func getUserTransactions(user : Principal) : async [Transaction] {
+    public shared(msg) func getUserTransactions() : async [Transaction] {
+        let user : Principal = msg.caller;
         let filtered = Array.filter<Transaction>(
             Iter.toArray(transactions.vals()),
             func(tx : Transaction) : Bool { tx.from == user or tx.to == user },

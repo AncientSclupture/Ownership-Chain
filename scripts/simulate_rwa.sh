@@ -82,6 +82,6 @@ done
 
 
 echo "> change identity to findway-dev again"
-dfx use identity findway_dev
+dfx identity use findway_dev
 
 echo "✅ Simulation Finished!"

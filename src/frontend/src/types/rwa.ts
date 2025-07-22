@@ -41,11 +41,17 @@ export interface Transaction {
 export interface UserProfile {
   principal: Principal;
   name: [] | [string];
-  email: [] | [string];
+  alias: [] | [string];
   verified: boolean;
   createdAt: bigint;
   totalAssets: bigint;
   totalValue: bigint;
+}
+
+export interface GetUserProfileResult {
+  assets: [string, bigint, bigint][];
+  recentTransactions: Transaction[];
+  profile: UserProfile;
 }
 
 export interface PlatformStats {

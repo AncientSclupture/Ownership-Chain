@@ -5,6 +5,17 @@
 ### Problem 
 
 ### Target Solution
+The problem is addressed through tokenization of real-world assets using Internet Computer Protocol (ICP) technology. This solution aims to:
+
+- **Secure ownership data** by recording it on an immutable blockchain, protecting it from manipulation or forgery.
+
+- **Increase transparency and accountability** in every transaction or change in ownership status.
+
+- **Enable fractional ownership** in a digital and legally compliant way, allowing individuals to own portions of high-value assets.
+
+- **Bridge the physical and digital worlds efficiently**, enabling digital interactions such as selling, leasing, revenue sharing, or real-time asset status reporting.
+
+With this approach, assets like properties, businesses, or artworks can be managed in a modern, secure, and inclusive way, both locally and globally.
 
 ## Feature
 

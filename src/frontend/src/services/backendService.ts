@@ -1,5 +1,5 @@
 import { backend } from "../../../declarations/backend";
-import { Asset, AssetType, PlatformStats, Result } from "../types/rwa";
+import { Asset, AssetType, GetUserProfileResult, PlatformStats, Result } from "../types/rwa";
 
 export const backendService = {
   /**
@@ -69,5 +69,16 @@ export const backendService = {
       return null;
     }
   },
+
+  async getProfiles(): Promise<GetUserProfileResult | null> {
+    try {
+      const data = await backend.getUserProfile();
+      return data[0] ?? null;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+  }
+
 
 };
