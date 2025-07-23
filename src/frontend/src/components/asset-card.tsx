@@ -48,7 +48,7 @@ export function AssetCard({
 
             {/* footer card */}
             <button className="font-semibold text-white p-2 w-full bg-blue-500 rounded-lg hover:bg-blue-800 cursor-pointer">
-                <Link to={`/marketplace/:${id}`}>Intrested To Buy</Link>
+                <Link to={`/marketplace/${id}`}>Intrested To Buy</Link>
             </button>
         </div>
     );
