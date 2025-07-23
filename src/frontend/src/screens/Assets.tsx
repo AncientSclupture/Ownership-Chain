@@ -1,15 +1,16 @@
 import { ActivityLayout } from "../components/layout";
 import React from "react";
 import { UserProfile } from "../components/profile";
-import { ProfileSettings, PropertyTypes } from "../components/profile-settings";
+import { ProfileSettings, UserOptionsType } from "../components/profile-settings";
 import { CreateAssetsModal } from "../components/create-assets-modal";
 
 import { backendService } from "../services/backendService";
 import { GetUserProfileResult } from "../types/rwa";
+import { AssetVote, ShowingMyAssets, ShowingMyTransactions } from "../components/asset-profile-content";
 
 function Assets() {
   const [load, setLoad] = React.useState(true);
-  const [selectedType, setSelectedType] = React.useState<PropertyTypes>(PropertyTypes.MyAssets);
+  const [selectedType, setSelectedType] = React.useState<UserOptionsType>(UserOptionsType.MyAssets);
   const [data, setData] = React.useState<GetUserProfileResult | null>(null)
   const [openModal, setOpenModal] = React.useState(false);
 
@@ -36,12 +37,15 @@ function Assets() {
           </div>
 
           {/* Main Content */}
-          <div className="w-full shadow-lg h-screen md:h-[80vh] border border-gray-300 rounded-lg p-2 md:order-1">
+          <div className="w-full shadow-lg h-screen md:h-[80vh] hide-scrollbar border border-gray-300 rounded-lg p-2 md:order-1 overflow-y-auto">
             {/* Content based on selectedType */}
-            <p className="text-center text-lg text-gray-600">
-              Showing: <strong>{selectedType}</strong>
-            </p>
+            <div className="text-center text-lg text-gray-600">
+              {selectedType === UserOptionsType.MyAssets && <ShowingMyAssets />}
+              {selectedType === UserOptionsType.Transactions && <ShowingMyTransactions />}
+              {selectedType === UserOptionsType.Vote && <AssetVote />}
+            </div>
           </div>
+
         </div>
       </div>
       {/* whis is the modal field */}

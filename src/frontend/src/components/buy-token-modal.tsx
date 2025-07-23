@@ -1,10 +1,25 @@
-import React from "react"
+import React from "react";
 
-export function BuyTokenModal(
-    { openModal, setOpenModal, asset_id }:
-        { openModal: boolean, setOpenModal: (d: boolean) => void, asset_id: string }
-) {
+export function BuyTokenModal({
+    openModal,
+    setOpenModal,
+    asset_id,
+}: {
+    openModal: boolean;
+    setOpenModal: (d: boolean) => void;
+    asset_id: string;
+}) {
     const [tokenValue, setTokenValue] = React.useState(0);
+    const [tokenPrice, setTokenPrice] = React.useState(0);
+
+    const totalPrice = tokenValue * tokenPrice;
+
+    const handleCancle = () => {
+        setTokenPrice(0);
+        setTokenValue(0);
+        setOpenModal(false);
+    }
+
     return (
         <div
             className={`fixed inset-0 z-[99] bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${openModal ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -16,8 +31,8 @@ export function BuyTokenModal(
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-bold text-gray-800">Confirm Your Purchase</h2>
                         <button
-                            onClick={() => setOpenModal(false)}
-                            className="text-sm text-red-500 font-semibold hover:underline"
+                            onClick={handleCancle}
+                            className="text-sm text-red-500 font-semibold hover:underline cursor-pointer"
                         >
                             Exit
                         </button>
@@ -31,12 +46,33 @@ export function BuyTokenModal(
                         </p>
                         <p>Enter the amount of tokens you want to purchase:</p>
                         <input
-                            type="number"
+                            type="text"
                             min={1}
-                            className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value={tokenValue}
-                            // onChange={(e) => setTokenValue(e.target.value)}
+                            onChange={(e) => {
+                                const value = BigInt(e.target.value)
+                                setTokenValue(Number(value));
+                            }}
+                            className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
+
+                        <p>Enter Your Proposed Token Price (in USD):</p>
+                        <input
+                            type="text"
+                            min={1}
+                            value={tokenPrice}
+                            onChange={(e) => {
+                                const value = BigInt(e.target.value)
+                                setTokenPrice(Number(value));
+                            }}
+                            className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+
+                        <p>
+                            The total amount you'll pay is:{" "}
+                            <span className="text-sm font-mono font-bold">${totalPrice}</span>
+                        </p>
+
                         <p className="text-sm text-gray-500">
                             By proceeding, you agree to purchase tokens for this asset as stated above.
                         </p>
@@ -53,6 +89,5 @@ export function BuyTokenModal(
                 </div>
             </div>
         </div>
-
-    )
+    );
 }

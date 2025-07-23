@@ -66,7 +66,7 @@ export function MarketPlaceAssetInformation(
                     className="p-2 bg-blue-500 rounded-md text-white cursor-pointer"
                     onClick={() => setOpenModal(true)}
                 >
-                    Buy This Token Asset
+                    Propose Token Asset
                 </button>
             </div>
         </div>

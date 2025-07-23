@@ -1,7 +1,7 @@
-export enum PropertyTypes {
+export enum UserOptionsType {
   MyAssets = "My Assets",
   Transactions = "Transactions",
-  Used = "Being Used",
+  Vote = "Vote",
 }
 
 export function ProfileSettings({
@@ -9,8 +9,8 @@ export function ProfileSettings({
   setSelectedType,
   setOpenModal
 }: {
-  selectedType: PropertyTypes;
-  setSelectedType: (type: PropertyTypes) => void;
+  selectedType: UserOptionsType;
+  setSelectedType: (type: UserOptionsType) => void;
   setOpenModal: (d: boolean) => void;
 
 }) {
@@ -19,7 +19,7 @@ export function ProfileSettings({
       <div>
         <p className="text-sm text-gray-700">Filter the data you want to display</p>
         <div className="flex space-x-2 p-2 rounded-md">
-          {Object.values(PropertyTypes).map((type) => (
+          {Object.values(UserOptionsType).map((type) => (
             <div
               key={type}
               className={`text-sm lowercase p-2 rounded-md cursor-pointer hover:bg-blue-300 ${selectedType === type ? "font-bold bg-blue-800 text-white hover:bg-blue-800" : ""

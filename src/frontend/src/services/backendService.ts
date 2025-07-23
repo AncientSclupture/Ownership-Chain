@@ -1,5 +1,5 @@
 import { backend } from "../../../declarations/backend";
-import { Asset, AssetType, GetUserProfileResult, PlatformStats, Result } from "../types/rwa";
+import { Asset, AssetType, GetUserProfileResult, PlatformStats, Result, Transaction } from "../types/rwa";
 
 export const backendService = {
   /**
@@ -96,6 +96,56 @@ export const backendService = {
     } catch (error) {
       console.error('Error fetching asset:', error);
       return null;
+    }
+  },
+
+  /**
+   * Purchases tokens for fractional ownership
+   * @param assetId Asset ID to buy tokens for
+   * @param amount Number of tokens to buy
+   * @param pricePerToken Price per token
+   * @returns Promise with transaction ID or error message
+   */
+  async buyTokens(
+    assetId: string,
+    amount: number,
+    pricePerToken: number
+  ): Promise<Result<string, string>> {
+    try {
+      return await backend.buyTokens(
+        assetId,
+        BigInt(amount),
+        BigInt(pricePerToken)
+      );
+    } catch (error) {
+      console.error('Error buying tokens:', error);
+      return { err: 'Failed to buy tokens: ' + (error as Error).message };
+    }
+  },
+
+  /**
+   * Retrieves all transactions for a specific user
+   * @returns Promise with array of user transactions
+   */
+  async getUserTransactions(): Promise<Transaction[]> {
+    try {
+      return await backend.getUserTransactions();
+    } catch (error) {
+      console.error('Error fetching user transactions:', error);
+      return [];
+    }
+  },
+
+  /**
+   * Retrieves all assets owned by a user
+   * @returns Promise with array of user's asset holdings
+   */
+  async getUserAssets(): Promise<Array<[string, bigint]>> {
+    try {
+      return await backend.getUserAssets();
+    } catch (error) {
+      console.error('Error fetching user assets:', error);
+      return [];
     }
   },
 

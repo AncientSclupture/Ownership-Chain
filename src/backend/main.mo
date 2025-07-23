@@ -523,8 +523,8 @@ actor {
                     return #err("Not enough tokens available for sale");
                 };
 
-                if (asset.owner == caller) {
-                    return #err("You cannot buy your own asset");
+                if (asset.status != #Active) {
+                    return #err("Asset is not available for trading");
                 };
 
                 let totalPrice = amount * pricePerToken;
