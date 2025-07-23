@@ -340,6 +340,10 @@ actor {
         };
     };
 
+    public query func getUserProfilebyId(user : Principal) : async ?UserProfile {
+        userProfiles.get(user);
+    };
+
     // USER MANAGEMENT
 
     // ASSETS MANAGEMENT

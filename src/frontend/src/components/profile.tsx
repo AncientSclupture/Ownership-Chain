@@ -22,10 +22,10 @@ export function UserProfile({ setOpenModal, userprof = null }: { setOpenModal: (
             </div>
 
             {/* Stats */}
-            <div className="w-[40%] grid grid-cols-2  gap-2">
+            <div className="w-[90%] grid grid-cols-2  gap-2">
                 <p className="text-gray-500">Assets</p>
                 <p className="font-semibold">{userprof?.totalAssets ?? "-"}</p>
-                <p className="text-gray-500">Tokens</p>
+                <p className="text-gray-500">Tokens Price</p>
                 <p className="font-semibold">{userprof?.totalValue ?? "-"}</p>
                 <p className="text-gray-500">Status</p>
                 <p>{userprof?.verified ? "listed" : "anonimous"}</p>

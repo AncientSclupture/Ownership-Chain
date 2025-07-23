@@ -1,5 +1,7 @@
 import { backend } from "../../../declarations/backend";
-import { Asset, AssetType, GetUserProfileResult, PlatformStats, Result, Transaction } from "../types/rwa";
+import { Asset, AssetType, GetUserProfileResult, Ownership, PlatformStats, Result, Transaction, UserProfile } from "../types/rwa";
+import { Principal } from '@dfinity/principal';
+
 
 export const backendService = {
   /**
@@ -9,7 +11,6 @@ export const backendService = {
   async getAllAssets(): Promise<Asset[]> {
     try {
       const res = await backend.getAllAssets();
-      console.log(backend);
       return res;
     } catch (error) {
       console.error('Error fetching all assets:', error);
@@ -149,5 +150,47 @@ export const backendService = {
     }
   },
 
+  /**
+ * Retrieves all owners of a specific asset
+ * @param assetId Asset ID
+ * @returns Promise with array of ownership records
+ */
+  async getAssetOwners(assetId: string): Promise<Array<[Principal, Ownership]>> {
+    try {
+      return await backend.getAssetOwners(assetId);
+    } catch (error) {
+      console.error('Error fetching asset owners:', error);
+      return [];
+    }
+  },
+
+  /**
+* Retrieves user profile information
+* @param user Principal of the user
+* @returns Promise with user profile or null if not found
+*/
+  async getUserProfilebyId(user: Principal): Promise<UserProfile | null> {
+    try {
+      const result = await backend.getUserProfilebyId(user);
+      return result[0] ?? null;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+  },
+
+  /**
+ * Retrieves all transactions for a specific asset
+ * @param assetId Asset ID
+ * @returns Promise with array of asset transactions
+ */
+  async getAssetTransactions(assetId: string): Promise<Transaction[]> {
+    try {
+      return await backend.getAssetTransactions(assetId);
+    } catch (error) {
+      console.error('Error fetching asset transactions:', error);
+      return [];
+    }
+  },
 
 };

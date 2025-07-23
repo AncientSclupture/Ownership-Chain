@@ -43,32 +43,47 @@ export function ChartTransactionsAssets({ data }: { data: ChartDataInterface[] }
   )
 }
 
-interface DevidenthistoryInterface extends ChartDataInterface {
-  diff?: number;
+export interface DividentChartDataInterface {
+  name: string;
+  grup: ChartDataInterface[];
 }
 
-function ProcessData(data: ChartDataInterface[]): DevidenthistoryInterface[] {
-  return data.map((item, index) => {
-    if (index === 0) {
-      return { ...item, diff: 0 };
-    }
+const colors = [
+  "#8884d8", // ungu
+  "#82ca9d", // hijau muda
+  "#ffc658", // kuning
+  "#ff7f50", // coral
+  "#8dd1e1", // biru muda
+  "#a4de6c", // hijau lemon
+  "#d0ed57", // kuning pucat
+  "#ff9f40", // oranye
+  "#c23531", // merah
+  "#6a5acd", // slate blue
+];
 
-    const prev = data[index - 1];
-    const diff = item.nums - prev.nums;
+const generateColor = (index: number) => `hsl(${(index * 137.5) % 360}, 70%, 60%)`;
 
-    return { ...item, diff };
+export function ChartDevidentsAssets({ data }: { data: DividentChartDataInterface[] }) {
+  // Transform data
+  const transformedData = data.map(entry => {
+    const base: any = { name: entry.name };
+    entry.grup.forEach(item => {
+      if (!base[item.name]) base[item.name] = 0;
+      base[item.name] += item.nums;
+    });
+    return base;
   });
-}
 
-export function ChartDevidentsAssets({ data }: { data: ChartDataInterface[] }) {
+  // Ambil nama-nama grup untuk Bar
+  const allNames = Array.from(
+    new Set(data.flatMap(d => d.grup.map(g => g.name)))
+  );
+
   return (
     <ResponsiveContainer width="100%" height={400}>
       <BarChart
-        width={500}
-        height={300}
-        data={ProcessData(data)}
+        data={transformedData}
         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="name" />
@@ -76,9 +91,15 @@ export function ChartDevidentsAssets({ data }: { data: ChartDataInterface[] }) {
         <Tooltip />
         <Legend />
         <ReferenceLine stroke="#000" />
-        <Bar dataKey="diff" fill="#82ca9d" />
-        <Bar dataKey="nums" fill="#8884d8" />
+
+        {allNames.map((name, idx) => (
+          <Bar
+            key={name}
+            dataKey={name}
+            fill={generateColor(idx)}
+          />
+        ))}
       </BarChart>
     </ResponsiveContainer>
-  )
+  );
 }

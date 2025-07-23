@@ -32,7 +32,6 @@ function Markeatasset() {
       if (!retrievedAssetData) { setFound(false); return; }
 
       setFound(true);
-      console.log(asset, retrievedAssetData);
     };
 
     callData();
@@ -49,7 +48,7 @@ function Markeatasset() {
       <div className="w-full min-h-screen px-5 py-10 md:p-10 flex justify-center md:items-center items-start">
         <div className="w-full p-6 bg-white border border-gray-300 shadow-lg rounded-xl space-y-4 md:flex md:items-start md:space-y-0 md:space-x-6">
           <MarketPlaceAssetInformation asset={asset ?? null} setOpenModal={setOpenModal} />
-          <MarketPlaceAssetStatistics />
+          <MarketPlaceAssetStatistics asset_id={id} />
         </div>
       </div>
       <BuyTokenModal openModal={openModal} setOpenModal={setOpenModal} asset_id={id} />

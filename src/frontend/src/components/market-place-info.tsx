@@ -1,7 +1,9 @@
 import React from "react";
 import { Asset } from "../types/rwa";
 import { reduceSentences } from "./asset-card";
-import { AssetsbyTypeChart as BoxChart, ChartDataInterface, ChartDevidentsAssets, ChartTransactionsAssets } from "./assets-type-chart";
+import { AssetsbyTypeChart as BoxChart, ChartDataInterface, ChartDevidentsAssets, ChartTransactionsAssets, DividentChartDataInterface } from "./assets-type-chart";
+import { backendService } from "../services/backendService";
+import { Principal } from '@dfinity/principal';
 
 export function MarketPlaceAssetInformation(
     { asset, setOpenModal }:
@@ -119,7 +121,7 @@ function ComponentsChartTransaction(
 
 function ComponentsChartDevident(
     { data, title, totalToken, date }:
-        { data: ChartDataInterface[], title: string, totalToken: number, date: string }
+        { data: DividentChartDataInterface[], title: string, totalToken: number, date: string }
 ) {
     return (
         <div>
@@ -136,20 +138,101 @@ function ComponentsChartDevident(
     )
 }
 
-
-export function MarketPlaceAssetStatistics() {
+export function MarketPlaceAssetStatistics({ asset_id }: { asset_id: string }) {
     const [option, setOption] = React.useState<Options>(Options.ownership);
+    const [ownershipData, setOwnerShipData] = React.useState<ChartDataInterface[] | null>(null);
+    const [assetTransactionsData, setAssetTransactionsData] = React.useState<ChartDataInterface[] | null>(null);
+    const [assetDevidenData, setAssetDevidenData] = React.useState<DividentChartDataInterface[] | null>(null);
 
-    const data = [
-        { name: 'anon 1', nums: 10 },
-        { name: 'anon 2', nums: 40 },
-        { name: 'anon 3', nums: 30 },
-        { name: 'anon 4', nums: 20 },
-        { name: 'anon 5', nums: 40 },
-        { name: 'anon 6', nums: 60 },
-        { name: 'anon 7', nums: 10 },
-        { name: 'anon 8', nums: 90 },
-    ];
+    React.useEffect(() => {
+        const callData = async () => {
+            const ownershipRetreivedData = await backendService.getAssetOwners(asset_id);
+            const transactionRetreivedData = await backendService.getAssetTransactions(asset_id);
+
+
+            const processedOwnerShipData = await Promise.all(
+                ownershipRetreivedData.map(async (ownerData, idx) => {
+
+                    const owner: Principal = ownerData[0];
+                    const ownerProfile = await backendService.getUserProfilebyId(owner);
+
+                    const temp: ChartDataInterface = {
+                        name: ownerProfile?.alias[0] ?? `no-name ${idx + 1}`,
+                        nums: ownerData[1].percentage
+                    };
+                    return temp;
+                })
+            );
+
+            const processedAssetTransactionData = transactionRetreivedData
+                .filter((transaction) => {
+                    const transactionType = Object.keys(transaction.transactionType)[0];
+                    return transactionType === "Buy" || transactionType === "Sell";
+                })
+                .map((transaction) => {
+                    const timestamp = Number(transaction.timestamp) / 1_000_000;
+
+                    const readableDate = new Date(timestamp).toLocaleString("id-EN", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                    });
+
+                    const temp: ChartDataInterface = {
+                        name: `${readableDate}`,
+                        nums: Number(transaction.amount),
+                    };
+
+                    return temp;
+                });
+
+            const groupedMap = new Map<string, { name: string; nums: number }[]>();
+
+
+            transactionRetreivedData
+                .filter((transaction) => {
+                    const transactionType = Object.keys(transaction.transactionType)[0];
+                    return transactionType === "Dividend";
+                })
+                .forEach((transaction) => {
+                    const timestamp = Number(transaction.timestamp) / 1_000_000;
+                    const readableDate = new Date(timestamp).toLocaleString("id-EN", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                    });
+
+                    const item = { name: transaction.to.toString().slice(0, 5) + "...", nums: Number(transaction.totalPrice) };
+
+                    if (!groupedMap.has(readableDate)) {
+                        groupedMap.set(readableDate, [item]);
+                    } else {
+                        groupedMap.get(readableDate)?.push(item);
+                    }
+                });
+
+            const processedDevidentData: DividentChartDataInterface[] = Array.from(groupedMap.entries()).map(
+                ([name, grup]) => ({
+                    name,
+                    grup
+                })
+            );
+
+            setOwnerShipData(processedOwnerShipData);
+            setAssetTransactionsData(processedAssetTransactionData);
+            setAssetDevidenData(processedDevidentData);
+            console.log(processedDevidentData);
+        };
+
+        callData();
+    }, [])
+
     return (
         <div className="md:w-[60%] h-screen space-y-5 md:space-y-10">
             {/* selector options */}
@@ -168,19 +251,19 @@ export function MarketPlaceAssetStatistics() {
             </div>
             {option === Options.ownership && <ComponentsChartSharing
                 title={"OwnerShip Sharing"}
-                data={data}
+                data={ownershipData ?? []}
                 date="OwnerShips"
                 totalToken={120}
             />}
             {option === Options.transactions && <ComponentsChartTransaction
                 title={"Assets Transctions"}
-                data={data}
+                data={assetTransactionsData ?? []}
                 date="12/12/2025"
                 totalToken={120}
             />}
             {option === Options.devident && <ComponentsChartDevident
                 title={"Devident History"}
-                data={data}
+                data={assetDevidenData ?? []}
                 date="12/12/2025"
                 totalToken={120} />}
         </div>

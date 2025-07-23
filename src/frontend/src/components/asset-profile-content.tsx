@@ -44,11 +44,6 @@ export function ShowingMyAssets() {
         const callData = async () => {
             const retreivedData = await backendService.getUserAssets();
 
-            if (retreivedData.length === 0) {
-                setAssetuser([]);
-                return;
-            }
-
             const processedData = await Promise.all(
                 retreivedData.map(async (d) => {
                     const id = d[0];
@@ -156,11 +151,41 @@ function TransactionComp({ data, onChange }: { data: ChartDataInterface[], onCha
 export function ShowingMyTransactions() {
     const [loadAssets, setLoadAssets] = React.useState(true);
     const [selectedOption, setSelectedOption] = React.useState<Options>(Options.transaction);
+    const [transactionData, setTransactionData] = React.useState<ChartDataInterface[] | null>(null);
 
     React.useEffect(() => {
         const callData = async () => {
             const retreivedData = await backendService.getUserTransactions();
-            console.log(retreivedData);
+
+            if (retreivedData.length === 0) {
+                setLoadAssets(false);
+                return;
+            }
+
+            const processedData = await Promise.all(
+                retreivedData.map(async (data) => {
+                    const timestamp = Number(data.timestamp) / 1_000_000;
+
+                    const readableDate = new Date(timestamp).toLocaleString("id-ID", {
+                        year: "numeric",
+                        day: "2-digit",
+                        month: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false
+                    });
+
+
+                    const temp: ChartDataInterface = {
+                        name: readableDate,
+                        nums: Number(data.totalPrice)
+                    };
+
+                    return temp;
+                })
+            );
+
+            setTransactionData(processedData)
             setLoadAssets(false);
         };
 
@@ -173,19 +198,11 @@ export function ShowingMyTransactions() {
         </div>
     )
 
-    const data: ChartDataInterface[] = [
-        { name: '1', nums: 123 },
-        { name: '3', nums: 103 },
-        { name: '4', nums: 113 },
-        { name: '5', nums: 323 },
-        { name: '6', nums: 13 },
-    ]
-
     return (
         <div className="w-full p-5 flex justify-center items-center">
             <div className="w-full flex flex-col gap-2 overflow-y-auto">
                 {selectedOption === Options.proposal && <ProposalComp onChange={setSelectedOption} />}
-                {selectedOption === Options.transaction && <TransactionComp data={data} onChange={setSelectedOption} />}
+                {selectedOption === Options.transaction && <TransactionComp data={transactionData ?? []} onChange={setSelectedOption} />}
             </div>
         </div>
     )

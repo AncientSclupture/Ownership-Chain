@@ -18,7 +18,6 @@ function Assets() {
     const callData = async () => {
       const retreivedData = await backendService.getProfiles();
       setData(retreivedData);
-      console.log(data);
 
       setLoad(false);
     };
