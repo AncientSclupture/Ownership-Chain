@@ -555,13 +555,19 @@ actor {
     };
 
     // DIVIDEND DISTRIBUTION
-    public func distributeDividend(
+    public shared (msg) func distributeDividend(
         assetId : Text,
         totalDividend : Nat,
     ) : async Result.Result<Nat, Text> {
+        let caller : Principal = msg.caller;
+
         switch (assets.get(assetId)) {
             case null { #err("Asset not found") };
             case (?asset) {
+                // unauthorized account
+                if (asset.owner != caller) {
+                    return #err("Only asset owner can distribute dividends");
+                };
                 switch (ownerships.get(assetId)) {
                     case null { #err("No ownership data found") };
                     case (?ownershipMap) {
@@ -738,7 +744,7 @@ actor {
         filtered;
     };
 
-    public shared(msg) func getUserTransactions() : async [Transaction] {
+    public shared (msg) func getUserTransactions() : async [Transaction] {
         let user : Principal = msg.caller;
         let filtered = Array.filter<Transaction>(
             Iter.toArray(transactions.vals()),
