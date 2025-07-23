@@ -48,19 +48,6 @@ export interface DividentChartDataInterface {
   grup: ChartDataInterface[];
 }
 
-const colors = [
-  "#8884d8", // ungu
-  "#82ca9d", // hijau muda
-  "#ffc658", // kuning
-  "#ff7f50", // coral
-  "#8dd1e1", // biru muda
-  "#a4de6c", // hijau lemon
-  "#d0ed57", // kuning pucat
-  "#ff9f40", // oranye
-  "#c23531", // merah
-  "#6a5acd", // slate blue
-];
-
 const generateColor = (index: number) => `hsl(${(index * 137.5) % 360}, 70%, 60%)`;
 
 export function ChartDevidentsAssets({ data }: { data: DividentChartDataInterface[] }) {
