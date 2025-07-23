@@ -3,7 +3,10 @@ import { Asset } from "../types/rwa";
 import { reduceSentences } from "./asset-card";
 import { AssetsbyTypeChart as BoxChart, ChartDataInterface, ChartDevidentsAssets, ChartTransactionsAssets } from "./assets-type-chart";
 
-export function MarketPlaceAssetInformation({ asset }: { asset: Asset | null }) {
+export function MarketPlaceAssetInformation(
+    { asset, setOpenModal }:
+        { asset: Asset | null, setOpenModal: (d: boolean) => void; }
+) {
 
     const typeText = asset && Object.keys(asset.assetType)[0];
 
@@ -59,7 +62,12 @@ export function MarketPlaceAssetInformation({ asset }: { asset: Asset | null }) 
             </div>
 
             <div>
-                <button className="p-2 bg-blue-500 rounded-md text-white cursor-pointer">Buy This Token Asset</button>
+                <button
+                    className="p-2 bg-blue-500 rounded-md text-white cursor-pointer"
+                    onClick={() => setOpenModal(true)}
+                >
+                    Buy This Token Asset
+                </button>
             </div>
         </div>
     );
@@ -72,8 +80,8 @@ enum Options {
 }
 
 function ComponentsChartSharing(
-    { data, title, totalToken, date }: 
-    { data: ChartDataInterface[], title: string, totalToken: number, date: string }
+    { data, title, totalToken, date }:
+        { data: ChartDataInterface[], title: string, totalToken: number, date: string }
 ) {
     return (
         <div>
@@ -91,8 +99,8 @@ function ComponentsChartSharing(
 }
 
 function ComponentsChartTransaction(
-    { data, title, totalToken, date }: 
-    { data: ChartDataInterface[], title: string, totalToken: number, date: string }
+    { data, title, totalToken, date }:
+        { data: ChartDataInterface[], title: string, totalToken: number, date: string }
 ) {
     return (
         <div>
@@ -110,8 +118,8 @@ function ComponentsChartTransaction(
 }
 
 function ComponentsChartDevident(
-    { data, title, totalToken, date }: 
-    { data: ChartDataInterface[], title: string, totalToken: number, date: string }
+    { data, title, totalToken, date }:
+        { data: ChartDataInterface[], title: string, totalToken: number, date: string }
 ) {
     return (
         <div>
