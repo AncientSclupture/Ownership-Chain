@@ -1086,11 +1086,32 @@ actor {
         };
     };
 
-    public shared (msg) func getUserAssets() : async [(Text, Nat)] {
+    // Fungsi internal (private)
+    private func isOriginalOwner(assetId : Text, user : Principal) : Bool {
+        switch (assets.get(assetId)) {
+            case (?asset) asset.owner == user;
+            case null false;
+        };
+    };
+
+    public shared (msg) func getUserAssets() : async [(Text, Nat, Bool)] {
         let user : Principal = msg.caller;
+
         switch (assetsByUser.get(user)) {
             case null { [] };
-            case (?userAssetMap) { Iter.toArray(userAssetMap.entries()) };
+            case (?userAssetMap) {
+                Iter.toArray(
+                    Iter.map<(Text, Nat), (Text, Nat, Bool)>(
+                        userAssetMap.entries(),
+                        func(entry : (Text, Nat)) : (Text, Nat, Bool) {
+                            let assetId = entry.0;
+                            let amount = entry.1;
+                            let isOwner = isOriginalOwner(assetId, user);
+                            (assetId, amount, isOwner);
+                        },
+                    )
+                );
+            };
         };
     };
 

@@ -1,5 +1,5 @@
 import { backend } from "../../../declarations/backend";
-import { Asset, AssetType, GetUserProfileResult, Ownership, PlatformStats, Proposal, Result, Transaction, UserProfile, VotableProposal } from "../types/rwa";
+import { Asset, AssetType, GetUserProfileResult, Ownership, PlatformStats, Proposal, Result, Result_2, Transaction, UserProfile, VotableProposal } from "../types/rwa";
 import { Principal } from '@dfinity/principal';
 
 
@@ -141,7 +141,7 @@ export const backendService = {
    * Retrieves all assets owned by a user
    * @returns Promise with array of user's asset holdings
    */
-  async getUserAssets(): Promise<Array<[string, bigint]>> {
+  async getUserAssets(): Promise<Array<[string, bigint, boolean]>> {
     try {
       return await backend.getUserAssets();
     } catch (error) {
@@ -239,13 +239,13 @@ export const backendService = {
     }
   },
 
- /**
- * Approves a buy token proposal with the given proposal ID.
- * @param proposalId - The ID of the proposal to approve
- * @returns Promise resolving to either:
- *   - { ok: string } on success with a message
- *   - { err: string } on failure with an error description
- */
+  /**
+  * Approves a buy token proposal with the given proposal ID.
+  * @param proposalId - The ID of the proposal to approve
+  * @returns Promise resolving to either:
+  *   - { ok: string } on success with a message
+  *   - { err: string } on failure with an error description
+  */
   async approveBuyProposal(proposalId: string): Promise<Result<string, string>> {
     try {
       const result = await backend.approveBuyProposal(proposalId);
@@ -271,5 +271,27 @@ export const backendService = {
       console.error("Error approving proposal:", error);
       return { err: "Failed to approve proposal due to unexpected error." };
     }
+  },
+
+  /**
+   * Distributes dividend tokens to all holders of a specific asset.
+   *
+   * Only the original asset owner can invoke this function.
+   *
+   * @param assetId - The ID of the asset to distribute dividends for
+   * @param totalDividend - The total dividend amount to be distributed
+   * @returns Promise resolving to:
+   *   - { ok: bigint } - Number of recipients who successfully received dividends
+   *   - { err: string } - Error message if the operation failed
+   */
+  async distributeDividend(assetId: string, totalDividend: bigint): Promise<Result_2> {
+    try {
+      const result = await backend.distributeDividend(assetId, totalDividend);
+      return result;
+    } catch (error) {
+      console.error("Error distributing dividend:", error);
+      return { err: "Unexpected error during dividend distribution" };
+    }
   }
+
 };

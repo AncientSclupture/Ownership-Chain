@@ -14,6 +14,7 @@ function Assets() {
   const [data, setData] = React.useState<GetUserProfileResult | null>(null)
   const [openModal, setOpenModal] = React.useState(false);
 
+
   React.useEffect(() => {
     const callData = async () => {
       const retreivedData = await backendService.getProfiles();
@@ -47,7 +48,6 @@ function Assets() {
 
         </div>
       </div>
-      {/* whis is the modal field */}
       <CreateAssetsModal openModal={openModal} setOpenModal={setOpenModal} />
     </ActivityLayout>
   );

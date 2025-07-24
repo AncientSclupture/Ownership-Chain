@@ -9,6 +9,7 @@ interface UserAssetInterface {
     assetId: string;
     assetToken: bigint;
     assetStatus: string;
+    isOwner: boolean;
 }
 
 // load spiner
@@ -20,26 +21,119 @@ export function LoaderSpinner() {
     );
 }
 
+export function DistributeDividendModal({
+    openModal,
+    setOpenModal,
+    asset_id
+}: {
+    openModal: boolean;
+    setOpenModal: (d: boolean) => void;
+    asset_id: string;
+}) {
+    const [devidenValue, setDevidenValue] = React.useState(0);
 
-// simple assets card
-function SimpleAssetCard({ data }: { data: UserAssetInterface }) {
+    const handleCancle = () => {
+        setDevidenValue(0);
+        alert("closed");
+        setOpenModal(false);
+    }
+
+    const handlePurchase = async () => {
+        const proposeResp = await backendService.distributeDividend(asset_id, BigInt(devidenValue));
+
+        if ("ok" in proposeResp) {
+            alert("Divdend Has Been Distributed Successfully!!" + proposeResp.ok);
+            setOpenModal(false);
+        } else {
+            alert("Failed to create asset: " + proposeResp.err);
+        }
+        setDevidenValue(0);
+        setOpenModal(false);
+    }
 
     return (
-        <div className="border border-gray-300 rounded-xl hover:shadow-lg flex items-center space-x-5 w-[48%] p-3">
+        <div className={`fixed inset-0 z-[99] bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${openModal ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+            }`}>
+            <div className="flex items-center justify-center h-full w-full">
+                <div className="bg-white w-[90vw] max-w-xl p-8 rounded-2xl shadow-2xl border border-gray-200 animate-fadeIn">
+                    {/* Header */}
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold text-gray-800">Distribute Assets Dividen</h2>
+                        <button
+                            onClick={handleCancle}
+                            className="text-sm text-red-500 font-semibold hover:underline cursor-pointer"
+                        >
+                            Exit
+                        </button>
+                    </div>
+
+                    {/* Agreement Section */}
+                    <div className="space-y-4 text-gray-700">
+                        <p>Enter the amount of devident that this assets gained (in USD):</p>
+                        <input
+                            type="text"
+                            min={1}
+                            value={devidenValue}
+                            onChange={(e) => {
+                                const value = BigInt(e.target.value)
+                                setDevidenValue(Number(value));
+                            }}
+                            className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+
+                        <p>
+                            The total amount you'll pay is:{" "}
+                            <span className="text-sm font-mono font-bold">${devidenValue}</span>
+                        </p>
+
+                        <p className="text-sm text-gray-500">
+                            By proceeding, you agree to purchase tokens for this asset as stated above.
+                        </p>
+
+                        {/* Action */}
+                        <div className="mt-6">
+                            <button
+                                onClick={handlePurchase}
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition-colors cursor-pointer"
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div >
+    )
+}
+
+function SimpleAssetCard({ data }: { data: UserAssetInterface }) {
+    const [openModalDividend, setOpenModalDividend] = React.useState(false);
+
+    const handleOpenModal = () => {
+        if (data.isOwner) {
+            setOpenModalDividend(true);
+        } else {
+            setOpenModalDividend(false);
+        }
+    }
+
+    return (
+        <div className={`border border-gray-300 rounded-xl hover:shadow-lg flex items-center space-x-5 w-[48%] p-3 ${data.isOwner ? 'cursor-pointer' : ''}`} onClick={handleOpenModal}>
             <div className="text-start">
                 <p className="font-bold flex items-center justify-center space-x-2"><span>{data.assetName}</span></p>
                 <p className="text-sm font-mono">{data.assetId}</p>
                 <p className="text-sm">Tokenowned: <span className="font-bold">{data.assetToken}</span></p>
                 <p className="text-sm font-mono">{data.assetStatus}</p>
             </div>
+            <DistributeDividendModal openModal={openModalDividend} setOpenModal={setOpenModalDividend} asset_id={data.assetId} />
         </div>
     );
 }
 
-
 export function ShowingMyAssets() {
     const [assetUser, setAssetuser] = React.useState<UserAssetInterface[] | null>(null);
     const [loadAssets, setLoadAssets] = React.useState(true);
+
 
     React.useEffect(() => {
         const callData = async () => {
@@ -57,7 +151,8 @@ export function ShowingMyAssets() {
                         assetId: id,
                         assetName: assets?.name ?? "no name",
                         assetToken: token,
-                        assetStatus: statusText
+                        assetStatus: statusText,
+                        isOwner: d[2]
                     };
 
                     return temp;
@@ -135,7 +230,6 @@ enum Options {
     transaction = "transaction",
 }
 
-
 function ProposalComp({ onChange }: { onChange: (d: Options) => void }) {
     const [proposalData, setProposalData] = React.useState<Proposal[] | null>(null);
     React.useEffect(() => {
@@ -166,7 +260,6 @@ function ProposalComp({ onChange }: { onChange: (d: Options) => void }) {
     )
 }
 
-
 function TransactionComp({ data, onChange }: { data: ChartDataInterface[], onChange: (d: Options) => void }) {
     return (
         <div className="w-[95%]">
@@ -179,8 +272,6 @@ function TransactionComp({ data, onChange }: { data: ChartDataInterface[], onCha
         </div>
     )
 }
-
-
 
 export function ShowingMyTransactions() {
     const [loadAssets, setLoadAssets] = React.useState(true);
