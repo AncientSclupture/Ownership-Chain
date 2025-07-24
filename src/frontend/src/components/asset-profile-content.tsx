@@ -1,6 +1,7 @@
 import React from "react";
 import { backendService } from "../services/backendService";
 import { ChartDataInterface, ChartTransactionsAssets } from "./assets-type-chart";
+import { Proposal, VotableProposal } from "../types/rwa";
 
 
 interface UserAssetInterface {
@@ -88,21 +89,42 @@ export function ShowingMyAssets() {
     )
 }
 
-function SimpleProposalCard() {
+function SimpleProposalCard({ data }: { data: Proposal }) {
+    const timestamp = Number(data.createdAt) / 1_000_000;
+
+    const readableDate = new Date(timestamp).toLocaleString("id-ID", {
+        year: "numeric",
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+    });
+
+    const handleConfirmBuy = async () => {
+        const respData = await backendService.confirmBuyProposal(data.id);
+        if ("ok" in respData) {
+            alert("Proposal has been created successfully! ID: " + respData.ok);
+        } else {
+            alert("Failed to create asset: " + respData.err);
+        }
+    }
+
     return (
         <div className="border border-gray-300 rounded-xl hover:shadow-lg flex items-center space-x-5 w-full p-3">
             <div className="w-full flex items-center">
                 <div className="w-full flex flex-col items-start">
-                    <p>Asset id</p>
+                    <p>{data.assetId}</p>
                     <div className="flex items-center text-sm font-mono space-x-2">
-                        <p>Token</p>
+                        <p>{data.amount}</p>
                         <span>{"|"}</span>
-                        <p>Total Price</p>
+                        <p>{data.totalPrice}</p>
                         <span>{"|"}</span>
-                        <p>Date Proposed</p>
+                        <p>{readableDate}</p>
                     </div>
                 </div>
-                <button className="text-sm p-2 bg-blue-500 rounded-xl h-fit text-white cursor-pointer">Pay</button>
+                {!data.isApproved && <p className="text-sm font-mono font-bold text-blue-600">{data.currentApprovalPercentage}% Approven</p>}
+                {data.isApproved && <button onClick={handleConfirmBuy} className="text-sm p-2 bg-blue-500 rounded-xl h-fit text-white cursor-pointer">Pay</button>}
             </div>
         </div>
     )
@@ -115,6 +137,17 @@ enum Options {
 
 
 function ProposalComp({ onChange }: { onChange: (d: Options) => void }) {
+    const [proposalData, setProposalData] = React.useState<Proposal[] | null>(null);
+    React.useEffect(() => {
+        const callData = async () => {
+            const retreivedPropsalData = await backendService.getMyProposals();
+            setProposalData(retreivedPropsalData);
+        }
+
+        callData();
+
+    }, []);
+
     return (
         <div className="w-full space-y-5">
             <div className="flex justify-between items-center" >
@@ -122,10 +155,11 @@ function ProposalComp({ onChange }: { onChange: (d: Options) => void }) {
                 <button onClick={() => onChange(Options.transaction)} className="text-sm cursor-pointer underline">view transactions</button>
             </div>
             <div className="">
+                {proposalData?.length === 0 && <p className="text-center">No Proposal Created</p>}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <SimpleProposalCard />
-                    <SimpleProposalCard />
-                    <SimpleProposalCard />
+                    {proposalData?.map((propsal, idx) => (
+                        <SimpleProposalCard key={idx} data={propsal} />
+                    ))}
                 </div>
             </div>
         </div>
@@ -208,35 +242,67 @@ export function ShowingMyTransactions() {
     )
 }
 
-function AssetVoteCard() {
+function AssetVoteCard({ data }: { data: VotableProposal }) {
+    const timestamp = Number(data.createdAt) / 1_000_000;
+
+    const readableDate = new Date(timestamp).toLocaleString("id-ID", {
+        year: "numeric",
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+    });
+
+    const handleApprove = async () => {
+        const respData = await backendService.approveBuyProposal(data.id);
+        if ("ok" in respData) {
+            alert("Proposal has been created successfully! ID: " + respData.ok);
+        } else {
+            alert("Failed to create asset: " + respData.err);
+        }
+    }
+
     return (
         <div className="border border-gray-300 rounded-xl hover:shadow-lg flex items-center space-x-5 w-full p-3">
             <div className="w-full flex items-center">
                 <div className="w-full flex flex-col items-start space-y-2">
-                    <p className="text-sm">Asset id has been proposed from <span className="font-bold">someone</span></p>
+                    <p className="text-sm">Asset id has been proposed from <span className="font-bold">{data.buyer.toString().slice(0, 5) + "..."}</span></p>
                     <div className="flex items-center text-sm font-mono space-x-2">
-                        <p>Token</p>
+                        <p>{data.amount}</p>
                         <span>{"|"}</span>
-                        <p>Total Price</p>
+                        <p>{data.totalPrice}$ with <span className="font-bold">{data.pricePerToken}$/token</span></p>
                         <span>{"|"}</span>
-                        <p>Date Proposed</p>
+                        <p>{readableDate}</p>
                     </div>
                 </div>
-                <button className="text-sm p-2 bg-blue-500 rounded-xl h-fit text-white cursor-pointer">Approve</button>
+                <button onClick={handleApprove} className="text-sm p-2 bg-blue-500 rounded-xl h-fit text-white cursor-pointer">Approve</button>
             </div>
         </div>
     )
 }
 
 export function AssetVote() {
+    const [votableproposalData, setVotableProposalData] = React.useState<VotableProposal[] | null>(null);
+    React.useEffect(() => {
+        const callData = async () => {
+            const retreiveVotabledPropsalData = await backendService.getVotableProposals();
+            setVotableProposalData(retreiveVotabledPropsalData);
+            console.log(retreiveVotabledPropsalData);
+        }
+
+        callData();
+
+    }, [])
+
     return (
         <div className="w-full p-5 flex justify-center items-center">
             <div className="w-full flex flex-col gap-2 overflow-y-auto">
-                <AssetVoteCard />
-                <AssetVoteCard />
-                <AssetVoteCard />
-                <AssetVoteCard />
-                <AssetVoteCard />
+                {votableproposalData?.map((votableproposal, idx) => (
+                    <AssetVoteCard key={idx} data={votableproposal} />
+                ))}
+                {votableproposalData?.length === 0 && <p className="text-center">No Vote Needed</p>}
+
             </div>
         </div>
     )

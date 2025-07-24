@@ -82,17 +82,14 @@ enum Options {
 }
 
 function ComponentsChartSharing(
-    { data, title, totalToken, date }:
-        { data: ChartDataInterface[], title: string, totalToken: number, date: string }
+    { data, title }:
+        { data: ChartDataInterface[], title: string }
 ) {
     return (
         <div>
             {/* title */}
             <div>
                 <p className="text-center font-bold text-2xl">{title}</p>
-                <p className="break-all font-mono text-xs text-center">
-                    since <span className="font-bold">{date}</span>, total tokens: <span className="font-bold">{totalToken}</span>
-                </p>
             </div>
             {/* chart */}
             <BoxChart data={data} />
@@ -101,17 +98,14 @@ function ComponentsChartSharing(
 }
 
 function ComponentsChartTransaction(
-    { data, title, totalToken, date }:
-        { data: ChartDataInterface[], title: string, totalToken: number, date: string }
+    { data, title }:
+        { data: ChartDataInterface[], title: string }
 ) {
     return (
         <div>
             {/* title */}
             <div>
                 <p className="text-center font-bold text-2xl">{title}</p>
-                <p className="break-all font-mono text-xs text-center">
-                    since <span className="font-bold">{date}</span>, total tokens: <span className="font-bold">{totalToken}</span>
-                </p>
             </div>
             {/* chart */}
             <ChartTransactionsAssets data={data} />
@@ -120,17 +114,14 @@ function ComponentsChartTransaction(
 }
 
 function ComponentsChartDevident(
-    { data, title, totalToken, date }:
-        { data: DividentChartDataInterface[], title: string, totalToken: number, date: string }
+    { data, title }:
+        { data: DividentChartDataInterface[], title: string }
 ) {
     return (
         <div>
             {/* title */}
             <div>
                 <p className="text-center font-bold text-2xl">{title}</p>
-                <p className="break-all font-mono text-xs text-center">
-                    since <span className="font-bold">{date}</span>, total tokens: <span className="font-bold">{totalToken}</span>
-                </p>
             </div>
             {/* chart */}
             <ChartDevidentsAssets data={data} />
@@ -250,22 +241,17 @@ export function MarketPlaceAssetStatistics({ asset_id }: { asset_id: string }) {
                 </div>
             </div>
             {option === Options.ownership && <ComponentsChartSharing
-                title={"OwnerShip Sharing"}
+                title={"OwnerShip Sharing %"}
                 data={ownershipData ?? []}
-                date="OwnerShips"
-                totalToken={120}
             />}
             {option === Options.transactions && <ComponentsChartTransaction
-                title={"Assets Transctions"}
+                title={"Token Assets Transctions (Sell | Buy)"}
                 data={assetTransactionsData ?? []}
-                date="12/12/2025"
-                totalToken={120}
             />}
             {option === Options.devident && <ComponentsChartDevident
-                title={"Devident History"}
+                title={"Devident History (USD)"}
                 data={assetDevidenData ?? []}
-                date="12/12/2025"
-                totalToken={120} />}
+            />}
         </div>
     )
 }

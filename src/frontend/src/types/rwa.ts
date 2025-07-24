@@ -16,6 +16,31 @@ export interface Asset {
   metadata: Array<[string, string]>;
 }
 
+export interface Proposal {
+  id: string;
+  votersDetails: Array<[Principal, number, boolean]>;
+  isApproved: boolean;
+  assetId: string;
+  createdAt: bigint;
+  assetName: [] | [string];
+  canConfirm: boolean;
+  pricePerToken: bigint;
+  currentApprovalPercentage: number;
+  totalPrice: bigint;
+  amount: bigint;
+}
+
+export interface VotableProposal {
+  id: string;
+  assetId: string;
+  createdAt: bigint;
+  buyer: Principal;
+  pricePerToken: bigint;
+  totalPrice: bigint;
+  amount: bigint;
+}
+
+
 export interface Ownership {
   assetId: string;
   owner: Principal;

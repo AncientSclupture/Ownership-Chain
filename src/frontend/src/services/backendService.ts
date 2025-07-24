@@ -1,5 +1,5 @@
 import { backend } from "../../../declarations/backend";
-import { Asset, AssetType, GetUserProfileResult, Ownership, PlatformStats, Result, Transaction, UserProfile } from "../types/rwa";
+import { Asset, AssetType, GetUserProfileResult, Ownership, PlatformStats, Proposal, Result, Transaction, UserProfile, VotableProposal } from "../types/rwa";
 import { Principal } from '@dfinity/principal';
 
 
@@ -101,19 +101,19 @@ export const backendService = {
   },
 
   /**
-   * Purchases tokens for fractional ownership
+   * Propose to buy tokens for fractional ownership
    * @param assetId Asset ID to buy tokens for
    * @param amount Number of tokens to buy
    * @param pricePerToken Price per token
    * @returns Promise with transaction ID or error message
    */
-  async buyTokens(
+  async proposeToBuy(
     assetId: string,
     amount: number,
     pricePerToken: number
   ): Promise<Result<string, string>> {
     try {
-      return await backend.buyTokens(
+      return await backend.proposeBuyTokens(
         assetId,
         BigInt(amount),
         BigInt(pricePerToken)
@@ -193,4 +193,83 @@ export const backendService = {
     }
   },
 
+
+  /**
+  * Retrieves all proposals created by the current user.
+  * 
+  * Each proposal contains information about a token purchase request for a specific asset,
+  * including the voting details from other asset holders, approval status, and pricing.
+  * 
+  * @returns Promise resolving to an array of user's proposals with the following structure:
+  * - id: Unique identifier of the proposal
+  * - votersDetails: Array of tuples [Principal, number, boolean] representing voter's identity,
+  *   their ownership percentage, and whether they approved the proposal
+  * - isApproved: Indicates whether the proposal has been approved (based on >50% votes)
+  * - assetId: ID of the asset related to the proposal
+  * - createdAt: Timestamp of when the proposal was created (as bigint)
+  * - assetName: Optional name of the asset ([string] or empty [])
+  * - canConfirm: Whether the user is allowed to finalize the proposal
+  * - pricePerToken: Price per token in smallest unit (e.g., e8s for ICP)
+  * - currentApprovalPercentage: Current total approval percentage from voters
+  * - totalPrice: Total price proposed for the token purchase
+  * - amount: Total number of tokens proposed to be purchased
+  */
+  async getMyProposals(): Promise<Proposal[]> {
+    try {
+      const result = await backend.getMyProposals();
+      return result;
+    } catch (error) {
+      console.error('Error fetching proposals:', error);
+      return [];
+    }
+  },
+
+  /**
+  * Retrieves all proposals that the current user is eligible to vote on.
+  * 
+  * @returns Promise resolving to an array of votable proposals
+  */
+  async getVotableProposals(): Promise<VotableProposal[]> {
+    try {
+      const result = await backend.getVotableProposals();
+      return result;
+    } catch (error) {
+      console.error("Error fetching votable proposals:", error);
+      return [];
+    }
+  },
+
+ /**
+ * Approves a buy token proposal with the given proposal ID.
+ * @param proposalId - The ID of the proposal to approve
+ * @returns Promise resolving to either:
+ *   - { ok: string } on success with a message
+ *   - { err: string } on failure with an error description
+ */
+  async approveBuyProposal(proposalId: string): Promise<Result<string, string>> {
+    try {
+      const result = await backend.approveBuyProposal(proposalId);
+      return result;
+    } catch (error) {
+      console.error("Error approving proposal:", error);
+      return { err: "Failed to approve proposal due to unexpected error." };
+    }
+  },
+
+  /**
+ * Confirmation a buy token proposal with the given proposal ID.
+ * @param proposalId - The ID of the proposal to approve
+ * @returns Promise resolving to either:
+ *   - { ok: string } on success with a message
+ *   - { err: string } on failure with an error description
+ */
+  async confirmBuyProposal(proposalId: string): Promise<Result<string, string>> {
+    try {
+      const result = await backend.confirmBuyProposal(proposalId);
+      return result;
+    } catch (error) {
+      console.error("Error approving proposal:", error);
+      return { err: "Failed to approve proposal due to unexpected error." };
+    }
+  }
 };

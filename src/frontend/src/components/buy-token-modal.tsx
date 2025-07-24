@@ -1,4 +1,5 @@
 import React from "react";
+import { backendService } from "../services/backendService";
 
 export function BuyTokenModal({
     openModal,
@@ -18,6 +19,19 @@ export function BuyTokenModal({
         setTokenPrice(0);
         setTokenValue(0);
         setOpenModal(false);
+    }
+
+    const handlePurchase = async () => {
+        const proposeResp = await backendService.proposeToBuy(asset_id, tokenValue, tokenValue);
+
+        if ("ok" in proposeResp) {
+            alert("Proposal has been created successfully! ID: " + proposeResp.ok);
+            setOpenModal(false);
+        } else {
+            alert("Failed to create asset: " + proposeResp.err);
+        }
+        setTokenPrice(0);
+        setTokenValue(0);
     }
 
     return (
@@ -81,9 +95,10 @@ export function BuyTokenModal({
                     {/* Action */}
                     <div className="mt-6">
                         <button
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition-colors"
+                            onClick={handlePurchase}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition-colors cursor-pointer"
                         >
-                            Proceed to Wallet
+                            Proposed to Buy
                         </button>
                     </div>
                 </div>

@@ -505,57 +505,415 @@ actor {
         #ok(assetId);
     };
 
-    // FRACTIONAL OWNERSHIP
-    public shared (msg) func buyTokens(
+    // FRACTIONAL OWNERSHIP DATA [SPECIFIC PROB]
+    public type BuyProposal = {
+        id : Text;
+        assetId : Text;
+        buyer : Principal;
+        amount : Nat;
+        pricePerToken : Nat;
+        totalPrice : Nat;
+        approvals : HashMap.HashMap<Principal, Bool>;
+        createdAt : Int;
+    };
+
+    private var buyProposals = HashMap.HashMap<Text, BuyProposal>(100, Text.equal, Text.hash);
+
+    // FRACTIONAL OWNERSHIP WITH VOTING SYSTEM
+    // Proposal first with voting based on ownership percentage
+    public shared (msg) func proposeBuyTokens(
         assetId : Text,
         amount : Nat,
         pricePerToken : Nat,
     ) : async Result.Result<Text, Text> {
-        let caller : Principal = msg.caller;
+        let caller = msg.caller;
 
         await ensureUserProfile(caller);
 
         switch (assets.get(assetId)) {
-            case null { #err("Asset not found") };
+            case null { return #err("Asset not found") };
             case (?asset) {
-                if (asset.status != #Active) {
-                    return #err("Asset is not available for trading");
-                };
+                if (asset.status != #Active) return #err("Asset not active");
 
                 let availableTokens = await getAvailableTokens(assetId);
-                if (availableTokens < amount) {
-                    return #err("Not enough tokens available for sale");
+                if (availableTokens < amount) return #err("Not enough tokens available");
+
+                // Check if caller is already an owner (owners cannot buy more through voting)
+                switch (ownerships.get(assetId)) {
+                    case null { return #err("No ownership data found") };
+                    case (?ownershipMap) {
+                        switch (ownershipMap.get(caller)) {
+                            case (?_) {
+                                return #err("Existing owners cannot buy more tokens through voting system. Use direct transfer instead.");
+                            };
+                            case null {
+                                // Non-owner can proceed with proposal
+                                let proposalId = generateTransactionId();
+                                let newApprovals = HashMap.HashMap<Principal, Bool>(10, Principal.equal, Principal.hash);
+
+                                let proposal : BuyProposal = {
+                                    id = proposalId;
+                                    assetId = assetId;
+                                    buyer = caller;
+                                    amount = amount;
+                                    pricePerToken = pricePerToken;
+                                    totalPrice = amount * pricePerToken;
+                                    approvals = newApprovals;
+                                    createdAt = Time.now();
+                                };
+
+                                buyProposals.put(proposalId, proposal);
+                                return #ok("Proposal created with ID: " # proposalId # ". Current owners need to vote for approval.");
+                            };
+                        };
+                    };
                 };
-
-                if (asset.status != #Active) {
-                    return #err("Asset is not available for trading");
-                };
-
-                let totalPrice = amount * pricePerToken;
-                let transactionId = generateTransactionId();
-
-                let transaction : Transaction = {
-                    id = transactionId;
-                    assetId = assetId;
-                    from = asset.owner;
-                    to = caller;
-                    amount = amount;
-                    pricePerToken = pricePerToken;
-                    totalPrice = totalPrice;
-                    transactionType = #Buy;
-                    timestamp = Time.now();
-                    status = #Completed;
-                };
-
-                transactions.put(transactionId, transaction);
-
-                await updateOwnership(assetId, caller, amount, pricePerToken);
-
-                await updateUserProfileStats(caller);
-
-                #ok(transactionId);
             };
         };
+    };
+
+    public shared (msg) func approveBuyProposal(proposalId : Text) : async Result.Result<Text, Text> {
+        let caller = msg.caller;
+
+        switch (buyProposals.get(proposalId)) {
+            case null { return #err("Proposal not found") };
+            case (?proposal) {
+                if (proposal.buyer == caller) {
+                    return #err("Buyer cannot vote on their own proposal");
+                };
+
+                switch (ownerships.get(proposal.assetId)) {
+                    case null {
+                        return #err("No ownership data for this asset");
+                    };
+                    case (?ownershipMap) {
+                        // Check if caller is an owner of this asset
+                        switch (ownershipMap.get(caller)) {
+                            case null {
+                                return #err("You are not an owner of this asset and cannot vote");
+                            };
+                            case (?ownerOwnership) {
+                                // Check if already voted
+                                switch (proposal.approvals.get(caller)) {
+                                    case (?true) {
+                                        return #err("You have already approved this proposal");
+                                    };
+                                    case _ {
+                                        // Record the approval by modifying the existing HashMap
+                                        proposal.approvals.put(caller, true);
+
+                                        // Calculate total approval percentage
+                                        var totalApprovalPercentage = 0.0;
+                                        for ((voter, agreed) in proposal.approvals.entries()) {
+                                            if (agreed) {
+                                                switch (ownershipMap.get(voter)) {
+                                                    case (?voterOwnership) {
+                                                        totalApprovalPercentage += voterOwnership.percentage;
+                                                    };
+                                                    case null {
+                                                        // This shouldn't happen, but handle gracefully
+                                                    };
+                                                };
+                                            };
+                                        };
+
+                                        if (totalApprovalPercentage >= 50.0) {
+                                            return #ok("Proposal approved! Total approval: " # Float.toText(totalApprovalPercentage) # "%. Buyer can now confirm the purchase.");
+                                        } else {
+                                            return #ok("Vote recorded. Your ownership: " # Float.toText(ownerOwnership.percentage) # "%. Total approval: " # Float.toText(totalApprovalPercentage) # "% (need 50%+)");
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+
+    public shared (msg) func confirmBuyProposal(proposalId : Text) : async Result.Result<Text, Text> {
+        let caller = msg.caller;
+
+        switch (buyProposals.get(proposalId)) {
+            case null { return #err("Proposal not found") };
+            case (?proposal) {
+                if (proposal.buyer != caller) {
+                    return #err("Only the buyer can confirm this proposal");
+                };
+
+                switch (ownerships.get(proposal.assetId)) {
+                    case null {
+                        return #err("No ownership data found for this asset");
+                    };
+                    case (?ownershipMap) {
+                        // Recalculate total approval percentage to ensure it's still valid
+                        var totalApprovalPercentage = 0.0;
+                        for ((voter, agreed) in proposal.approvals.entries()) {
+                            if (agreed) {
+                                switch (ownershipMap.get(voter)) {
+                                    case (?voterOwnership) {
+                                        totalApprovalPercentage += voterOwnership.percentage;
+                                    };
+                                    case null {
+                                        // Voter is no longer an owner, skip
+                                    };
+                                };
+                            };
+                        };
+
+                        if (totalApprovalPercentage < 50.0) {
+                            return #err("Proposal no longer has sufficient approval (" # Float.toText(totalApprovalPercentage) # "%). Need 50%+");
+                        };
+
+                        // Check if there are still enough tokens available
+                        let availableTokens = await getAvailableTokens(proposal.assetId);
+                        if (availableTokens < proposal.amount) {
+                            buyProposals.delete(proposalId);
+                            return #err("Not enough tokens available anymore");
+                        };
+
+                        // Execute the purchase
+                        await updateOwnership(proposal.assetId, caller, proposal.amount, proposal.pricePerToken);
+
+                        // Create transaction record
+                        let transactionId = generateTransactionId();
+                        let transaction : Transaction = {
+                            id = transactionId;
+                            assetId = proposal.assetId;
+                            from = Principal.fromText("2vxsx-fae"); // System/platform principal for new purchases
+                            to = caller;
+                            amount = proposal.amount;
+                            pricePerToken = proposal.pricePerToken;
+                            totalPrice = proposal.totalPrice;
+                            transactionType = #Buy;
+                            timestamp = Time.now();
+                            status = #Completed;
+                        };
+                        transactions.put(transactionId, transaction);
+
+                        await updateUserProfileStats(caller);
+
+                        // Clean up the proposal
+                        buyProposals.delete(proposalId);
+
+                        return #ok("Token purchase completed successfully! Bought " # Nat.toText(proposal.amount) # " tokens at " # Nat.toText(proposal.pricePerToken) # " per token. Total: " # Nat.toText(proposal.totalPrice));
+                    };
+                };
+            };
+        };
+    };
+
+    // Helper function to get current approval status of a proposal
+    public query func getProposalStatus(proposalId : Text) : async ?{
+        proposal : {
+            id : Text;
+            assetId : Text;
+            buyer : Principal;
+            amount : Nat;
+            pricePerToken : Nat;
+            totalPrice : Nat;
+            createdAt : Int;
+        };
+        currentApprovalPercentage : Float;
+        approvalDetails : [(Principal, Float, Bool)]; // (voter, ownership%, voted)
+        isApproved : Bool;
+    } {
+        switch (buyProposals.get(proposalId)) {
+            case null { null };
+            case (?proposal) {
+                switch (ownerships.get(proposal.assetId)) {
+                    case null { null };
+                    case (?ownershipMap) {
+                        var totalApprovalPercentage = 0.0;
+                        var approvalDetails : [(Principal, Float, Bool)] = [];
+
+                        // Get all owners and their voting status
+                        for ((owner, ownership) in ownershipMap.entries()) {
+                            let hasVoted = switch (proposal.approvals.get(owner)) {
+                                case (?voted) { voted };
+                                case null { false };
+                            };
+
+                            if (hasVoted) {
+                                totalApprovalPercentage += ownership.percentage;
+                            };
+
+                            approvalDetails := Array.append(
+                                approvalDetails,
+                                [(owner, ownership.percentage, hasVoted)],
+                            );
+                        };
+
+                        ?{
+                            proposal = {
+                                id = proposal.id;
+                                assetId = proposal.assetId;
+                                buyer = proposal.buyer;
+                                amount = proposal.amount;
+                                pricePerToken = proposal.pricePerToken;
+                                totalPrice = proposal.totalPrice;
+                                createdAt = proposal.createdAt;
+                            };
+                            currentApprovalPercentage = totalApprovalPercentage;
+                            approvalDetails = approvalDetails;
+                            isApproved = totalApprovalPercentage >= 50.0;
+                        };
+                    };
+                };
+            };
+        };
+    };
+
+    // Function to get all active proposals for an asset
+    public query func getAssetProposals(assetId : Text) : async [{
+        id : Text;
+        assetId : Text;
+        buyer : Principal;
+        amount : Nat;
+        pricePerToken : Nat;
+        totalPrice : Nat;
+        createdAt : Int;
+    }] {
+        let allProposals = Iter.toArray(buyProposals.vals());
+        let filtered = Array.filter<BuyProposal>(
+            allProposals,
+            func(proposal : BuyProposal) : Bool {
+                proposal.assetId == assetId;
+            },
+        );
+
+        Array.map<BuyProposal, { id : Text; assetId : Text; buyer : Principal; amount : Nat; pricePerToken : Nat; totalPrice : Nat; createdAt : Int }>(filtered, func(proposal : BuyProposal) { { id = proposal.id; assetId = proposal.assetId; buyer = proposal.buyer; amount = proposal.amount; pricePerToken = proposal.pricePerToken; totalPrice = proposal.totalPrice; createdAt = proposal.createdAt } });
+    };
+
+    // Function to get all proposals that a user can vote on
+    public shared (msg) func getVotableProposals() : async [{
+        id : Text;
+        assetId : Text;
+        buyer : Principal;
+        amount : Nat;
+        pricePerToken : Nat;
+        totalPrice : Nat;
+        createdAt : Int;
+    }] {
+        let caller = msg.caller;
+        let allProposals = Iter.toArray(buyProposals.vals());
+
+        let filtered = Array.filter<BuyProposal>(
+            allProposals,
+            func(proposal : BuyProposal) : Bool {
+                // User can vote if they own part of the asset and are not the buyer
+                if (proposal.buyer == caller) return false;
+
+                switch (ownerships.get(proposal.assetId)) {
+                    case null { false };
+                    case (?ownershipMap) {
+                        switch (ownershipMap.get(caller)) {
+                            case null { false };
+                            case (?_) { true };
+                        };
+                    };
+                };
+            },
+        );
+
+        Array.map<BuyProposal, { id : Text; assetId : Text; buyer : Principal; amount : Nat; pricePerToken : Nat; totalPrice : Nat; createdAt : Int }>(filtered, func(proposal : BuyProposal) { { id = proposal.id; assetId = proposal.assetId; buyer = proposal.buyer; amount = proposal.amount; pricePerToken = proposal.pricePerToken; totalPrice = proposal.totalPrice; createdAt = proposal.createdAt } });
+    };
+
+    // Function for buyer to check their own proposals status
+    public shared (msg) func getMyProposals() : async [{
+        id : Text;
+        assetId : Text;
+        assetName : ?Text;
+        amount : Nat;
+        pricePerToken : Nat;
+        totalPrice : Nat;
+        createdAt : Int;
+        currentApprovalPercentage : Float;
+        isApproved : Bool;
+        canConfirm : Bool;
+        votersDetails : [(Principal, Float, Bool)]; // (voter principal, ownership%, hasVoted)
+    }] {
+        let caller = msg.caller;
+        let allProposals = Iter.toArray(buyProposals.vals());
+
+        // Filter proposals that belong to the caller
+        let myProposals = Array.filter<BuyProposal>(
+            allProposals,
+            func(proposal : BuyProposal) : Bool {
+                proposal.buyer == caller;
+            },
+        );
+
+        // Map each proposal to include status information
+        var result : [{
+            id : Text;
+            assetId : Text;
+            assetName : ?Text;
+            amount : Nat;
+            pricePerToken : Nat;
+            totalPrice : Nat;
+            createdAt : Int;
+            currentApprovalPercentage : Float;
+            isApproved : Bool;
+            canConfirm : Bool;
+            votersDetails : [(Principal, Float, Bool)];
+        }] = [];
+
+        for (proposal in myProposals.vals()) {
+            // Get asset name
+            let assetName = switch (assets.get(proposal.assetId)) {
+                case (?asset) { ?asset.name };
+                case null { null };
+            };
+
+            // Calculate approval status
+            var currentApprovalPercentage = 0.0;
+            var votersDetails : [(Principal, Float, Bool)] = [];
+
+            switch (ownerships.get(proposal.assetId)) {
+                case null {};
+                case (?ownershipMap) {
+                    // Get all owners and their voting status
+                    for ((owner, ownership) in ownershipMap.entries()) {
+                        let hasVoted = switch (proposal.approvals.get(owner)) {
+                            case (?voted) { voted };
+                            case null { false };
+                        };
+
+                        if (hasVoted) {
+                            currentApprovalPercentage += ownership.percentage;
+                        };
+
+                        votersDetails := Array.append(
+                            votersDetails,
+                            [(owner, ownership.percentage, hasVoted)],
+                        );
+                    };
+                };
+            };
+
+            let isApproved = currentApprovalPercentage >= 50.0;
+            let canConfirm = isApproved;
+
+            let proposalStatus = {
+                id = proposal.id;
+                assetId = proposal.assetId;
+                assetName = assetName;
+                amount = proposal.amount;
+                pricePerToken = proposal.pricePerToken;
+                totalPrice = proposal.totalPrice;
+                createdAt = proposal.createdAt;
+                currentApprovalPercentage = currentApprovalPercentage;
+                isApproved = isApproved;
+                canConfirm = canConfirm;
+                votersDetails = votersDetails;
+            };
+
+            result := Array.append(result, [proposalStatus]);
+        };
+
+        result;
     };
 
     // DIVIDEND DISTRIBUTION
