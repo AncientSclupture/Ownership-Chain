@@ -928,7 +928,7 @@ actor {
             case (?asset) {
                 // unauthorized account
                 if (asset.owner != caller) {
-                    return #err("Only asset owner can distribute dividends");
+                    return #err("You are not the asset original owner");
                 };
                 switch (ownerships.get(assetId)) {
                     case null { #err("No ownership data found") };
