@@ -116,3 +116,7 @@ export type TransactionStatus =
   | { Cancelled: null };
 
 export type Result<T, E> = { ok: T } | { err: E };
+
+export type Result_2 =
+  | { ok: bigint }
+  | { err: string };

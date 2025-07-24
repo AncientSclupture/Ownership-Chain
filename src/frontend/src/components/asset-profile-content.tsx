@@ -34,7 +34,6 @@ export function DistributeDividendModal({
 
     const handleCancle = () => {
         setDevidenValue(0);
-        alert("closed");
         setOpenModal(false);
     }
 
@@ -58,7 +57,7 @@ export function DistributeDividendModal({
                 <div className="bg-white w-[90vw] max-w-xl p-8 rounded-2xl shadow-2xl border border-gray-200 animate-fadeIn">
                     {/* Header */}
                     <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-bold text-gray-800">Distribute Assets Dividen</h2>
+                        <h2 className="text-xl text-gray-800">Distribute Assets <span className="font-bold">{asset_id}</span> Dividen</h2>
                         <button
                             onClick={handleCancle}
                             className="text-sm text-red-500 font-semibold hover:underline cursor-pointer"
@@ -106,12 +105,11 @@ export function DistributeDividendModal({
     )
 }
 
-function SimpleAssetCard({ data }: { data: UserAssetInterface }) {
-    const [openModalDividend, setOpenModalDividend] = React.useState(false);
-
+function SimpleAssetCard({ data, setOpenModalDividend, setSelectedAssetId }: { data: UserAssetInterface, setOpenModalDividend: (d: boolean) => void, setSelectedAssetId: (d: string) => void }) {
     const handleOpenModal = () => {
         if (data.isOwner) {
             setOpenModalDividend(true);
+            setSelectedAssetId(data.assetId);
         } else {
             setOpenModalDividend(false);
         }
@@ -125,15 +123,13 @@ function SimpleAssetCard({ data }: { data: UserAssetInterface }) {
                 <p className="text-sm">Tokenowned: <span className="font-bold">{data.assetToken}</span></p>
                 <p className="text-sm font-mono">{data.assetStatus}</p>
             </div>
-            <DistributeDividendModal openModal={openModalDividend} setOpenModal={setOpenModalDividend} asset_id={data.assetId} />
         </div>
     );
 }
 
-export function ShowingMyAssets() {
+export function ShowingMyAssets({ setOpenModalDividend, setSelectedAssetId }: { setOpenModalDividend: (d: boolean) => void, setSelectedAssetId: (d: string) => void, }) {
     const [assetUser, setAssetuser] = React.useState<UserAssetInterface[] | null>(null);
     const [loadAssets, setLoadAssets] = React.useState(true);
-
 
     React.useEffect(() => {
         const callData = async () => {
@@ -177,7 +173,7 @@ export function ShowingMyAssets() {
         <div className="w-full p-5 flex justify-center items-center">
             <div className="w-full flex flex-wrap gap-2 overflow-y-auto">
                 {assetUser?.map((d, idx) =>
-                    <SimpleAssetCard key={idx} data={d} />
+                    <SimpleAssetCard key={idx} data={d} setOpenModalDividend={setOpenModalDividend} setSelectedAssetId={setSelectedAssetId} />
                 )}
             </div>
         </div>

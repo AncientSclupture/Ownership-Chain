@@ -6,13 +6,17 @@ import { CreateAssetsModal } from "../components/create-assets-modal";
 
 import { backendService } from "../services/backendService";
 import { GetUserProfileResult } from "../types/rwa";
-import { AssetVote, ShowingMyAssets, ShowingMyTransactions } from "../components/asset-profile-content";
+import { AssetVote, DistributeDividendModal, ShowingMyAssets, ShowingMyTransactions } from "../components/asset-profile-content";
 
 function Assets() {
   const [load, setLoad] = React.useState(true);
   const [selectedType, setSelectedType] = React.useState<UserOptionsType>(UserOptionsType.MyAssets);
   const [data, setData] = React.useState<GetUserProfileResult | null>(null)
   const [openModal, setOpenModal] = React.useState(false);
+
+  // force the modal structure
+  const [openModalDividend, setOpenModalDividend] = React.useState(false);
+  const [selectedAssetId, setSelectedAssetId] = React.useState("");
 
 
   React.useEffect(() => {
@@ -40,7 +44,7 @@ function Assets() {
           <div className="w-full shadow-lg h-screen md:h-[80vh] hide-scrollbar border border-gray-300 rounded-lg p-2 md:order-1 overflow-y-auto">
             {/* Content based on selectedType */}
             <div className="text-center text-lg text-gray-600">
-              {selectedType === UserOptionsType.MyAssets && <ShowingMyAssets />}
+              {selectedType === UserOptionsType.MyAssets && <ShowingMyAssets setOpenModalDividend={setOpenModalDividend} setSelectedAssetId={setSelectedAssetId} />}
               {selectedType === UserOptionsType.Transactions && <ShowingMyTransactions />}
               {selectedType === UserOptionsType.Vote && <AssetVote />}
             </div>
@@ -49,6 +53,7 @@ function Assets() {
         </div>
       </div>
       <CreateAssetsModal openModal={openModal} setOpenModal={setOpenModal} />
+      <DistributeDividendModal openModal={openModalDividend} setOpenModal={setOpenModalDividend} asset_id={selectedAssetId} />
     </ActivityLayout>
   );
 }
