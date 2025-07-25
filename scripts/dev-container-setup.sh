@@ -1,7 +1,17 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Setting up ICP Vibe Coding development environment..."
+echo "🚀 Setting up Coding development environment..."
+
+# Install motoko
+sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+
+# Install node 
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+\. "$HOME/.nvm/nvm.sh"
+nvm install 22
+node -v 
+npm -v
 
 # Install npm dependencies
 echo "📦 Installing npm dependencies..."

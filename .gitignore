@@ -22,3 +22,5 @@ dist/
 .env
 
 notes/*
+
+history.log

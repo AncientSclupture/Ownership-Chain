@@ -51,6 +51,38 @@ You can see here the full recording: [yt link]
 ## 🚀 Getting Started
 
 ### 1. Pre Requirements
+1. Download and install motoko locally:
+**`Installing the motoko`**
+```bash
+sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+```
+
+2. Verification
+```bash
+dfx --version
+```
+
+**`Installing the node js`**
+1. Download and install nvm:
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+```
+2. in lieu of restarting the shell
+```bash
+\. "$HOME/.nvm/nvm.sh"
+```
+
+3. Download and install Node.js:
+```bash
+nvm install 22
+```
+
+4. Verivication
+```bash
+node -v # Should print your node version
+nvm current # Should print "v22.17.1".
+npm -v # Should print your npm version.
+```
 
 ### 2. Install Dependencies and Agent AI
 
@@ -104,10 +136,26 @@ npm start
 
 after that go and view the frontend in port 5173 **(vite port)**
 
+**For Simplification Just Run (this file run all that process)**:
+```bash
+# grant permission for bash file
+chmod +x ./scripts/dev-container-setup.sh 
+
+# run the scripts
+./scripts/dev-container-setup.sh 
+```
+
 ### 6. Run Tests
 
 ```bash
 npm test
+```
+
+### 7. Granted setup Helper and simulation helper
+```bash
+chmod +x ./scripts/dev-container-setup.sh 
+chmod +x ./scripts/simulate_rwa_by_agent.sh 
+chmod +x ./scripts/simulation_helper.sh 
 ```
 
 ---

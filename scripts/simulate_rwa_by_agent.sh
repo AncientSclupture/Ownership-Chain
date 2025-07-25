@@ -38,8 +38,8 @@ echo
 
 # Membuat identitas
 echo "> creating agent1 and agent2"
-dfx identity new agent1 --force
-dfx identity new agent2 --force
+dfx identity new findway_agent1 --force
+dfx identity new findway_agent2 --force
 
 # Ganti ke agent1
 dfx identity use agent1
