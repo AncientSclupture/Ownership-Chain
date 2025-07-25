@@ -3,6 +3,8 @@
 trap on_abort INT
 on_abort(){
     echo "\n[!] CTRL+C pressed. Exiting script."
+    echo "using dev back identity";
+    dfx identity use findway_dev;
     exit 1
 }
 
@@ -91,12 +93,19 @@ call_exit_command() {
 }
 
 show_findway_identity() {
-    dfx identity list | grep '^findway_agent'
+    dfx identity list | grep '^findway_'
 }
 
 
 use_findway_identity() {
-    dfx identity list;
+    read -p "Identity name: " dfx_identity
+    dfx identity use "$dfx_identity"
+}
+
+create_findway_identity(){
+    read -p "Identity name: " dfx_identity    
+    dfx identity new findway_agent_"$dfx_identity"
+    dfx identity use findway_agent_"$dfx_identity"
 }
 
 call_show_menu(){
@@ -107,7 +116,7 @@ call_show_menu(){
     echo "10) getPlatformStats\t11) getProfiles\t\t12) getUserAssets"
     echo "13) getUserProfilebyId\t14) getUserTransactions\t15) getVotableProposals"
     echo "16) proposeBuyTokens\t17) show more identity\t18) use identity"
-    echo "19) "
+    echo "19) createFindWayIdentity"
     echo "0) call the menu"
     echo "exit) for exit"
 }
@@ -138,9 +147,8 @@ while true; do
         16) proposeBuyTokens ;;
 
         17) show_findway_identity ;;
-        18) proposeBuyTokens ;;
-        19) proposeBuyTokens ;;
-
+        18) use_findway_identity ;;
+        19) create_findway_identity ;;
 
         0) call_show_menu ;;
         "exit") call_exit_command ;;

@@ -36,13 +36,22 @@ echo "> agent1 buy token from random agent2 assets!"
 echo "> agent2 buy token from random agent1 assets!"
 echo
 
-# Membuat identitas
-echo "> creating agent1 and agent2"
-dfx identity new findway_agent1 --force
-dfx identity new findway_agent2 --force
+create_identity_if_not_exists() {
+    local identity_name="$1"
+    if dfx identity list | grep -q "^$identity_name$"; then
+        echo "> Identity '$identity_name' already exists."
+    else
+        echo "> Creating identity '$identity_name'..."
+        dfx identity new "$identity_name"
+    fi
+}
+
+echo "> Checking and creating identities if needed..."
+create_identity_if_not_exists "findway_agent1"
+create_identity_if_not_exists "findway_agent2"
 
 # Ganti ke agent1
-dfx identity use agent1
+dfx identity use findway_agent1
 
 echo "> agent1 creating 3 property assets"
 for i in {1..3}; do
@@ -63,7 +72,7 @@ echo "> agent1 creating 1 other asset"
 create_asset "agent1 rare collectible" "Other" "Barang Langka" $((1*1200)) 100 null "" ""
 
 # Ganti ke agent2
-dfx identity use agent2
+dfx identity use findway_agent2
 
 echo "> agent2 creating 5 artwork assets"
 for i in {1..5}; do

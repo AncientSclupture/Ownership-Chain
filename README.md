@@ -211,7 +211,7 @@ chmod +x ./scripts/dev-container-setup.sh
 ### 6. Granted setup Helper and simulation helper
 ```bash
 chmod +x ./scripts/dev-container-setup.sh 
-chmod +x ./scripts/simulate_rwa_by_agent.sh 
+chmod +x ./scripts/simulation_agent_create_assets.sh 
 chmod +x ./scripts/simulation_helper.sh 
 ```
 

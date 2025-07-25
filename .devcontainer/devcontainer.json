@@ -39,11 +39,7 @@
         "editor.quickSuggestions": {
           "strings": "on"
         },
-        "settingsSync.ignoredExtensions": ["*"],
-        "settingsSync.ignoredSettings": [
-          "github.copilot.chat.codeGeneration.instructions",
-          "github.copilot.chat.testGeneration.instructions"
-        ]
+        "settingsSync.ignoredExtensions": ["*"]
       },
       "codespaces": {
         "repositories": {
