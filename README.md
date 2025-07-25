@@ -4,6 +4,8 @@
 
 ### Problem 
 
+
+
 ### Target Solution
 The problem is addressed through tokenization of real-world assets using Internet Computer Protocol (ICP) technology. This solution aims to:
 
@@ -17,9 +19,69 @@ The problem is addressed through tokenization of real-world assets using Interne
 
 With this approach, assets like properties, businesses, or artworks can be managed in a modern, secure, and inclusive way, both locally and globally.
 
-## Feature
 
-This repository offers a high-quality, production-ready template to jumpstart your Internet Computer (ICP) development.
+## Features
+
+This Web3 application is designed to tokenize and manage real-world assets using the Internet Computer Protocol (ICP). It provides an end-to-end decentralized system for asset registration, fractional ownership, marketplace trading, and transparent ownership history.
+
+### 🔐 Secure Ownership & Asset Management
+
+* Assets (e.g. properties, businesses, artworks) are registered and stored securely on-chain via the `createAsset` function.
+* Each asset is uniquely identified and linked to an owner (principal) with a record of ownership shares.
+
+### 📈 Dashboard Overview (`/`)
+
+* Displays a **summary of all tokenized assets**.
+* Shows metrics such as number of assets, total ownership shares, and potential earnings from dividends.
+
+### 🧾 Personal Asset View (`/assets`)
+
+* Lists all assets owned by the logged-in user, including:
+
+  * Status of buy/sell proposals.
+  * Vote on existing proposals (if already a shareholder).
+  * Dividend payout history.
+* Connected to the backend via `getUserAssets`, `getUserProfile`, and `getDividendHistory`.
+
+### 🏪 Marketplace (`/marketplace`)
+
+* Browse available assets for sale or fractional purchase.
+* Enables tokenized **buying of ownership shares** via `buyTokens`, pending voting approval.
+* Real-time updates of proposals using `getBuyProposals` and `approveBuyProposal`.
+
+### 🔍 Marketplace Asset Detail (`/marketplace/:id`)
+
+* Shows **detailed information** for a selected asset:
+  * Ownership share percentage breakdown.
+  * Dividend distribution history via `getDividendHistory`.
+  * Active and past buy proposals via `getBuyProposals` & `getProposalStatus`.
+* Allows user to:
+
+  * Submit buy proposals (`createBuyProposal`).
+  * View transaction history and ownership timeline (`getAssetHistory`).
+
+### 📊 Proposal Voting & Governance
+
+* Every transaction involving share transfer must go through a decentralized approval process:
+
+  * Token purchase requests are subject to **voting by existing shareholders** (≥50% approval required).
+  * The `approveBuyProposal` function supports secure multi-party governance.
+
+### 🤝 Dividend & Revenue Sharing
+
+* Enables asset owners to **distribute dividends** to shareholders.
+* Shareholders can track and claim their dividends securely on-chain.
+
+### 🔄 Full ICP Integration
+
+* Built using Internet Computer (ICP) smart contracts (canisters).
+* Assets and ownership data are immutable, transparent, and cryptographically secure.
+
+### Future Development
+
+* I propose an `historical summary of the assets owner` using llm, because of the limited time provided to me. I only inject the llm inside the web3, but not using it.
+This Fututure development will help user to see the asset credibelity transparently, so the user can decided whether to buy or sell or cancle to buy the assets.
+* I propose the further kyc too, with implementation of using wallet sign-in so the feature before `historical summary of the assets owner`, will be approved and work well.
 
 We Use:
 
@@ -42,7 +104,6 @@ We Use:
 ---
 
 ## 🎥 Recording
-
 
 You can see here the full recording: [yt link]
 
@@ -145,13 +206,7 @@ chmod +x ./scripts/dev-container-setup.sh
 ./scripts/dev-container-setup.sh 
 ```
 
-### 6. Run Tests
-
-```bash
-npm test
-```
-
-### 7. Granted setup Helper and simulation helper
+### 6. Granted setup Helper and simulation helper
 ```bash
 chmod +x ./scripts/dev-container-setup.sh 
 chmod +x ./scripts/simulate_rwa_by_agent.sh 
@@ -199,6 +254,12 @@ Ownership-Chain/
 
 ## 🔄 CI/CD Workflow And Testing
 
+### Run Tests
+
+```bash
+npm test
+```
+
 ---
 
 
@@ -212,6 +273,8 @@ Ownership-Chain/
 ---
 
 ## 🤝 **Teams**
+
+
 
 ---
 
