@@ -42,7 +42,7 @@ jobs:
 
       - name: Install dfx
         run: |
-          dfx start --background
+          dfx start --clean --background
 
       - name: mops install
         run: |

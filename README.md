@@ -4,7 +4,9 @@
 
 ### Problem 
 
+High-value assets like land, buildings, businesses, and art often face issues such as theft through document fraud, unclear ownership records, and the absence of transparent systems for shared ownership leading to legal disputes and limiting fair, inclusive access to investment and co-ownership.
 
+See This Page For Further Problem Case: https://ancientsclupture.github.io/Ownership-Chain/
 
 ### Target Solution
 The problem is addressed through tokenization of real-world assets using Internet Computer Protocol (ICP) technology. This solution aims to:
@@ -273,7 +275,6 @@ npm test
 ---
 
 ## 🤝 **Teams**
-
 
 
 ---
