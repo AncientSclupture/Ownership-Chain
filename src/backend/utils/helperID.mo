@@ -1,7 +1,7 @@
 import Time "mo:base/Time";
 import Nat "mo:base/Nat";
 import Text "mo:base/Text";
-import DataType "./dataType";
+import DataType "../data/dataType";
 import Int "mo:base/Int";
 
 module {

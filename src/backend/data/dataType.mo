@@ -58,6 +58,7 @@ module {
         downPaymentCashback: Float;
         paymentMaturityTime: Nat;
         allowedOwnerShipInvestorProposal: Bool;
+        details: [Text]
     };
 
     public type Asset = {
@@ -83,7 +84,7 @@ module {
     };
 
     public type Ownership = {
-        assetId : Text;
+        id : Text;
         owner : Principal;
         tokenOwned : Nat;
         percentage : Float;
@@ -156,6 +157,8 @@ module {
         phone: Text;
         country: Text;
         city: Text;
+        tokenHold: Nat;
+        totalAssets: Nat;
 
         userIDNumber: Text;
         userIdentity: IdentityNumberType;
