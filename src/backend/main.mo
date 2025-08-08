@@ -44,12 +44,12 @@ persistent actor {
   );
   private transient var userCounter : Nat = 0;
 
-  //   private transient var buyProposalsStorage = HashMap.HashMap<Text, DataType.BuyProposal>(
-  //     100,
-  //     Text.equal,
-  //     Text.hash,
-  //   );
-  //   private transient var buyProposalsCounter : Nat = 0;
+  private transient var buyProposalsStorage = HashMap.HashMap<Text, DataType.BuyProposal>(
+    100,
+    Text.equal,
+    Text.hash,
+  );
+  private transient var buyProposalsCounter : Nat = 0;
 
   //   private transient var investorProposalsStorage = HashMap.HashMap<Text, DataType.InvestorProposal>(
   //     100,
@@ -213,6 +213,7 @@ persistent actor {
       name = name;
       description = description;
       totalToken = totalToken;
+      tokenLeft = providedToken;
       providedToken = providedToken;
       pendingToken = 0;
       minTokenPurchased = minTokenPurchased;
@@ -258,6 +259,134 @@ persistent actor {
     } else {
       return #err("Failed to update user portofolio.");
     }
+
+  };
+
+  public shared (msg) func proposedBuyToken(
+    assetId : Text,
+    amount : Nat,
+    pricePerToken : Nat,
+  ) : async Result.Result<Text, Text> {
+    let caller : Principal = msg.caller;
+
+    if (not isUserNotBanned(caller)) {
+      return #err("You are not allowed to proposed to buy token asset.");
+    };
+
+    if (amount == 0) {
+      return #err("There is no token you are going to purchased.");
+    };
+
+    switch (Validation.validateExistAssetAndExistToken(
+      caller, 
+      assetId, 
+      assetCounter, 
+      amount, 
+      assetsStorage
+    )) {
+      case (#err(e)) return #err(e);
+      case (#ok(())) {};
+    };
+
+    let now = Time.now();
+
+    buyProposalsCounter += 1;
+    let proposalId = buyProposalsCounter;
+    let newBuyProposalId = HelperId.buyproposalID(proposalId);
+
+    let newApprovals = HashMap.HashMap<Principal, Bool>(10, Principal.equal, Principal.hash);
+
+    switch (assetsStorage.get(assetId)) {
+      case (?existAsset) {
+        switch (existAsset.rule.needDownPayment) {
+          case (true) {
+            let updatedAsset : DataType.Asset = {
+              id = existAsset.id;
+              creator = existAsset.creator;
+              name = existAsset.name;
+              description = existAsset.description;
+              totalToken = existAsset.totalToken;
+              tokenLeft = existAsset.tokenLeft - amount;
+              providedToken = existAsset.providedToken;
+              pendingToken = existAsset.pendingToken + amount;
+              minTokenPurchased = existAsset.minTokenPurchased;
+              maxTokenPurchased = existAsset.maxTokenPurchased;
+              pricePerToken = existAsset.pricePerToken;
+              locationInfo = existAsset.locationInfo;
+              documentHash = existAsset.documentHash;
+              assetType = existAsset.assetType;
+              assetStatus = existAsset.assetStatus;
+              rule = existAsset.rule;
+              riskScore = existAsset.riskScore;
+
+              createdAt = existAsset.createdAt;
+              updatedAt = existAsset.updatedAt;
+            };
+
+            let newProposal : DataType.BuyProposal = {
+              id = newBuyProposalId;
+              assetId = assetId;
+              buyer = caller;
+              amount = amount;
+              pricePerToken = pricePerToken;
+              totalPrice = amount * pricePerToken;
+              approvals = newApprovals;
+              createdAt = now;
+              downPaymentStatus = false;
+              downPaymentTimeStamp = 0;
+            };
+
+            assetsStorage.put(assetId, updatedAsset);
+            buyProposalsStorage.put(newBuyProposalId, newProposal);
+            return #ok("Your proposal is created, don't forget to do down payment as the asset rules.");
+          };
+          case (false) {
+            let updatedAsset : DataType.Asset = {
+              id = existAsset.id;
+              creator = existAsset.creator;
+              name = existAsset.name;
+              description = existAsset.description;
+              totalToken = existAsset.totalToken;
+              tokenLeft = existAsset.tokenLeft - amount;
+              providedToken = existAsset.providedToken;
+              pendingToken = existAsset.pendingToken + amount;
+              minTokenPurchased = existAsset.minTokenPurchased;
+              maxTokenPurchased = existAsset.maxTokenPurchased;
+              pricePerToken = existAsset.pricePerToken;
+              locationInfo = existAsset.locationInfo;
+              documentHash = existAsset.documentHash;
+              assetType = existAsset.assetType;
+              assetStatus = existAsset.assetStatus;
+              rule = existAsset.rule;
+              riskScore = existAsset.riskScore;
+
+              createdAt = existAsset.createdAt;
+              updatedAt = existAsset.updatedAt;
+            };
+
+            let newProposal : DataType.BuyProposal = {
+              id = newBuyProposalId;
+              assetId = assetId;
+              buyer = caller;
+              amount = amount;
+              pricePerToken = pricePerToken;
+              totalPrice = amount * pricePerToken;
+              approvals = newApprovals;
+              createdAt = now;
+              downPaymentStatus = true;
+              downPaymentTimeStamp = now;
+            };
+
+            assetsStorage.put(assetId, updatedAsset);
+            buyProposalsStorage.put(newBuyProposalId, newProposal);
+            return #ok("Your proposal is created, waiting for the voting approval.");
+          };
+        };
+      };
+      case null {
+        return #err("Asset is Not Found");
+      };
+    };
 
   };
 

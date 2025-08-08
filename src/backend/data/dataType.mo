@@ -67,6 +67,7 @@ module {
         name: Text;
         description: Text;
         totalToken: Nat;
+        tokenLeft: Nat;
         providedToken: Nat;
         pendingToken: Nat;
         minTokenPurchased: Nat;
@@ -103,6 +104,8 @@ module {
         totalPrice : Nat;
         approvals : HashMap.HashMap<Principal, Bool>;
         createdAt : Int;
+        downPaymentStatus: Bool;
+        downPaymentTimeStamp: Int;
     };
 
     public type InvestorProposal = {
