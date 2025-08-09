@@ -11,6 +11,7 @@ import Iter "mo:base/Iter";
 import Float "mo:base/Float";
 import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
+import Int "mo:base/Int";
 import Validation "utils/validation";
 
 persistent actor {
@@ -52,12 +53,12 @@ persistent actor {
   );
   private transient var buyProposalsCounter : Nat = 0;
 
-  // private transient var investorProposalsStorage = HashMap.HashMap<Text, DataType.InvestorProposal>(
-  //   100,
-  //   Text.equal,
-  //   Text.hash,
-  // );
-  // private transient var investorProposalsCounter : Nat = 0;
+  private transient var investorProposalsStorage = HashMap.HashMap<Text, DataType.InvestorProposal>(
+    100,
+    Text.equal,
+    Text.hash,
+  );
+  private transient var investorProposalsCounter : Nat = 0;
 
   //   private transient var assetsReport = HashMap.HashMap<Text, TrieMap.TrieMap<Text, DataType.Report>>(
   //     100,
@@ -72,41 +73,6 @@ persistent actor {
   //     Text.hash,
   //   );
   //   private transient var assetsReportActionCounter : Nat = 0;
-
-  private func updateUserProtofolio(
-    user : Principal,
-    addToken : Nat,
-    addAsset : Nat,
-  ) : Bool {
-    switch (usersStorage.get(user)) {
-      case (?existsUser) {
-        let updatedUser : DataType.User = {
-          id = existsUser.id;
-          fullName = existsUser.fullName;
-          lastName = existsUser.lastName;
-          phone = existsUser.phone;
-          country = existsUser.country;
-          city = existsUser.city;
-          //   update proposals
-          tokenHold = addToken + existsUser.tokenHold;
-          totalAssets = addAsset + existsUser.totalAssets;
-
-          userIDNumber = existsUser.userIDNumber;
-          userIdentity = existsUser.userIdentity;
-
-          kyc_level = existsUser.kyc_level;
-          timeStamp = existsUser.timeStamp;
-        };
-
-        usersStorage.put(user, updatedUser);
-
-        return true;
-      };
-      case null {
-        return false;
-      };
-    };
-  };
 
   private func isUserNotBanned(user : Principal) : Bool {
     switch (usersStorage.get(user)) {
@@ -153,8 +119,6 @@ persistent actor {
           phone = phone;
           country = country;
           city = city;
-          tokenHold = 0;
-          totalAssets = 0;
 
           userIDNumber = userIDNumber;
           userIdentity = userIdentity;
@@ -250,20 +214,10 @@ persistent actor {
       maturityDate = 0;
     };
 
-    if (
-      updateUserProtofolio(
-        caller,
-        totalToken - providedToken,
-        1,
-      )
-    ) {
-      assetsStorage.put(newassetId, newAsset);
-      ownershipMap.put(caller, initial_ownership_creator);
-      ownershipsStorage.put(newassetId, ownershipMap);
-      return #ok(newassetId);
-    } else {
-      return #err("Failed to update user portofolio.");
-    }
+    assetsStorage.put(newassetId, newAsset);
+    ownershipMap.put(caller, initial_ownership_creator);
+    ownershipsStorage.put(newassetId, ownershipMap);
+    return #ok(newassetId);
 
   };
 
@@ -504,7 +458,7 @@ persistent actor {
           totalApproval += percent;
         };
 
-        if (totalApproval <= 51) {
+        if (totalApproval <= 0.51) {
           return #err("Approval percentage is not enough. Current: " # Float.toText(totalApproval) # "%");
         };
 
@@ -549,7 +503,12 @@ persistent actor {
             let newownershipId = Helper.ownershipID(ownershipid);
 
             let percentage : Float = Float.fromInt(existProposal.amount) / Float.fromInt(existAsset.totalToken);
-            let ownershipMaturityTime : Int = now + existAsset.rule.paymentMaturityTime * 1_000_000_000 * 60 * 60 * 24;
+
+            var ownershipMaturityTime : Int = 0;
+            if (existAsset.rule.paymentMaturityTime > 0) {
+              ownershipMaturityTime := now + existAsset.rule.paymentMaturityTime * 1_000_000_000 * 60 * 60 * 24;
+            };
+
             let createdOwnership : DataType.Ownership = {
               id = newownershipId;
               owner = caller;
@@ -558,6 +517,24 @@ persistent actor {
               purchaseDate = now;
               purchasePrice = remainingPriceleft + price;
               maturityDate = ownershipMaturityTime;
+            };
+
+            transactionCounter += 1;
+            let currentTransactionId = transactionCounter;
+            let newcurrentTransactionId : Text = Helper.transactionID(#Buy, currentTransactionId);
+
+            let createdTransaction : DataType.Transaction = {
+              id = newcurrentTransactionId;
+              assetId = existAsset.id;
+              from = existAsset.creator;
+              to = caller;
+              totalPurchasedToken = existProposal.amount;
+              pricePerToken = existProposal.totalPrice;
+              totalPrice = remainingPriceleft;
+              transactionType = #Buy;
+              transactionStatus = #Completed;
+
+              timestamp = now;
             };
 
             switch (ownershipsStorage.get(existAsset.id)) {
@@ -572,6 +549,7 @@ persistent actor {
               };
             };
 
+            transactionsStorage.put(newcurrentTransactionId, createdTransaction);
             assetsStorage.put(existAsset.id, updatedAsset);
             return #ok("Success to get the token.");
 
@@ -623,6 +601,240 @@ persistent actor {
       };
       case null {
         return #err("Buy proposal not found.");
+      };
+    };
+  };
+
+  public shared (msg) func createIvestorProposal(
+    assetId : Text,
+    incomingInvestor : Principal,
+    amount : Nat,
+    pricePerToken : Nat,
+  ) : async Result.Result<Text, Text> {
+    let caller : Principal = msg.caller;
+    switch (assetsStorage.get(assetId)) {
+      case (?asset) {
+        if (asset.assetStatus != #Active) {
+          return #err("Asset is in not active status.");
+        };
+
+        if (asset.tokenLeft < amount) {
+          return #err("There is no token left in this asset.");
+        };
+
+        switch (ownershipsStorage.get(assetId)) {
+          case (?ownership) {
+            switch (ownership.get(caller)) {
+              case (?_userOwnership) {
+                let now = Time.now();
+                let newapprovals = HashMap.HashMap<Principal, Float>(10, Principal.equal, Principal.hash);
+
+                investorProposalsCounter += 1;
+                let newinvestorProposalCounter = investorProposalsCounter;
+                let newinvestorProposalCounterId : Text = Helper.investorproposalID(newinvestorProposalCounter);
+
+                let createNewInsestorProposal : DataType.InvestorProposal = {
+                  id = newinvestorProposalCounterId;
+                  assetId = asset.id;
+                  investor = incomingInvestor;
+                  amount = amount;
+                  pricePerToken = pricePerToken;
+                  totalPrice = pricePerToken * amount;
+                  approvals = newapprovals;
+                  createdAt = now;
+                };
+
+                let updatedAsset : DataType.Asset = {
+                  id = asset.id;
+                  creator = asset.creator;
+                  name = asset.name;
+                  description = asset.description;
+                  totalToken = asset.totalToken;
+                  tokenLeft = asset.tokenLeft;
+                  providedToken = asset.providedToken;
+                  pendingToken = asset.pendingToken - amount;
+                  minTokenPurchased = asset.minTokenPurchased;
+                  maxTokenPurchased = asset.maxTokenPurchased;
+                  pricePerToken = asset.pricePerToken;
+                  locationInfo = asset.locationInfo;
+                  documentHash = asset.documentHash;
+                  assetType = asset.assetType;
+                  assetStatus = asset.assetStatus;
+                  rule = asset.rule;
+                  riskScore = asset.riskScore;
+
+                  createdAt = asset.createdAt;
+                  updatedAt = now;
+                };
+
+                assetsStorage.put(asset.id, updatedAsset);
+                investorProposalsStorage.put(newinvestorProposalCounterId, createNewInsestorProposal);
+                return #ok("Successfully create proposal, wait for the ownership approval.");
+              };
+              case null {
+                return #err("Asset is not found.");
+
+              };
+            };
+          };
+          case (null) {
+            return #err("You have no ownership in this asset.");
+
+          };
+        };
+      };
+      case null {
+        return #err("Asset is not found.");
+      };
+    };
+  };
+
+  public shared (msg) func approveInvestorProposal(
+    investorProposalId : Text
+  ) : async Result.Result<Text, Text> {
+    let caller : Principal = msg.caller;
+    switch (investorProposalsStorage.get(investorProposalId)) {
+      case (?invsetorProposal) {
+        switch (ownershipsStorage.get(invsetorProposal.assetId)) {
+          case (?ownershipMap) {
+            switch (ownershipMap.get(caller)) {
+              case (?ownership) {
+
+                if (invsetorProposal.approvals.get(caller) != null) {
+                  return #err("You have already approved this proposal.");
+                };
+
+                let percentage : Float = ownership.percentage;
+                invsetorProposal.approvals.put(caller, percentage);
+                investorProposalsStorage.put(investorProposalId, invsetorProposal);
+
+                return #ok("Successfully approved with " # Float.toText(percentage) # "% ownership.");
+              };
+              case null {
+                return #err("You do not own any token of this asset.");
+              };
+            };
+          };
+          case null {
+            return #err("No ownership data found for this asset.");
+          };
+        };
+        return #err("There is no investor proposal found.");
+      };
+      case null {
+        return #err("There is no investor proposal found.");
+      };
+    };
+  };
+
+  public shared (msg) func finishTheInvitation(
+    investorProposalId : Text,
+    price : Nat,
+  ) : async Result.Result<Text, Text> {
+    let caller : Principal = msg.caller;
+
+    if (not isUserNotBanned(caller)) {
+      return #err("You are not allowed to finished the payment.");
+    };
+
+    switch (investorProposalsStorage.get(investorProposalId)) {
+      case (?invitation) {
+        switch (invitation.investor == caller) {
+          case (true) {
+            if (invitation.totalPrice != price) {
+              return #err("The price you are withdraw is not sufficient.");
+            };
+
+            switch (assetsStorage.get(invitation.assetId)) {
+              case (?asset) {
+                let now = Time.now();
+                transactionCounter += 1;
+                let currentTransactionId = transactionCounter;
+                let newcurrentTransactionId : Text = Helper.transactionID(#Buy, currentTransactionId);
+
+                let createdTransaction : DataType.Transaction = {
+                  id = newcurrentTransactionId;
+                  assetId = invitation.assetId;
+                  from = asset.creator;
+                  to = caller;
+                  totalPurchasedToken = invitation.amount;
+                  pricePerToken = invitation.pricePerToken;
+                  totalPrice = price;
+                  transactionType = #Buy;
+                  transactionStatus = #Completed;
+
+                  timestamp = now;
+                };
+
+                ownershipsCounter += 1;
+                let ownershipid = ownershipsCounter;
+                let newownershipId = Helper.ownershipID(ownershipid);
+
+                let percentage : Float = Float.fromInt(invitation.amount) / Float.fromInt(asset.totalToken);
+
+                let createdOwnerShip : DataType.Ownership = {
+                  id = newownershipId;
+                  owner = caller;
+                  tokenOwned = invitation.amount;
+                  percentage = percentage;
+                  purchaseDate = now;
+                  purchasePrice = invitation.totalPrice;
+                  maturityDate = asset.rule.paymentMaturityTime;
+                };
+
+                let updatedAsset : DataType.Asset = {
+                  id = asset.id;
+                  creator = asset.creator;
+                  name = asset.name;
+                  description = asset.description;
+                  totalToken = asset.totalToken;
+                  tokenLeft = asset.tokenLeft - invitation.amount;
+                  providedToken = asset.providedToken;
+                  pendingToken = asset.pendingToken + invitation.amount;
+                  minTokenPurchased = asset.minTokenPurchased;
+                  maxTokenPurchased = asset.maxTokenPurchased;
+                  pricePerToken = asset.pricePerToken;
+                  locationInfo = asset.locationInfo;
+                  documentHash = asset.documentHash;
+                  assetType = asset.assetType;
+                  assetStatus = asset.assetStatus;
+                  rule = asset.rule;
+                  riskScore = asset.riskScore;
+
+                  createdAt = asset.createdAt;
+                  updatedAt = now;
+                };
+
+                switch (ownershipsStorage.get(asset.id)) {
+                  case (?existingMap) {
+                    existingMap.put(caller, createdOwnerShip);
+                    ownershipsStorage.put(asset.id, existingMap);
+                  };
+                  case (null) {
+                    let newMap = TrieMap.TrieMap<Principal, DataType.Ownership>(Principal.equal, Principal.hash);
+                    newMap.put(caller, createdOwnerShip);
+                    ownershipsStorage.put(asset.id, newMap);
+                  };
+                };
+
+                transactionsStorage.put(newcurrentTransactionId, createdTransaction);
+                assetsStorage.put(asset.id, updatedAsset);
+
+                return #ok("Accepted the invitation.");
+              };
+              case (null) {
+                return #err("Invalid investor proposal of there is no asset.");
+
+              };
+            };
+          };
+          case (false) {
+            return #err("Not allowed this invitation.");
+          };
+        };
+      };
+      case (null) {
+        return #err("Invitation is not found.");
       };
     };
   };

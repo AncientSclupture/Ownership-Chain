@@ -61,8 +61,7 @@ module {
     downPaymentCashback : Float;
     downPaymentMaturityTime: Nat;
 
-    paymentMaturityTime : Nat;
-    allowedOwnerShipInvestorProposal : Bool;
+    paymentMaturityTime : Int;
     details : [Text];
   };
 
@@ -119,7 +118,7 @@ module {
     amount : Nat;
     pricePerToken : Nat;
     totalPrice : Nat;
-    approvals : HashMap.HashMap<Principal, Bool>;
+    approvals : HashMap.HashMap<Principal, Float>;
     createdAt : Int;
   };
 
@@ -163,8 +162,6 @@ module {
     phone : Text;
     country : Text;
     city : Text;
-    tokenHold : Nat;
-    totalAssets : Nat;
 
     userIDNumber : Text;
     userIdentity : IdentityNumberType;

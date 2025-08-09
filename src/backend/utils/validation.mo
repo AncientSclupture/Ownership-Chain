@@ -60,6 +60,7 @@ module {
       return #err("Rule details cannot be empty.");
     };
 
+
     return #ok(());
   };
 
