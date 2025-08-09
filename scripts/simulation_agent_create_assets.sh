@@ -1,96 +1,127 @@
 #!/bin/bash
 
-# Argumen: name, asset_type, variant_value, total_value, total_supply, location, documents (vec[]), metadata (vec[])
-create_asset() {
+# ------------------------------
+# Function: registUser
+# ------------------------------
+registUser() {
+  local fullName="$1"
+  local lastName="$2"
+  local phone="$3"
+  local country="$4"
+  local city="$5"
+  local userIDNumber="$6"
+  local userIdentity="$7" # example: 'variant { IdentityNumber }'
+
+  dfx canister call backend registUser \
+  "(\"$fullName\", \"$lastName\", \"$phone\", \"$country\", \"$city\", \"$userIDNumber\", $userIdentity)"
+}
+
+# ------------------------------
+# Function: createAsset
+# ------------------------------
+createAsset() {
   local name="$1"
-  local asset_type="$2"
-  local variant_value="$3"
-  local total_value="$4"
-  local total_supply="$5"
-  local location="$6"
-  local documents="$7"
-  local metadata="$8"
-
-  [[ -z "$documents" ]] && documents="vec {}"
-  [[ -z "$metadata" ]] && metadata="vec {}"
-  [[ -z "$location" ]] && location="null"
-  [[ "$location" != "null" ]] && location="opt \"$location\""
-
-  if [[ "$asset_type" == "Other" ]]; then
-    assetTypeStr="variant { Other = \"$variant_value\" }"
-  else
-    assetTypeStr="variant { $asset_type }"
-  fi
-
-  echo "> Creating asset: $name, type: $assetTypeStr, value: $total_value, supply: $total_supply"
+  local description="$2"
+  local totalToken="$3"
+  local providedToken="$4"
+  local minTokenPurchased="$5"
+  local maxTokenPurchased="$6"
+  local pricePerToken="$7"
+  local locationInfo="$8"
+  local documentHash="$9"       # array variant format Motoko
+  local assetType="${10}"       # example: 'variant { Property }'
+  local assetStatus="${11}"     # example: 'variant { Active }'
+  local rule="${12}"            # record type Rule
 
   dfx canister call backend createAsset \
-    "(\"$name\", \"Description of $name\", $assetTypeStr, $total_value, $total_supply, $location, $documents, $metadata)"
+  "(\"$name\", \"$description\", $totalToken, $providedToken, $minTokenPurchased, $maxTokenPurchased, $pricePerToken, \"$locationInfo\", $documentHash, $assetType, $assetStatus, $rule)"
 }
 
-echo "Simulation Content: "
-echo "> create dfx identity agent1 and agent2"
-echo "> agent1 create 3 properties, 2 business, 5 equipments, and 1 other assets"
-echo "> agent2 create 5 artwork, 2 vehicle, and 2 properties assets"
-echo "> agent1 buy token from random agent2 assets!"
-echo "> agent2 buy token from random agent1 assets!"
-echo
+# ------------------------------
+# Function: proposedBuyToken
+# ------------------------------
+proposedBuyToken() {
+  local assetId="$1"
+  local amount="$2"
+  local pricePerToken="$3"
 
-create_identity_if_not_exists() {
-    local identity_name="$1"
-    if dfx identity list | grep -q "^$identity_name$"; then
-        echo "> Identity '$identity_name' already exists."
-    else
-        echo "> Creating identity '$identity_name'..."
-        dfx identity new "$identity_name"
-    fi
+  dfx canister call backend proposedBuyToken \
+  "(\"$assetId\", $amount, $pricePerToken)"
 }
 
-echo "> Checking and creating identities if needed..."
-create_identity_if_not_exists "findway_agent1"
-create_identity_if_not_exists "findway_agent2"
+# ------------------------------
+# Function: proceedDownPayment
+# ------------------------------
+proceedDownPayment() {
+  local price="$1"
+  local buyProposalId="$2"
 
-# Ganti ke agent1
-dfx identity use findway_agent1
+  dfx canister call backend proceedDownPayment \
+  "($price, \"$buyProposalId\")"
+}
 
-echo "> agent1 creating 3 property assets"
-for i in {1..3}; do
-  create_asset "agent1 property $i" "Property" "" $((1*100)) $((1*20)) null "" ""
-done
+# ------------------------------
+# Function: finishedPayment
+# ------------------------------
+finishedPayment() {
+  local proposalId="$1"
+  local price="$2"
 
-echo "> agent1 creating 2 business assets"
-for i in {1..2}; do
-  create_asset "agent1 business $i" "Business" "" $((1*1500)) $((1*100)) null "" ""
-done
+  dfx canister call backend finishedPayment \
+  "(\"$proposalId\", $price)"
+}
 
-echo "> agent1 creating 5 equipment assets"
-for i in {1..5}; do
-  create_asset "agent1 equipment $i" "Equipment" "" $((1*800)) 300 null "" ""
-done
+# ------------------------------
+# Function: approveBuyProposal
+# ------------------------------
+approveBuyProposal() {
+  local buyProposalId="$1"
 
-echo "> agent1 creating 1 other asset"
-create_asset "agent1 rare collectible" "Other" "Barang Langka" $((1*1200)) 100 null "" ""
+  dfx canister call backend approveBuyProposal \
+  "(\"$buyProposalId\")"
+}
 
-# Ganti ke agent2
-dfx identity use findway_agent2
+# ------------------------------
+# Function: getMyBuyProposals
+# ------------------------------
+getMyBuyProposals() {
+  dfx canister call backend getMyBuyProposals
+}
 
-echo "> agent2 creating 5 artwork assets"
-for i in {1..5}; do
-  create_asset "agent2 artwork $i" "Artwork" "" $((1*200)) $((1*5)) null "" ""
-done
+# ------------------------------
+# Function: getAllAssets
+# ------------------------------
+getAllAssets() {
+  dfx canister call backend getAllAssets
+}
 
-echo "> agent2 creating 2 vehicle assets"
-for i in {1..2}; do
-  create_asset "agent2 vehicle $i" "Vehicle" "" $((1*300)) $((1*10)) null "" ""
-done
+# ------------------------------
+# Function: getVotableBuyProposal
+# ------------------------------
+getVotableBuyProposal() {
+  dfx canister call backend getVotableBuyProposal
+}
 
-echo "> agent2 creating 2 property assets"
-for i in {1..2}; do
-  create_asset "agent2 property $i" "Property" "" $((1*100)) $((1*2)) null "" ""
-done
+# ------------------------------
+# Function: getUsers
+# ------------------------------
+getUsers() {
+  dfx canister call backend getUsers
+}
 
+# ------------------------------
+# Function: getMyAssets
+# ------------------------------
+getMyAssets() {
+  dfx canister call backend getMyAssets
+}
 
-echo "> change identity to findway-dev again"
-dfx identity use findway_dev
+# ------------------------------
+# Function: getMyOwnerShip
+# ------------------------------
+getMyOwnerShip() {
+  dfx canister call backend getMyOwnerShip
+}
 
-echo "✅ Simulation Finished!"
+registUser "Alex" "Cinatra" "08123456789" "Indonesia" "Jakarta" "123456789" 'variant { IdentityNumber }'
+

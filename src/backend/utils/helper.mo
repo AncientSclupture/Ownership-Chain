@@ -3,6 +3,8 @@ import Nat "mo:base/Nat";
 import Text "mo:base/Text";
 import DataType "../data/dataType";
 import Int "mo:base/Int";
+import Bool "mo:base/Bool";
+import HashMap "mo:base/HashMap";
 
 module {
   public func assetID(assetType : DataType.AssetType, id : Nat) : Text {
@@ -33,6 +35,7 @@ module {
       case (#Downpayment) "Downpayment";
       case (#Extending) "Extending";
       case (#Redeem) "Redeem";
+      case (#DownpaymentCashBack) "DownpaymentCashBack";
     };
 
     return "tnx-" # typeText # "-" # Int.toText(secs) # "-" # Nat.toText(id);
@@ -93,5 +96,25 @@ module {
     };
 
     return "report-" # typeText # "-" # Int.toText(secs) # "-" # Nat.toText(id);
+  };
+
+  public func isExpired(
+    createdTime : Int,
+    maturityPeriod : Nat,
+  ) : Bool {
+    let now = Time.now();
+    let expiredDownPayemntTimeNs : Nat = maturityPeriod * 24 * 60 * 60 * 1_000_000_000;
+
+    let paymentDeadline = createdTime + expiredDownPayemntTimeNs;
+
+    return now > paymentDeadline;
+  };
+
+  public func calculateTotalApprovalPercentage(approvals : HashMap.HashMap<Principal, Float>) : Float {
+    var total : Float = 0.0;
+    for ((_, percentage) in approvals.entries()) {
+      total += percentage;
+    };
+    total;
   };
 };
