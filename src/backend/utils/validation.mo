@@ -60,7 +60,6 @@ module {
       return #err("Rule details cannot be empty.");
     };
 
-
     return #ok(());
   };
 
@@ -68,7 +67,7 @@ module {
     buyer : Principal,
     assetId : Text,
     currentAssetId : Nat,
-    amount: Nat,
+    amount : Nat,
     assetsStorage : HashMap.HashMap<Text, DataType.Asset>,
   ) : Result.Result<(), Text> {
 
@@ -100,8 +99,16 @@ module {
               return #err("No token available for this asset.");
             };
 
-            if (asset.assetStatus != #Open){
+            if (asset.minTokenPurchased > amount or asset.maxTokenPurchased < amount) {
+              return #err("Cannot proceed because of token minimum or maximum puchased is not suficient.");
+            };
+
+            if (asset.assetStatus != #Open) {
               return #err("This is asset token is not open for sale.");
+            };
+
+            if (asset.rule.minDownPaymentPercentage > 1.0) {
+              return #err("Cannot downpayment percentage is cannot be greater than 100%.");
             };
 
             if (asset.creator == buyer) {

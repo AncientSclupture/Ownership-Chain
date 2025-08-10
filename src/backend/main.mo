@@ -343,7 +343,7 @@ persistent actor {
     switch (buyProposalsStorage.get(buyProposalId)) {
       case (?existProposal) {
         if (caller != existProposal.buyer) {
-          return #err("You are not allowed to do downpayment of this proposal.");
+          return #err("You are not allowed to do downpayment for this proposal.");
         };
 
         switch (assetsStorage.get(existProposal.assetId)) {
@@ -360,8 +360,11 @@ persistent actor {
               return #err("Sorry your payment time has passed the downpayment expire time.");
             };
 
-            if (Float.fromInt(price / existProposal.totalPrice) < proposeAsset.rule.minDownPaymentPercentage) {
-              return #err("The Price is not enough, with minimum dp is " # Float.toText(proposeAsset.rule.minDownPaymentPercentage) # ".");
+            let dpFloat : Float = Float.fromInt(existProposal.totalPrice) * proposeAsset.rule.minDownPaymentPercentage;
+            let dpnat : Nat = Int.abs(Float.toInt(Float.floor(dpFloat)));
+
+            if (price != dpnat) {
+              return #err("Do the downpayment as this amount, " # Nat.toText(dpnat) # ".");
             };
 
             let updatedAsset : DataType.Asset = {
@@ -438,7 +441,7 @@ persistent actor {
 
   public shared (msg) func finishedPayment(
     proposalId : Text,
-    price : Nat,
+    price : Int,
   ) : async Result.Result<Text, Text> {
     let caller : Principal = msg.caller;
 
@@ -465,11 +468,13 @@ persistent actor {
         switch (assetsStorage.get(existProposal.assetId)) {
           case (?existAsset) {
 
-            let totalAssetPricePurchased : Nat = existAsset.pricePerToken * existProposal.totalPrice;
-            let remainingPriceleft : Nat = totalAssetPricePurchased - existProposal.amount;
+            let dpFloat : Float = Float.fromInt(existProposal.totalPrice) * existAsset.rule.minDownPaymentPercentage;
+            let dpNat : Int = Float.toInt(Float.floor(dpFloat));
+
+            let remainingPriceleft = existProposal.totalPrice - dpNat;
 
             if (price != remainingPriceleft) {
-              return #err("Not Enough Price.");
+              return #err("The remaining payment is " # Int.toText(remainingPriceleft));
             };
 
             let now = Time.now();
@@ -515,7 +520,7 @@ persistent actor {
               tokenOwned = existProposal.amount;
               percentage = percentage;
               purchaseDate = now;
-              purchasePrice = remainingPriceleft + price;
+              purchasePrice = Int.abs(remainingPriceleft + dpNat);
               maturityDate = ownershipMaturityTime;
             };
 
@@ -530,7 +535,7 @@ persistent actor {
               to = caller;
               totalPurchasedToken = existProposal.amount;
               pricePerToken = existProposal.totalPrice;
-              totalPrice = remainingPriceleft;
+              totalPrice = Int.abs(remainingPriceleft);
               transactionType = #Buy;
               transactionStatus = #Completed;
 
@@ -574,6 +579,11 @@ persistent actor {
 
     switch (buyProposalsStorage.get(buyProposalId)) {
       case (?existProposal) {
+
+        if (existProposal.downPaymentStatus == false) {
+          return #err("The downpayment is not done yet.");
+        };
+
         switch (ownershipsStorage.get(existProposal.assetId)) {
           case (?ownershipMap) {
             switch (ownershipMap.get(caller)) {
@@ -583,7 +593,18 @@ persistent actor {
                   return #err("You have already approved this proposal.");
                 };
 
-                let percentage : Float = ownership.percentage;
+                var percentage : Float = ownership.percentage;
+
+                switch (assetsStorage.get(existProposal.assetId)) {
+                  case (?existAsset) {
+                    let calculatedAssetHolderCapability : Float = Float.fromInt(existAsset.tokenLeft) / Float.fromInt(existAsset.totalToken);
+                    if (calculatedAssetHolderCapability < 0.51) {
+                      percentage := 1.0;
+                    };
+                  };
+                  case null {};
+                };
+
                 existProposal.approvals.put(caller, percentage);
                 buyProposalsStorage.put(buyProposalId, existProposal);
 

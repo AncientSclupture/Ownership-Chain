@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# ------------------------------
-# Function: registUser
-# ------------------------------
+
 registUser() {
   local fullName="$1"
   local lastName="$2"
@@ -10,15 +8,12 @@ registUser() {
   local country="$4"
   local city="$5"
   local userIDNumber="$6"
-  local userIdentity="$7" # example: 'variant { IdentityNumber }'
+  local userIdentity="$7"
 
   dfx canister call backend registUser \
   "(\"$fullName\", \"$lastName\", \"$phone\", \"$country\", \"$city\", \"$userIDNumber\", $userIdentity)"
 }
 
-# ------------------------------
-# Function: createAsset
-# ------------------------------
 createAsset() {
   local name="$1"
   local description="$2"
@@ -28,18 +23,15 @@ createAsset() {
   local maxTokenPurchased="$6"
   local pricePerToken="$7"
   local locationInfo="$8"
-  local documentHash="$9"       # array variant format Motoko
-  local assetType="${10}"       # example: 'variant { Property }'
-  local assetStatus="${11}"     # example: 'variant { Active }'
-  local rule="${12}"            # record type Rule
+  local documentHash="$9"
+  local assetType="${10}"
+  local assetStatus="${11}"
+  local rule="${12}"
 
   dfx canister call backend createAsset \
   "(\"$name\", \"$description\", $totalToken, $providedToken, $minTokenPurchased, $maxTokenPurchased, $pricePerToken, \"$locationInfo\", $documentHash, $assetType, $assetStatus, $rule)"
 }
 
-# ------------------------------
-# Function: proposedBuyToken
-# ------------------------------
 proposedBuyToken() {
   local assetId="$1"
   local amount="$2"
@@ -49,9 +41,6 @@ proposedBuyToken() {
   "(\"$assetId\", $amount, $pricePerToken)"
 }
 
-# ------------------------------
-# Function: proceedDownPayment
-# ------------------------------
 proceedDownPayment() {
   local price="$1"
   local buyProposalId="$2"
@@ -60,9 +49,6 @@ proceedDownPayment() {
   "($price, \"$buyProposalId\")"
 }
 
-# ------------------------------
-# Function: finishedPayment
-# ------------------------------
 finishedPayment() {
   local proposalId="$1"
   local price="$2"
@@ -71,9 +57,6 @@ finishedPayment() {
   "(\"$proposalId\", $price)"
 }
 
-# ------------------------------
-# Function: approveBuyProposal
-# ------------------------------
 approveBuyProposal() {
   local buyProposalId="$1"
 
@@ -81,47 +64,70 @@ approveBuyProposal() {
   "(\"$buyProposalId\")"
 }
 
-# ------------------------------
-# Function: getMyBuyProposals
-# ------------------------------
+createInvestorProposal() {
+  local assetId="$1"
+  local incomingInvestor="$2"
+  local amount="$3"
+  local pricePerToken="$4"
+
+  dfx canister call backend createIvestorProposal \
+  "(\"$assetId\", principal \"$incomingInvestor\", $amount, $pricePerToken)"
+}
+
+approveInvestorProposal() {
+  local investorProposalId="$1"
+
+  dfx canister call backend approveInvestorProposal \
+  "(\"$investorProposalId\")"
+}
+
+finishTheInvitation() {
+  local investorProposalId="$1"
+  local price="$2"
+
+  dfx canister call backend finishTheInvitation \
+  "(\"$investorProposalId\", $price)"
+}
+
 getMyBuyProposals() {
   dfx canister call backend getMyBuyProposals
 }
 
-# ------------------------------
-# Function: getAllAssets
-# ------------------------------
 getAllAssets() {
   dfx canister call backend getAllAssets
 }
 
-# ------------------------------
-# Function: getVotableBuyProposal
-# ------------------------------
 getVotableBuyProposal() {
   dfx canister call backend getVotableBuyProposal
 }
 
-# ------------------------------
-# Function: getUsers
-# ------------------------------
 getUsers() {
   dfx canister call backend getUsers
 }
 
-# ------------------------------
-# Function: getMyAssets
-# ------------------------------
 getMyAssets() {
   dfx canister call backend getMyAssets
 }
 
-# ------------------------------
-# Function: getMyOwnerShip
-# ------------------------------
-getMyOwnerShip() {
+getMyOwnership() {
   dfx canister call backend getMyOwnerShip
 }
 
-registUser "Alex" "Cinatra" "08123456789" "Indonesia" "Jakarta" "123456789" 'variant { IdentityNumber }'
+
+dfx identity use findway_agent1
+
+registUser "John" "Doe" "08123456789" "Indonesia" "Jakarta" "ID123" 'variant { IdentityNumber }'
+
+createAsset "Rumah" "Deskripsi" 1000 500 10 100 1000000 "Jakarta" \
+'vec { record { name = "Sertifikat"; description = "Hak Milik"; hash = "abc123" } }' \
+'variant { Property }' \
+'variant { Active }' \
+'record { sellSharing = true; sellSharingNeedVote = false; sellSharingPrice = 100; needDownPayment = true; minDownPaymentPercentage = 0.10; downPaymentCashback = 0.5; downPaymentMaturityTime = 30; paymentMaturityTime = 60; details = vec { "Info1"; "Info2" } }'
+
+createAsset "Rumah Lagi" "Deskripsi" 1000 500 10 100 1000000 "Jakarta" \
+'vec { record { name = "Sertifikat"; description = "Hak Milik"; hash = "abc123" } }' \
+'variant { Property }' \
+'variant { Open }' \
+'record { sellSharing = true; sellSharingNeedVote = false; sellSharingPrice = 100; needDownPayment = true; minDownPaymentPercentage = 0.10; downPaymentCashback = 0.5; downPaymentMaturityTime = 30; paymentMaturityTime = 60; details = vec { "Info1"; "Info2" } }'
+
 
