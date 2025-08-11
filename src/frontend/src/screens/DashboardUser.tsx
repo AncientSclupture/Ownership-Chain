@@ -1,6 +1,10 @@
+import { MainLayout } from "../layout/main-layout";
+
 function DashboardUser() {
   return (
-    <div>This is MarketPlace Screen</div>
+    <MainLayout>
+      <div>Dashboard User Screen</div>
+    </MainLayout>
   );
 }
 

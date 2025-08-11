@@ -1,6 +1,11 @@
+import { MainLayout } from "../layout/main-layout";
+
 function MarketPlace() {
+
   return (
-    <div>This is MarketPlace Screen</div>
+    <MainLayout>
+      <div>This is MarketPlace Screen</div>
+    </MainLayout>
   );
 }
 

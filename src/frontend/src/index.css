@@ -11,6 +11,16 @@
   }
 }
 
+.background-dark {
+  background-color: #00081a;
+}
+
+.background-light {
+  background-color: white;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
 }

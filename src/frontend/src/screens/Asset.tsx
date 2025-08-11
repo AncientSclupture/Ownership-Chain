@@ -1,6 +1,10 @@
+import { MainLayout } from "../layout/main-layout"
+
 function Asset() {
   return (
-    <div>This is Asset Screen</div>
+    <MainLayout>
+      <div>This is Asset Screen</div>
+    </MainLayout>
   );
 }
 

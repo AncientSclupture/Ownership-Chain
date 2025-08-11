@@ -85,6 +85,10 @@ persistent actor {
     };
   };
 
+  public shared(msg) func whoami() : async Text {
+    return Principal.toText(msg.caller);
+  };
+
   public shared (msg) func registUser(
     fullName : Text,
     lastName : Text,

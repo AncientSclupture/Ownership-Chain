@@ -1,6 +1,10 @@
+import { MainLayout } from "../layout/main-layout";
+
 function CourtingProblem() {
   return (
-    <div>This is CourtingProblem Screen</div>
+    <MainLayout>
+      <div>This is CourtingProblem Screen</div>
+    </MainLayout>
   );
 }
 
