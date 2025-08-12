@@ -8,6 +8,14 @@ export enum AssetTypeOptions {
   All = "All"
 };
 
+export enum SpecificAssetOverview {
+  Overview = "Overview",
+  Token = "Token",
+  DividenHolder = "Dividen Holder",
+  DividendHistory = "Dividend History",
+  AccessInfo = "Access Info",
+}
+
 export enum ShowAssetoption {
   card = 'card',
   list = 'list',
