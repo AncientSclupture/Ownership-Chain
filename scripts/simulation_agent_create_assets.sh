@@ -13,7 +13,6 @@ registUser() {
   dfx canister call backend registUser \
   "(\"$fullName\", \"$lastName\", \"$phone\", \"$country\", \"$city\", \"$userIDNumber\", $userIdentity)"
 }
-
 createAsset() {
   local name="$1"
   local description="$2"
@@ -22,14 +21,15 @@ createAsset() {
   local minTokenPurchased="$5"
   local maxTokenPurchased="$6"
   local pricePerToken="$7"
-  local locationInfo="$8"
-  local documentHash="$9"
-  local assetType="${10}"
-  local assetStatus="${11}"
-  local rule="${12}"
+  local locationInfo="$8"    # Candid record { lat=...; long=...; details=vec {...} }
+  local documentHash="$9"    # Candid vec { record { ... } }
+  local assetType="${10}"    # Candid variant { ... }
+  local assetStatus="${11}"  # Candid variant { ... }
+  local rule="${12}"         # Candid record { ... }
+  local riskScore="${13}"    # Float
 
   dfx canister call backend createAsset \
-  "(\"$name\", \"$description\", $totalToken, $providedToken, $minTokenPurchased, $maxTokenPurchased, $pricePerToken, \"$locationInfo\", $documentHash, $assetType, $assetStatus, $rule)"
+  "(\"$name\", \"$description\", $totalToken, $providedToken, $minTokenPurchased, $maxTokenPurchased, $pricePerToken, $locationInfo, $documentHash, $assetType, $assetStatus, $rule, $riskScore)"
 }
 
 proposedBuyToken() {
@@ -118,16 +118,19 @@ dfx identity use findway_agent1
 
 registUser "John" "Doe" "08123456789" "Indonesia" "Jakarta" "ID123" 'variant { IdentityNumber }'
 
-createAsset "Rumah" "Deskripsi" 1000 500 10 100 1000000 "Jakarta" \
-'vec { record { name = "Sertifikat"; description = "Hak Milik"; hash = "abc123" } }' \
-'variant { Property }' \
-'variant { Active }' \
-'record { sellSharing = true; sellSharingNeedVote = false; sellSharingPrice = 100; needDownPayment = true; minDownPaymentPercentage = 0.10; downPaymentCashback = 0.5; downPaymentMaturityTime = 30; paymentMaturityTime = 60; details = vec { "Info1"; "Info2" } }'
-
-createAsset "Rumah Lagi" "Deskripsi" 1000 500 10 100 1000000 "Jakarta" \
-'vec { record { name = "Sertifikat"; description = "Hak Milik"; hash = "abc123" } }' \
-'variant { Property }' \
-'variant { Open }' \
-'record { sellSharing = true; sellSharingNeedVote = false; sellSharingPrice = 100; needDownPayment = true; minDownPaymentPercentage = 0.10; downPaymentCashback = 0.5; downPaymentMaturityTime = 30; paymentMaturityTime = 60; details = vec { "Info1"; "Info2" } }'
+createAsset \
+  "Rumah" \
+  "Deskripsi rumah" \
+  1000 \
+  500 \
+  10 \
+  100 \
+  1000000 \
+  'record { lat = 6.2088; long = 106.8456; details = vec { "Jakarta Pusat"; "Dekat Monas" } }' \
+  'vec { record { name = "Sertifikat"; description = "Hak Milik"; hash = "abc123" } }' \
+  'variant { Property }' \
+  'variant { Open }' \
+  'record { sellSharing = true; sellSharingNeedVote = false; sellSharingPrice = 100; needDownPayment = true; minDownPaymentPercentage = 0.10; downPaymentCashback = 0.5; downPaymentMaturityTime = 30; paymentMaturityTime = 60; details = vec { "Info1"; "Info2" }; ownerShipMaturityTime = 12 }' \
+  0.75
 
 

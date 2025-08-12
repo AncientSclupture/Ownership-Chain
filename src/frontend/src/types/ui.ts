@@ -11,8 +11,7 @@ export enum AssetTypeOptions {
 export enum SpecificAssetOverview {
   Overview = "Overview",
   Token = "Token",
-  DividenHolder = "Dividen Holder",
-  DividendHistory = "Dividend History",
+  Dividend = "Dividend",
   AccessInfo = "Access Info",
 }
 

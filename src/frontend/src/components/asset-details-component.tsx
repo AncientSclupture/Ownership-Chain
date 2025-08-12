@@ -1,7 +1,8 @@
-import { Bot, Check, FileText, Fingerprint, Flag, Minus, Plus, ShoppingCart } from "lucide-react";
+import { Bot, Check, FileText, Fingerprint, Flag, MapPin, Minus, Plus, ShoppingCart } from "lucide-react";
 import React from "react";
 import { SpecificAssetOverview } from "../types/ui";
-import { CustomizableBarChart } from "./chart/asset-detail-chart";
+import { CustomizableBarChart, CustomizableLineChart } from "./chart/asset-detail-chart";
+import { AccessInfoMaps } from "./map/asset-detals-map";
 
 
 export function AssetMainContent() {
@@ -247,11 +248,25 @@ function TokenBox({ percent, label }: { percent: number; label: string }) {
 }
 
 function TokenCard() {
+    // data example
     const data1 = [
         { name: 'person-4000', token: 2400 },
-        { name: 'person-3000', token: 1398 },
+        { name: 'person-3000', token: 13098 },
         { name: 'person-2000', token: 9800 },
         { name: 'person-2780', token: 3908 }
+    ];
+
+    const data2 = [
+        { date: 'date-4000', tf: 4200, buy: 2040 },
+        { date: 'date-3000', tf: 3198, buy: 1938 },
+        { date: 'date-2000', tf: 8900, buy: 9080 },
+        { date: 'date-2300', tf: 8900, buy: 9080 },
+        { date: 'date-2400', tf: 8900, buy: 9080 },
+        { date: 'date-2500', tf: 8900, buy: 9080 },
+        { date: 'date-2780', tf: 9308, buy: 3098 },
+        { date: 'date-2710', tf: 9308, buy: 3098 },
+        { date: 'date-2010', tf: 9308, buy: 3098 },
+        { date: 'date-2011', tf: 9308, buy: 3098 },
     ];
     return (
         <div className="space-y-8">
@@ -264,11 +279,70 @@ function TokenCard() {
                 </div>
             </div>
 
-            <div className="p-5 pb-15 border border-gray-300 rounded-md space-y-5">
+            <div className="p-5 border border-gray-300 rounded-md space-y-5 pb-32">
                 <div className="w-ful md:h-[20vw] h-[40vw]">
                     <h1 className="md:text-2xl text-xl font-normal my-5">Ownership Holder Percentage</h1>
-                    <CustomizableBarChart data={data1} />
+                    <CustomizableBarChart data={data1} barSize={50} />
                 </div>
+            </div>
+
+            <div className="p-5 border border-gray-300 rounded-md space-y-5 pb-32">
+                <div className="w-ful md:h-[20vw] h-[40vw]">
+                    <h1 className="md:text-2xl text-xl font-normal my-5">Transaction Pricing History</h1>
+                    <CustomizableBarChart data={data2} />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function DividendCard() {
+    // data example
+    const data1 = [
+        { date: 'date-1', token: 2400 },
+        { date: 'date-2', token: 13098 },
+        { date: 'date-3', token: 9800 },
+        { date: 'date-4', token: 3908 }
+    ];
+
+    return (
+        <div className="space-y-8">
+            <div className="p-5 border border-gray-300 rounded-md space-y-5">
+                <h1 className="md:text-2xl text-xl font-normal my-5">Asset Dividend</h1>
+                <CustomizableLineChart data={data1} />
+            </div>
+        </div>
+    );
+}
+
+export function AccessInfo() {
+    return (
+        <div className="space-y-8">
+            <div className="p-5 border border-gray-300 rounded-md space-y-5">
+                <h1 className="md:text-2xl text-xl font-semibold mb-3">
+                    Location and Other Details
+                </h1>
+
+                <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                        <MapPin className="w-6 h-6 text-red-500 mt-1" />
+                        <p className="text-gray-700 leading-relaxed">
+                            This asset is located in <strong>Jakarta, Indonesia</strong>,
+                            a vibrant metropolitan city known as the country’s capital and
+                            economic hub. The area offers excellent accessibility to
+                            business districts, shopping centers, and key public facilities.
+                        </p>
+                    </div>
+
+                    <p className="text-gray-600">
+                        Surrounded by well-developed infrastructure, this location provides
+                        great potential for both commercial and residential purposes.
+                        Its proximity to major roads and public transport makes it highly
+                        desirable for investors and residents alike.
+                    </p>
+                </div>
+
+                <AccessInfoMaps />
             </div>
         </div>
     );
@@ -295,6 +369,12 @@ export function AssetSecondaryContent() {
             }
             {selectedOption === SpecificAssetOverview.Token &&
                 <TokenCard />
+            }
+            {selectedOption === SpecificAssetOverview.Dividend &&
+                <DividendCard />
+            }
+            {selectedOption === SpecificAssetOverview.AccessInfo &&
+                <AccessInfo />
             }
         </div>
     )
