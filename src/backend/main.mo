@@ -147,7 +147,7 @@ persistent actor {
     minTokenPurchased : Nat,
     maxTokenPurchased : Nat,
     pricePerToken : Nat,
-    locationInfo : Text,
+    locationInfo : DataType.LocationType,
     documentHash : [DataType.DocumentHash],
     assetType : DataType.AssetType,
     assetStatus : DataType.AssetStatus,

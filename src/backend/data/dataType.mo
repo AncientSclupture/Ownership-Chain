@@ -66,6 +66,12 @@ module {
     details : [Text];
   };
 
+  public type LocationType = {
+    lat: Float;
+    long: Float;
+    details: [Text];
+  };
+
   public type Asset = {
     id : Text;
     creator : Principal;
@@ -78,7 +84,7 @@ module {
     minTokenPurchased : Nat;
     maxTokenPurchased : Nat;
     pricePerToken : Nat;
-    locationInfo : Text;
+    locationInfo : LocationType;
     documentHash : [DocumentHash];
     assetType : AssetType;
     assetStatus : AssetStatus;
