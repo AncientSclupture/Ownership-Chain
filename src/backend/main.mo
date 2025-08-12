@@ -85,7 +85,7 @@ persistent actor {
     };
   };
 
-  public shared(msg) func whoami() : async Text {
+  public shared (msg) func whoami() : async Text {
     return Principal.toText(msg.caller);
   };
 
@@ -421,6 +421,7 @@ persistent actor {
               totalPrice = price;
               transactionType = #Downpayment;
               transactionStatus = #Completed;
+              details = null;
 
               timestamp = now;
             };
@@ -515,7 +516,7 @@ persistent actor {
 
             var ownershipMaturityTime : Int = 0;
             if (existAsset.rule.paymentMaturityTime > 0) {
-              ownershipMaturityTime := now + existAsset.rule.paymentMaturityTime * 1_000_000_000 * 60 * 60 * 24;
+              ownershipMaturityTime := now + existAsset.rule.ownerShipMaturityTime * 1_000_000_000 * 60 * 60 * 24;
             };
 
             let createdOwnership : DataType.Ownership = {
@@ -542,6 +543,7 @@ persistent actor {
               totalPrice = Int.abs(remainingPriceleft);
               transactionType = #Buy;
               transactionStatus = #Completed;
+              details = null;
 
               timestamp = now;
             };
@@ -787,6 +789,7 @@ persistent actor {
                   totalPrice = price;
                   transactionType = #Buy;
                   transactionStatus = #Completed;
+                  details = null;
 
                   timestamp = now;
                 };
@@ -976,6 +979,15 @@ persistent actor {
     };
 
     return myOwnerships;
+  };
+
+  public shared (msg) func getAssetById(assetId : Text) : async ?DataType.Asset {
+    let caller : Principal = msg.caller;
+    if (not isUserNotBanned(caller)) {
+      return null;
+    };
+
+    return assetsStorage.get(assetId);
   };
 
 };

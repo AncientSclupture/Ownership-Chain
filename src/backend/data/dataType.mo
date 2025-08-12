@@ -62,6 +62,7 @@ module {
     downPaymentMaturityTime: Nat;
 
     paymentMaturityTime : Int;
+    ownerShipMaturityTime : Int;
     details : [Text];
   };
 
@@ -132,6 +133,7 @@ module {
     totalPrice : Nat;
     transactionType : TransactionType;
     transactionStatus : TransactionStatus;
+    details: ?Text;
 
     timestamp : Int;
   };
