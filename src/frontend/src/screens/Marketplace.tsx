@@ -4,6 +4,7 @@ import { MainLayout } from "../layout/main-layout";
 import { backendService } from "../services/backendService";
 import { Asset } from "../../../declarations/backend/backend.did";
 import { FilterState } from "../types/ui";
+import { Loader } from "../components/loader-component";
 
 function MarketPlace() {
   const [load, setLoading] = React.useState(true);
@@ -52,7 +53,7 @@ function MarketPlace() {
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p>Loading assets...</p>
+            <Loader fullScreen />
           </div>
         </div>
       </MainLayout>

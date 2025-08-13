@@ -35,3 +35,10 @@ export interface AssetTypeFilterTabProps {
   selectedTypes: string[];
   onTypeChange: (types: string[]) => void;
 }
+
+export interface LoaderProps {
+  size?: number;
+  color?: string;
+  text?: string;
+  fullScreen?: boolean;
+}

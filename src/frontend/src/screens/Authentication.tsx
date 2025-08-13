@@ -8,8 +8,12 @@ function Authentication() {
     <MainLayout>
       <div className="pt-25 px-10">
         <div className="md:flex md:space-x-10">
-          <div className="aspect-[4/3] bg-gray-500 w-[80vw] md:w-[60vw] flex justify-center items-center">
-            Findway Logo
+          <div className="aspect-[4/3] w-[80vw] md:w-[60vw] flex justify-center items-center">
+            <img
+              src="./src/assets/findwaylogo.png"
+              alt="findway-logo"
+              className="w-full h-full border border-[rgb(0,8,26)] object-contain rounded-4xl"
+            />
           </div>
           <div className="">
             <h1 className="font-semibold text-4xl my-5">Ownership Chaninner</h1>

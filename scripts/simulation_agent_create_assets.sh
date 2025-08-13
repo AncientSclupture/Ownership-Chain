@@ -126,7 +126,7 @@ createAsset \
   10 \
   100 \
   1000000 \
-  'record { lat = 6.2088; long = 106.8456; details = vec { "Jakarta Pusat"; "Dekat Monas" } }' \
+  'record { lat = -6.2088; long = 106.8456; details = vec { "Jakarta Pusat"; "Dekat Monas" } }' \
   'vec { record { name = "Sertifikat"; description = "Hak Milik"; hash = "abc123" } }' \
   'variant { Property }' \
   'variant { Open }' \

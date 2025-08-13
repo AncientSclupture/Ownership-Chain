@@ -24,4 +24,19 @@ export const backendService = {
         }
     },
 
+    async getAssetById(assetId: string): Promise<Asset | null> {
+        try {
+            const res = await backend.getAssetById(assetId);
+            if (res.length > 0 && res[0]) {
+                return res[0];
+            }
+            return null;
+
+        } catch (error) {
+            console.error('Error fetching all assets:', error);
+            return null;
+
+        }
+    }
+
 };

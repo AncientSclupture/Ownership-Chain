@@ -1,38 +1,45 @@
-import { Bot, Check, FileText, Fingerprint, Flag, MapPin, Minus, Plus, ShoppingCart } from "lucide-react";
+import { Bot, Check, ChevronDown, ChevronUp, CircleEllipsis, X, FileText, Fingerprint, Flag, MapPin, ShoppingCart } from "lucide-react";
 import React from "react";
 import { SpecificAssetOverview } from "../types/ui";
 import { CustomizableBarChart, CustomizableLineChart } from "./chart/asset-detail-chart";
 import { AccessInfoMaps } from "./map/asset-detals-map";
+import { getAssetStatusText } from "../utils/union-handler";
+import { Asset as AssetData, Rule, LocationType } from "../../../declarations/backend/backend.did";
 
+export function AssetMainContent({ data }: { data: AssetData | null }) {
 
-export function AssetMainContent() {
+    if (!data) return null;
+
     return (
         <div className="flex flex-col space-y-5 md:flex-row md:space-y-0 md:space-x-10">
             <div className="aspect-[4/3] w-full bg-gray-400 flex justify-center items-center rounded-md">Logo Asset</div>
             <div className="border border-gray-300 w-full aspect-[3/2] p-5 rounded-md space-y-4">
-                <h1 className="font-bold capitalize text-[rgb(0,51,102)] text-2xl">Name</h1>
+                <h1 className="font-bold capitalize text-[rgb(0,51,102)] text-2xl">{data.name}</h1>
                 <div
-                    onClick={() => navigator.clipboard.writeText("id")}
+                    onClick={() => navigator.clipboard.writeText(data.id)}
                     className="text-lg text-gray-700 cursor-pointer"
                 >
-                    asset id
+                    {data.id}
                 </div>
                 <div className="flex space-x-4 items-center">
-                    <p className="p-2 bg-blue-950 text-white rounded-xl text-xl">status</p>
+                    <p className="p-2 bg-blue-950 text-white rounded-sm text-xl">{getAssetStatusText(data.assetStatus)}</p>
                     <p>
-                        <span className="font-semibold">price</span>
-                        <span> USD</span>
+                        <span className="font-semibold">{data.pricePerToken}</span>
+                        <span> USD/token</span>
                     </p>
                 </div>
                 <div className="flex items-center justify-between space-x-5">
-                    <div className="w-full bg-gray-100 aspect-[2/1] flex justify-center items-center rounded-md">
-                        token left
+                    <div className="w-full bg-gray-100 aspect-[2/1] flex flex-col justify-center items-center rounded-md">
+                        <p>Total Token</p>
+                        <p className="font-bold">{data.totalToken}</p>
                     </div>
-                    <div className="w-full bg-gray-100 aspect-[2/1] flex justify-center items-center rounded-md">
-                        provided token
+                    <div className="w-full bg-gray-100 aspect-[2/1] flex flex-col justify-center items-center rounded-md">
+                        <p>Left Token</p>
+                        <p className="font-bold">{data.tokenLeft}</p>
                     </div>
-                    <div className="w-full bg-gray-100 aspect-[2/1] flex justify-center items-center rounded-md">
-                        total token
+                    <div className="w-full bg-gray-100 aspect-[2/1] flex flex-col justify-center items-center rounded-md">
+                        <p>Provided Totken</p>
+                        <p className="font-bold">{data.providedToken}</p>
                     </div>
                 </div>
                 <div className="flex flex-col w-full space-y-2">
@@ -50,11 +57,11 @@ export function AssetMainContent() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 
-function DocumentOverview() {
+function DocumentOverview({ name, hash, description }: { name: string, hash: string, description: string }) {
     const [isOpen, setIsOpen] = React.useState(false);
 
     return (
@@ -64,15 +71,15 @@ function DocumentOverview() {
                     <FileText />
                     <button
                         onClick={() => setIsOpen((prev) => !prev)}
-                        className="font-medium cursor-pointer"
+                        className="font-medium cursor-pointer font-mono"
                     >
-                        Document Name
+                        {name}
                     </button>
                 </div>
                 <button
                     className="cursor-pointer p-1"
                     aria-label="Toggle details"
-                    onClick={() => navigator.clipboard.writeText("hash")}
+                    onClick={() => navigator.clipboard.writeText(hash)}
                 >
                     <Fingerprint />
                 </button>
@@ -80,79 +87,132 @@ function DocumentOverview() {
 
             {isOpen && (
                 <div className="p-3 text-sm text-gray-600 bg-white border-t border-gray-200">
-                    Ea do occaecat fugiat adipisicing cupidatat eu.
-                    Duis adipisicing ad qui eu sunt aliqua aliquip sint.
-                    Ea do occaecat fugiat adipisicing cupidatat eu.
+                    {description}
                 </div>
             )}
         </div>
     );
 }
 
-function RuleLegalitiesOverview() {
+function RuleLegalitiesOverview({ rule }: { rule: Rule }) {
     const [isOpen, setIsOpen] = React.useState(false);
 
     return (
         <div className="p-5 border border-gray-300 rounded-md space-y-5">
             <h1 className="text-2xl font-normal">Rules & Legalities</h1>
+
             <div className="space-y-1">
-                <div className="text-gray-600 w-full flex space-x-2 items-start">
-                    <Check />
-                    <p>This Asset ownership holder as represent in token cannot be reselling.</p>
-                </div>
-                <div className="text-gray-600 w-full flex space-x-2 items-start">
-                    <Check />
-                    <p>If you eager to buy this asset you need down payment tobe done first, with 10% of your total pucrhaced price.</p>
-                </div>
-
-                <div className="text-gray-600 w-full flex space-x-2 items-start">
-                    <Check />
-                    <p>If payment or proposal being cancled the down payment cashback will be 30% of your downpayment.</p>
-                </div>
-
-                <div className="text-gray-600 w-full flex space-x-2 items-start">
-                    <Check />
-                    <p>This asset aquire Ownership Maturity time. After 360 days of ownership you need to redeem your ownership or you will lost your ownership</p>
+                {/* Sell Sharing */}
+                <div className="text-gray-600 w-full flex space-x-4 items-start md:items-center">
+                    {rule.sellSharing ? (
+                        <div className="flex p-2 bg-green-400 rounded-full">
+                            <Check size={12} />
+                        </div>
+                    ) : (
+                        <div className="flex p-2 bg-red-400 rounded-full">
+                            <X size={12} />
+                        </div>
+                    )}
+                    <p>
+                        This asset ownership holder as represented in token{" "}
+                        {rule.sellSharing ? "can" : "cannot"} be reselling.
+                    </p>
                 </div>
 
-                <div className="text-gray-600 w-full flex space-x-2 items-start">
-                    <Check />
-                    <p>Lorem id eu amet consectetur. Minim adipisicing voluptate deserunt deserunt pariatur eiusmod ex occaecat id non minim laboris.</p>
+                {/* Need Down Payment */}
+                <div className="text-gray-600 w-full flex space-x-4 items-start md:items-center">
+                    {rule.needDownPayment ? (
+                        <div className="flex p-2 bg-green-400 rounded-full">
+                            <Check size={12} />
+                        </div>
+                    ) : (
+                        <div className="flex p-2 bg-red-400 rounded-full">
+                            <X size={12} />
+                        </div>
+                    )}
+                    <p>
+                        If you want to buy this asset you need a down payment of{" "}
+                        {rule.minDownPaymentPercentage * 100}% of your total purchased price.
+                    </p>
+                </div>
+
+                {/* Down Payment Cashback */}
+                <div className="text-gray-600 w-full flex space-x-4 items-start md:items-center">
+                    {rule.downPaymentCashback > 0 ? (
+                        <div className="flex p-2 bg-green-400 rounded-full">
+                            <Check size={12} />
+                        </div>
+                    ) : (
+                        <div className="flex p-2 bg-red-400 rounded-full">
+                            <X size={12} />
+                        </div>
+                    )}
+                    <p>
+                        If payment or proposal is cancelled, the down payment cashback will
+                        be {rule.downPaymentCashback * 100}% of your down payment.
+                    </p>
+                </div>
+
+                {/* Ownership Maturity Time */}
+                <div className="text-gray-600 w-full flex space-x-4 items-start md:items-center">
+                    {rule.ownerShipMaturityTime !== 0n ? (
+                        <div className="flex p-2 bg-green-400 rounded-full">
+                            <Check size={12} />
+                        </div>
+                    ) : (
+                        <div className="flex p-2 bg-red-400 rounded-full">
+                            <X size={12} />
+                        </div>
+                    )}
+                    <p>
+                        This asset has an ownership maturity time. After{" "}
+                        {rule.ownerShipMaturityTime} days of ownership you need to redeem
+                        your ownership or you will lose it.
+                    </p>
+                </div>
+
+                {/* Sell Sharing Need Vote */}
+                <div className="text-gray-600 w-full flex space-x-4 items-start md:items-center">
+                    {rule.sellSharingNeedVote ? (
+                        <div className="flex p-2 bg-green-400 rounded-full">
+                            <Check size={12} />
+                        </div>
+                    ) : (
+                        <div className="flex p-2 bg-red-400 rounded-full">
+                            <X size={12} />
+                        </div>
+                    )}
+                    <p>
+                        Selling shares requires voting approval by token holders.
+                    </p>
                 </div>
             </div>
+
+            {/* Details */}
             <div className="border-t border-gray-200 pt-3">
                 <button
                     className="flex justify-between items-center w-full py-2 text-left text-gray-800 font-medium"
                     onClick={() => setIsOpen((prev) => !prev)}
                 >
-                    <span>Details Accordion</span>
-                    {isOpen ? <Minus size={16} /> : <Plus size={16} />}
+                    <span>Details Information</span>
+                    {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
 
                 {isOpen && (
                     <div className="text-gray-600 space-y-2 mt-2">
-                        <div className="flex w-full space-x-2">
-                            <Plus />
-                            <p>Quis id excepteur voluptate duis do irure.</p>
-                        </div>
-                        <div className="flex w-full space-x-2">
-                            <Plus />
-                            <p>Quis id excepteur voluptate duis do irure.</p>
-                        </div>
-                        <div className="flex w-full space-x-2">
-                            <Plus />
-                            <p>Quis id excepteur voluptate duis do irure.</p>
-                        </div>
-                        <div className="flex w-full space-x-2">
-                            <Plus />
-                            <p>Quis id excepteur voluptate duis do irure.</p>
-                        </div>
+                        {rule.details.map((det, idx) => (
+                            <div className="flex w-full space-x-2" key={idx}>
+                                <CircleEllipsis />
+                                <p>{det}</p>
+                            </div>
+                        ))}
                     </div>
                 )}
             </div>
         </div>
     );
 }
+
 
 function LastFiveDividenOverview() {
     return (
@@ -196,31 +256,29 @@ function LastFiveDividenOverview() {
     );
 }
 
-function OverviewCard() {
+function OverviewCard({ data }: { data: AssetData | null }) {
+    if (!data) return null;
+
     return (
         <div className="space-y-8">
             {/* description */}
             <div className="p-5 border border-gray-300 rounded-md space-y-5">
                 <h1 className="text-2xl font-normal">Description</h1>
                 <p className="text-gray-600">
-                    Sit nulla esse in veniam Lorem mollit sit ex ex eu incididunt in anim mollit.
-                    Laborum et mollit pariatur deserunt enim adipisicing ea laborum cupidatat ex do do quis.
-                    Consequat consequat aliquip Lorem non culpa culpa et velit voluptate tempor.
-                    Et amet eiusmod mollit est tempor excepteur enim eiusmod id fugiat nisi reprehenderit labore.
-                    Lorem id eu amet consectetur. Minim adipisicing voluptate deserunt deserunt pariatur eiusmod ex occaecat id non minim laboris.
+                    {data.description}
                 </p>
             </div>
 
             {/* rules */}
-            <RuleLegalitiesOverview />
+            <RuleLegalitiesOverview rule={data.rule} />
 
             {/* document hash and legalities */}
             <div className="p-5 border border-gray-300 rounded-md space-y-5">
                 <h1 className="text-2xl font-normal">Document Legalities</h1>
                 <div className="space-y-2">
-                    <DocumentOverview />
-                    <DocumentOverview />
-                    <DocumentOverview />
+                    {data.documentHash.map((doc, idx) =>
+                        <DocumentOverview key={idx} name={doc.name} description={doc.description} hash={doc.hash} />
+                    )}
                 </div>
             </div>
 
@@ -297,12 +355,20 @@ function TokenCard() {
 }
 
 function DividendCard() {
-    // data example
     const data1 = [
         { date: 'date-1', token: 2400 },
         { date: 'date-2', token: 13098 },
         { date: 'date-3', token: 9800 },
-        { date: 'date-4', token: 3908 }
+        { date: 'date-4', token: 3908 },
+    ];
+
+    const data2 = [
+        { user: 'user-1', token: 2400 },
+        { user: 'user-2', token: 4200 },
+        { user: 'user-3', token: 2012 },
+        { user: 'user-4', token: 1023 },
+        { user: 'user-5', token: 2012 },
+        { user: 'user-6', token: 1023 },
     ];
 
     return (
@@ -311,11 +377,16 @@ function DividendCard() {
                 <h1 className="md:text-2xl text-xl font-normal my-5">Asset Dividend</h1>
                 <CustomizableLineChart data={data1} />
             </div>
+            <div className="p-5 border border-gray-300 rounded-md space-y-5">
+                <h1 className="md:text-2xl text-xl font-normal my-5">Recent Dividend by Holder</h1>
+                <CustomizableBarChart data={data2} barSize={50} />
+            </div>
         </div>
     );
 }
 
-export function AccessInfo() {
+export function AccessInfo({ lat, long, details }: LocationType) {
+    console.log(lat, long)
     return (
         <div className="space-y-8">
             <div className="p-5 border border-gray-300 rounded-md space-y-5">
@@ -327,30 +398,32 @@ export function AccessInfo() {
                     <div className="flex items-start gap-3">
                         <MapPin className="w-6 h-6 text-red-500 mt-1" />
                         <p className="text-gray-700 leading-relaxed">
-                            This asset is located in <strong>Jakarta, Indonesia</strong>,
-                            a vibrant metropolitan city known as the country’s capital and
-                            economic hub. The area offers excellent accessibility to
-                            business districts, shopping centers, and key public facilities.
+                            This asset is located at coordinates{" "}
+                            <strong>{lat.toFixed(4)}, {long.toFixed(4)}</strong>.
                         </p>
                     </div>
 
-                    <p className="text-gray-600">
-                        Surrounded by well-developed infrastructure, this location provides
-                        great potential for both commercial and residential purposes.
-                        Its proximity to major roads and public transport makes it highly
-                        desirable for investors and residents alike.
-                    </p>
+                    {details.length > 0 && (
+                        <div className="space-y-2">
+                            {details.map((item, idx) => (
+                                <p className="text-gray-600" key={idx}>
+                                    {item}
+                                </p>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
-                <AccessInfoMaps />
+                <AccessInfoMaps lat={lat} long={long} />
             </div>
         </div>
     );
 }
 
-export function AssetSecondaryContent() {
+export function AssetSecondaryContent({ mainData }: { mainData: AssetData | null }) {
     const [selectedOption, setSeletedOption] = React.useState<SpecificAssetOverview>(SpecificAssetOverview.Overview);
 
+    if (!mainData) return null;
     return (
         <div className="space-y-8">
             <div className="p-2 border-b border-gray-300 flex flex-wrap gap-5">
@@ -365,7 +438,7 @@ export function AssetSecondaryContent() {
                 )}
             </div>
             {selectedOption === SpecificAssetOverview.Overview &&
-                <OverviewCard />
+                <OverviewCard data={mainData} />
             }
             {selectedOption === SpecificAssetOverview.Token &&
                 <TokenCard />
@@ -374,7 +447,11 @@ export function AssetSecondaryContent() {
                 <DividendCard />
             }
             {selectedOption === SpecificAssetOverview.AccessInfo &&
-                <AccessInfo />
+                <AccessInfo
+                    details={mainData.locationInfo.details}
+                    lat={mainData.locationInfo.lat}
+                    long={mainData.locationInfo.long}
+                />
             }
         </div>
     )
