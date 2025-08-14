@@ -1,3 +1,5 @@
+import { LucideIcon } from "lucide-react";
+
 export enum AssetTypeOptions {
   Artwork = 'Artwork',
   Business = 'Business',
@@ -41,4 +43,27 @@ export interface LoaderProps {
   color?: string;
   text?: string;
   fullScreen?: boolean;
+}
+
+export enum UserDashboardMenus {
+  AboutMe = "About Me",
+  AssetsList = "Assets List",
+  Proposals = "Proposals",
+  CreateAsset = "Create Asset",
+  Income = "Income",
+  MyReport = "My Reports",
+  Ownership = "Ownership"
+}
+
+export interface UserDashboardSubMenusInterface {
+  name: string;
+  usermenu: UserDashboardMenus;
+  icon?: LucideIcon;
+}
+
+export interface UserDashboardMenusInterface {
+  name: string;
+  usermenu?: UserDashboardMenus;
+  icon?: LucideIcon;
+  submenu: UserDashboardSubMenusInterface[];
 }
