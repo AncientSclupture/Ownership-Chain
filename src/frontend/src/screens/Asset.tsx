@@ -11,20 +11,42 @@ function Asset() {
   const { assetid } = useParams<{ assetid: string }>();
   const [data, setData] = React.useState<AssetData | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    async function fetch() {
-      if (!assetid) return null;
-      const res = await backendService.getAssetById(assetid);
-      setData(res);
+    if (!assetid) {
+      setError("Asset ID not found");
+      setIsLoading(false);
+      return;
     }
-    fetch()
-    setIsLoading(false);
-  }, []);
 
-  if (!assetid) return <div>Failed to load data</div>
+    async function fetchData() {
+      setIsLoading(true);
+      setError(null);
+      try {
+        if (!assetid) return null;
+        const res = await backendService.getAssetById(assetid);
+        setData(res);
+      } catch (err) {
+        setError("Failed to load asset data");
+      } finally {
+        setIsLoading(false);
+      }
+    }
 
-  if (isLoading) return <Loader fullScreen />
+    fetchData();
+  }, [assetid]);
+
+  if (error) return <div>{error}</div>;
+
+  if (isLoading) return <Loader fullScreen />;
+
+  if (!data)
+    return (
+      <MainLayout>
+        <div>Data tidak ditemukan</div>
+      </MainLayout>
+    );
 
   return (
     <MainLayout>
@@ -33,9 +55,7 @@ function Asset() {
         <AssetMainContent data={data} />
         {/* secondary content */}
         <div>
-          <AssetSecondaryContent
-            mainData={data}
-          />
+          <AssetSecondaryContent mainData={data} />
         </div>
       </div>
     </MainLayout>

@@ -6,10 +6,7 @@ import { AccessInfoMaps } from "./map/asset-detals-map";
 import { getAssetStatusText } from "../utils/union-handler";
 import { Asset as AssetData, Rule, LocationType } from "../../../declarations/backend/backend.did";
 
-export function AssetMainContent({ data }: { data: AssetData | null }) {
-
-    if (!data) return null;
-
+export function AssetMainContent({ data }: { data: AssetData }) {
     return (
         <div className="flex flex-col space-y-5 md:flex-row md:space-y-0 md:space-x-10">
             <div className="aspect-[4/3] w-full bg-gray-400 flex justify-center items-center rounded-md">Logo Asset</div>
@@ -420,10 +417,9 @@ export function AccessInfo({ lat, long, details }: LocationType) {
     );
 }
 
-export function AssetSecondaryContent({ mainData }: { mainData: AssetData | null }) {
+export function AssetSecondaryContent({ mainData }: { mainData: AssetData }) {
     const [selectedOption, setSeletedOption] = React.useState<SpecificAssetOverview>(SpecificAssetOverview.Overview);
 
-    if (!mainData) return null;
     return (
         <div className="space-y-8">
             <div className="p-2 border-b border-gray-300 flex flex-wrap gap-5">
