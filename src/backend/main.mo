@@ -990,4 +990,51 @@ persistent actor {
     return assetsStorage.get(assetId);
   };
 
+  public shared (msg) func getAssetFullDetails(assetId : Text) : async ?{
+    asset : DataType.Asset;
+    ownerships : [DataType.Ownership];
+    transactions : [DataType.Transaction];
+    dividends : [DataType.Transaction];
+  } {
+
+    let caller : Principal = msg.caller;
+    if (not isUserNotBanned(caller)) {
+      return null;
+    };
+
+    let assetOpt = assetsStorage.get(assetId);
+    switch (assetOpt) {
+      case null {
+        return null;
+      };
+      case (?asset) {
+        var ownershipList : [DataType.Ownership] = [];
+        switch (ownershipsStorage.get(assetId)) {
+          case null {};
+          case (?ownersMap) {
+            ownershipList := Iter.toArray(ownersMap.vals());
+          };
+        };
+
+        var transactionList : [DataType.Transaction] = [];
+        var dividendList : [DataType.Transaction] = [];
+        for ((_, tx) in transactionsStorage.entries()) {
+          if (tx.assetId == assetId) {
+            transactionList := Array.append(transactionList, [tx]);
+            if (tx.transactionType == #Dividend) {
+              dividendList := Array.append(dividendList, [tx]);
+            };
+          };
+        };
+
+        return ?{
+          asset = asset;
+          ownerships = ownershipList;
+          transactions = transactionList;
+          dividends = dividendList;
+        };
+      };
+    };
+  }
+
 };
