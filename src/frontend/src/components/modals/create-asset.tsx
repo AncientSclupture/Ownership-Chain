@@ -84,3 +84,38 @@ export function EditPersonalInfoModal() {
         </div>
     );
 }
+
+export function AddRuleDetails() {
+    const { setModalKind } = React.useContext(ModalContext);
+
+    function closeButtonHandler() {
+        setModalKind(null);
+    }
+    return (
+        <div className="w-full h-full p-10 flex items-center justify-center">
+            <div className="w-[80vw] md:w-[40vw] bg-white rounded-lg border border-gray-300 p-4">
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <p>Rules Details</p>
+                        <button
+                            className="p-2 rounded-full cursor-pointer"
+                            onClick={() => closeButtonHandler()}
+                        >
+                            <X size={15} color="red" />
+                        </button>
+                    </div>
+                    <div className="space-y-4">
+                        <input
+                            type="text"
+                            name="ruledetails"
+                            id="ruledetails"
+                            placeholder="some rule and details about the token asset"
+                            className="p-2 border border-gray-300 rounded-md w-full"
+                        />
+                        <button className="text-sm text-white background-dark p-2 rounded-md w-full cursor-pointer">Set Rule Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

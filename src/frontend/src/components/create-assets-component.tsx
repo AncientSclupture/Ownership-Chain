@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, FileLock2, X } from "lucide-react";
+import { ChevronDown, ChevronRight, FileLock2, Plus, X } from "lucide-react";
 import { AccordionProps, ModalKindEnum } from "../types/ui";
 import { AccessInfoMaps } from "./map/asset-detals-map";
 import React from "react";
@@ -28,7 +28,6 @@ export function OverviewIdentity() {
             <div>
                 <div className="flex justify-between items-center pr-2">
                     <p>Asset Name</p>
-                    <p>check</p>
                 </div>
                 <input
                     type="text"
@@ -44,7 +43,6 @@ export function OverviewIdentity() {
             <div>
                 <div className="flex justify-between items-center pr-2">
                     <p>Asset Description</p>
-                    <p>check</p>
                 </div>
                 <textarea
                     name="description"
@@ -61,7 +59,6 @@ export function OverviewIdentity() {
             <div>
                 <div className="flex justify-between items-center pr-2">
                     <p>Asset Types</p>
-                    <p>check</p>
                 </div>
                 <select
                     className="border border-gray-400 p-2 w-full rounded"
@@ -80,7 +77,6 @@ export function OverviewIdentity() {
             <div>
                 <div className="flex justify-between items-center pr-2">
                     <p>Asset Status</p>
-                    <p>check</p>
                 </div>
                 <select
                     className="border border-gray-400 p-2 w-full rounded"
@@ -103,7 +99,6 @@ export function TokenAsset() {
             <div>
                 <div className="flex justify-between items-center pr-2">
                     <p>Total Token</p>
-                    <p>check</p>
                 </div>
                 <input
                     type="text"
@@ -119,7 +114,6 @@ export function TokenAsset() {
             <div>
                 <div className="flex justify-between items-center pr-2">
                     <p>Provided Token</p>
-                    <p>check</p>
                 </div>
                 <input
                     type="text"
@@ -135,7 +129,6 @@ export function TokenAsset() {
             <div>
                 <div className="flex justify-between items-center pr-2">
                     <p>Minimal Token</p>
-                    <p>check</p>
                 </div>
                 <input
                     type="text"
@@ -151,7 +144,6 @@ export function TokenAsset() {
             <div>
                 <div className="flex justify-between items-center pr-2">
                     <p>Maximal Token</p>
-                    <p>check</p>
                 </div>
                 <input
                     type="text"
@@ -167,7 +159,6 @@ export function TokenAsset() {
             <div>
                 <div className="flex justify-between items-center pr-2">
                     <p>Price per Token</p>
-                    <p>check</p>
                 </div>
                 <input
                     type="text"
@@ -191,7 +182,7 @@ export function DocumentAsset() {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                         <FileLock2 />
-                        <div>
+                        <div className="font-mono">
                             hallo name
                         </div>
                     </div>
@@ -202,7 +193,7 @@ export function DocumentAsset() {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                         <FileLock2 />
-                        <div>
+                        <div className="font-mono">
                             hallo name
                         </div>
                     </div>
@@ -250,4 +241,72 @@ export function LocationAsset() {
             />
         </div>
     )
+}
+
+function SimpleToggle(
+    { val, setVal }:
+        { val: boolean, setVal: (v: boolean) => void }
+) {
+    return (
+        <label className="inline-flex items-center cursor-pointer">
+            <input
+                type="checkbox"
+                checked={val}
+                onChange={(e) => setVal(e.target.checked)}
+                className="sr-only peer"
+            />
+            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+        </label>
+    );
+}
+
+export function RuleAssetHolder() {
+    const [sellSharing, setSellSharing] = React.useState(false);
+    const [needDp, setNeedDp] = React.useState(false);
+    const { setModalKind } = React.useContext(ModalContext);
+    return (
+        <div className="space-y-4">
+            <div className="border-b px-2 py-3 border-gray-300 flex items-center justify-between">
+                <p>Allowed Asset holder to sell their token</p>
+                <SimpleToggle val={sellSharing} setVal={setSellSharing} />
+            </div>
+            {sellSharing &&
+                <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${sellSharing ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}
+                >
+                    <div className="px-2">
+                        <p>Sell Shring Price</p>
+                        <p>Token Holder need vote first to sell their sharing</p>
+                    </div>
+                </div>
+            }
+
+            <div className="border-b px-2 py-3 border-gray-300 flex items-center justify-between">
+                <p>To Buy This Asset Token the buyer need to proceed Down Payment First</p>
+                <SimpleToggle val={needDp} setVal={setNeedDp} />
+            </div>
+            {needDp &&
+                <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${needDp ? "max-h-48 opacity-100" : "max-h-0 opacity-0"}`}
+                >
+                    <div className="px-2">
+                        <p>Minimal Down Payment Percentage Price</p>
+                        <p>Down Payment Cashback</p>
+                        <p>Down Payment Maturity Time or Deadline</p>
+                    </div>
+                </div>
+            }
+            <p className="border-b px-2 py-3 border-gray-300">Buyer must finished the payment in ... days after approval</p>
+
+            <p className="border-b px-2 py-3 border-gray-300">Every Token Holder will have their own token in this asset until ... days</p>
+
+            <div className="border-b px-2 py-3 border-gray-300 flex items-center justify-between">
+                <p >Add Another Details here</p>
+                <button className="p-1 rounded-full background-dark cursor-pointer" onClick={() => setModalKind(ModalKindEnum.addruledetails)}>
+                    <Plus size={12} color="white" />
+                </button>
+            </div>
+
+        </div>
+    );
 }

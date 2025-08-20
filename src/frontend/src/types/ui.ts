@@ -90,9 +90,15 @@ export type AccordionProps = {
 export enum ModalKindEnum {
   adddocument = "adddocument",
   personalinfo = "personalinfo",
+  addruledetails = "addruledetails",
 }
 
 export interface ModalWrapperInterface {
   name: ModalKindEnum;
   component: React.ReactNode;
+}
+
+export interface ContentDashboardInterface
+  extends Omit<ModalWrapperInterface, "name"> {
+  name: UserDashboardMenus;
 }

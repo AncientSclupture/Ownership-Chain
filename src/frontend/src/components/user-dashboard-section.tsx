@@ -1,6 +1,6 @@
 import React from "react";
 import { CreateAssetStep, ModalKindEnum } from "../types/ui";
-import { CreateAssetAccordion, DocumentAsset, LocationAsset, OverviewIdentity, TokenAsset } from "./create-assets-component";
+import { CreateAssetAccordion, DocumentAsset, LocationAsset, OverviewIdentity, RuleAssetHolder, TokenAsset } from "./create-assets-component";
 import { ModalContext } from "../context/ModalContext";
 
 export function AboutMeSection() {
@@ -92,15 +92,12 @@ export function ProposalsSection() {
 export function CreateAssetSection() {
     const [stepProgress, setStepProgress] = React.useState<CreateAssetStep>(CreateAssetStep.overview)
 
-    const onHandleToggle = () => {
-        setStepProgress(CreateAssetStep.overview)
-    }
     return (
         <div className="p-2 space-y-5">
             <CreateAssetAccordion
                 title="Asset Overview and Identity"
                 isOpen={stepProgress === CreateAssetStep.overview}
-                onToggle={onHandleToggle}
+                onToggle={() => setStepProgress(CreateAssetStep.overview)}
             >
                 <OverviewIdentity />
             </CreateAssetAccordion>
@@ -134,7 +131,7 @@ export function CreateAssetSection() {
                 isOpen={stepProgress === CreateAssetStep.rule}
                 onToggle={() => setStepProgress(CreateAssetStep.rule)}
             >
-                another form content
+                <RuleAssetHolder />
             </CreateAssetAccordion>
 
             <CreateAssetAccordion

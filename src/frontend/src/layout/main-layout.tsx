@@ -4,7 +4,7 @@ import { Footer } from "../components/footer";
 import { ModalProvider } from "../context/ModalContext";
 import ModalWrapper from "../components/modals/modal-wrapper";
 import { ModalKindEnum } from "../types/ui";
-import { AddDocumentsModal, EditPersonalInfoModal } from "../components/modals/create-asset";
+import { AddDocumentsModal, EditPersonalInfoModal, AddRuleDetails } from "../components/modals/create-asset";
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
 
@@ -18,6 +18,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                     listcontent={[
                         { name: ModalKindEnum.adddocument, component: <AddDocumentsModal /> },
                         { name: ModalKindEnum.personalinfo, component: <EditPersonalInfoModal /> },
+                        { name: ModalKindEnum.addruledetails, component: <AddRuleDetails /> },
                     ]}
                 />
             </div>
