@@ -1,4 +1,5 @@
 import { LucideIcon } from "lucide-react";
+import React from "react";
 
 export enum AssetTypeOptions {
   Artwork = 'Artwork',
@@ -50,9 +51,10 @@ export enum UserDashboardMenus {
   AssetsList = "Assets List",
   Proposals = "Proposals",
   CreateAsset = "Create Asset",
-  Income = "Income",
   MyReport = "My Reports",
-  Ownership = "Ownership"
+  Ownership = "Ownership",
+  Dividend = "Dividend",
+  Transaction = "Transaction",
 }
 
 export interface UserDashboardSubMenusInterface {
@@ -66,4 +68,31 @@ export interface UserDashboardMenusInterface {
   usermenu?: UserDashboardMenus;
   icon?: LucideIcon;
   submenu: UserDashboardSubMenusInterface[];
+}
+
+export enum CreateAssetStep {
+  overview = "overview", // name, description, type, status
+  token = "token", // totalToken, providedToken, minTokenPurchased, maxTokenPurchased, pricePerToken
+  document = "document", // documentHash
+  location = "location", // documentHash
+  rule = "rule", // rule
+  tag = "term and agreement"
+}
+
+
+export type AccordionProps = {
+  title: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+};
+
+export enum ModalKindEnum {
+  adddocument = "adddocument",
+  personalinfo = "personalinfo",
+}
+
+export interface ModalWrapperInterface {
+  name: ModalKindEnum;
+  component: React.ReactNode;
 }

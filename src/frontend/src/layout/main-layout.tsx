@@ -1,14 +1,27 @@
 import React from "react";
 import { NavBar } from "../components/navigation";
 import { Footer } from "../components/footer";
+import { ModalProvider } from "../context/ModalContext";
+import ModalWrapper from "../components/modals/modal-wrapper";
+import { ModalKindEnum } from "../types/ui";
+import { AddDocumentsModal, EditPersonalInfoModal } from "../components/modals/create-asset";
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
 
     return (
-        <div className="hide-scrollbar w-full min-h-screen">
-            <NavBar />
-            <div className="min-h-screen">{children}</div>
-            <Footer />
-        </div>
+        <ModalProvider>
+            <div className="hide-scrollbar w-full min-h-screen">
+                <NavBar />
+                <div className="min-h-screen">{children}</div>
+                <Footer />
+                <ModalWrapper
+                    listcontent={[
+                        { name: ModalKindEnum.adddocument, component: <AddDocumentsModal /> },
+                        { name: ModalKindEnum.personalinfo, component: <EditPersonalInfoModal /> },
+                    ]}
+                />
+            </div>
+        </ModalProvider>
+
     );
 }
