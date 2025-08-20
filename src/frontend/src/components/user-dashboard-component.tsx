@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronRight, PanelsLeftBottomIcon, LayoutList, CircleDollarSign, FileCheck, Flag, ImagePlus, User, Images, Banknote, ArrowLeftRight } from "lucide-react";
 import { useIsMobile } from "../hook/useMobile";
 import React from "react";
-import { UserDashboardMenus, UserDashboardMenusInterface } from "../types/ui";
+import { ContentDashboardInterface, UserDashboardMenus, UserDashboardMenusInterface } from "../types/ui";
 
 export const DashboardMenu: UserDashboardMenusInterface[] = [
     {
@@ -145,8 +145,8 @@ export function SidebarItem({
 }
 
 export function ContentDashboard(
-    { isSidebarOpen, setIsSidebarOpen, children }:
-        { isSidebarOpen: boolean; setIsSidebarOpen: (d: boolean) => void; children: React.ReactNode }
+    { isSidebarOpen, setIsSidebarOpen, contentList, selectedMenu }:
+        { isSidebarOpen: boolean; setIsSidebarOpen: (d: boolean) => void; contentList: ContentDashboardInterface[], selectedMenu: UserDashboardMenus }
 ) {
     const isMobile = useIsMobile();
 
@@ -170,7 +170,7 @@ export function ContentDashboard(
                     <PanelsLeftBottomIcon />
                 </div>
                 <div className="pt-4">
-                    {children}
+                    {contentList.find(c => c.name === selectedMenu)?.component}
                 </div>
             </div>
         </div>

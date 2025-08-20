@@ -10,48 +10,43 @@ function DashboardUser() {
 
   return (
     <MainLayout>
-        <div className="pt-15 flex min-h-screen relative">
-          <div className="w-full h-[91dvh] flex relative">
-            <SidebarDashboard
-              isSidebarOpen={isSidebarOpen}
-              setIsSidebarOpen={setIsSidebarOpen}
-            >
-              <div className="py-2 space-y-3">
-                {DashboardMenu.map((menus, idx) =>
-                  <SidebarItem
-                    key={idx}
-                    content={menus}
-                    selectedMenu={selectedMenu}
-                    setSelectedMenu={setSelectedMenu}
-                  />
-                )}
-              </div>
-            </SidebarDashboard>
+      <div className="pt-15 flex min-h-screen relative">
+        <div className="w-full h-[91dvh] flex relative">
+          <SidebarDashboard
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          >
+            <div className="py-2 space-y-3">
+              {DashboardMenu.map((menus, idx) =>
+                <SidebarItem
+                  key={idx}
+                  content={menus}
+                  selectedMenu={selectedMenu}
+                  setSelectedMenu={setSelectedMenu}
+                />
+              )}
+            </div>
+          </SidebarDashboard>
 
-            <ContentDashboard
-              isSidebarOpen={isSidebarOpen}
-              setIsSidebarOpen={setIsSidebarOpen}
-            >
-              {selectedMenu === UserDashboardMenus.AboutMe &&
-                <AboutMeSection />
-              }{selectedMenu === UserDashboardMenus.Proposals &&
-                <ProposalsSection />
-              }
-              {selectedMenu === UserDashboardMenus.AssetsList &&
-                <AssetListSection />
-              }{selectedMenu === UserDashboardMenus.CreateAsset &&
-                <CreateAssetSection />
-              }{selectedMenu === UserDashboardMenus.Dividend &&
-                <DividendSection />
-              }{selectedMenu === UserDashboardMenus.Transaction &&
-                <TransactionSection />
-              }{selectedMenu === UserDashboardMenus.MyReport &&
-                <ReportingSection />
-              }
-            </ContentDashboard>
-          </div>
+          <ContentDashboard
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+            selectedMenu={selectedMenu}
+            contentList={[
+              { name: UserDashboardMenus.AboutMe, component: <AboutMeSection /> },
+              { name: UserDashboardMenus.AssetsList, component: <AssetListSection /> },
+              { name: UserDashboardMenus.CreateAsset, component: <CreateAssetSection /> },
+              { name: UserDashboardMenus.Dividend, component: <DividendSection /> },
+              { name: UserDashboardMenus.Proposals, component: <ProposalsSection /> },
+              { name: UserDashboardMenus.MyReport, component: <ReportingSection /> },
+              { name: UserDashboardMenus.Transaction, component: <TransactionSection /> },
+            ]}
+          >
+
+          </ContentDashboard>
         </div>
-    </MainLayout>
+      </div>
+    </MainLayout >
   );
 }
 
