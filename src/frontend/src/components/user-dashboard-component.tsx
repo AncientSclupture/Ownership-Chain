@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, PanelsLeftBottomIcon, Aperture, CircleDollarSign, FileCheck, Flag, ImagePlus, User, Images } from "lucide-react";
+import { ChevronDown, ChevronRight, PanelsLeftBottomIcon, LayoutList, CircleDollarSign, FileCheck, Flag, ImagePlus, User, Images, Banknote, ArrowLeftRight } from "lucide-react";
 import { useIsMobile } from "../hook/useMobile";
 import React from "react";
 import { UserDashboardMenus, UserDashboardMenusInterface } from "../types/ui";
@@ -17,7 +17,7 @@ export const DashboardMenu: UserDashboardMenusInterface[] = [
             {
                 name: 'List',
                 usermenu: UserDashboardMenus.AssetsList,
-                icon: Aperture
+                icon: LayoutList
             },
             {
                 name: 'Proposals',
@@ -35,8 +35,18 @@ export const DashboardMenu: UserDashboardMenusInterface[] = [
     {
         name: 'Inome',
         icon: CircleDollarSign,
-        usermenu: UserDashboardMenus.Income,
-        submenu: []
+        submenu: [
+            {
+                name: 'Dividend',
+                usermenu: UserDashboardMenus.Dividend,
+                icon: Banknote
+            },
+            {
+                name: 'Transaction',
+                usermenu: UserDashboardMenus.Transaction,
+                icon: ArrowLeftRight
+            },
+        ]
     },
     {
         name: 'Reporting',
