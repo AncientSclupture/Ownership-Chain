@@ -1,13 +1,34 @@
 import { Upload, X } from "lucide-react";
 import React from "react";
 import { ModalContext } from "../../context/ModalContext";
+import { DocumentHashDataType } from "../../types/rwa";
 
 export function AddDocumentsModal() {
-    const { setModalKind } = React.useContext(ModalContext);
+    const { setModalKind, managementAddDocument } = React.useContext(ModalContext);
+    const [file, setFile] = React.useState<File | null>(null);
+    const [docName, setDocName] = React.useState("");
+    const [docDesc, setDocDesc] = React.useState("");
 
     function closeButtonHandler() {
         setModalKind(null);
+        setFile(null);
+        setDocName("");
+        setDocDesc("");
     }
+
+    function handleAddDocument() {
+        const newDoc: DocumentHashDataType = {
+            hash: file?.name || 'abcd',
+            name: docName,
+            description: docDesc,
+        };
+
+        managementAddDocument.setter(newDoc);
+
+        closeButtonHandler();
+    }
+
+
     return (
         <div className="w-full h-full p-10 flex items-center justify-center">
             <div className="w-full md:w-[60vw] bg-white rounded-lg border border-gray-300 p-4">
@@ -16,7 +37,7 @@ export function AddDocumentsModal() {
                         <p>Asset Documents</p>
                         <button
                             className="p-2 bg-red-500 rounded-full cursor-pointer"
-                            onClick={() => closeButtonHandler()}
+                            onClick={closeButtonHandler}
                         >
                             <X size={15} color="white" />
                         </button>
@@ -35,21 +56,37 @@ export function AddDocumentsModal() {
                                 accept="application/pdf"
                                 className="hidden"
                                 onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                        console.log("File dipilih:", file.name);
-                                    }
+                                    const f = e.target.files?.[0] || null;
+                                    setFile(f);
+                                    console.log("Selected file:", f);
                                 }}
                             />
                         </label>
                         <div className="flex flex-col w-full space-y-2">
                             <label htmlFor="docname">Document Name</label>
-                            <input type="text" name="docname" id="docname" placeholder="ex. comp dividend" className="p-2 rounded-md border border-gray-200" />
+                            <input
+                                type="text"
+                                name="docname"
+                                id="docname"
+                                placeholder="ex. comp dividend"
+                                className="p-2 rounded-md border border-gray-200"
+                                value={docName}
+                                onChange={(e) => setDocName(e.target.value)}
+                            />
                             <label htmlFor="docdesc">Document Description</label>
-                            <input type="text" name="docdesc" id="docdesc" placeholder="ex. comp dividend in last 5 years" className="p-2 rounded-md border border-gray-200" />
+                            <input
+                                type="text"
+                                name="docdesc"
+                                id="docdesc"
+                                placeholder="ex. comp dividend in last 5 years"
+                                className="p-2 rounded-md border border-gray-200"
+                                value={docDesc}
+                                onChange={(e) => setDocDesc(e.target.value)}
+                            />
                         </div>
                         <button
                             className="text-white text-sm background-dark p-2 rounded-md cursor-pointer"
+                            onClick={handleAddDocument}
                         >
                             Sign and Add Documents
                         </button>
@@ -57,6 +94,7 @@ export function AddDocumentsModal() {
                 </div>
             </div>
         </div>
+
     );
 }
 
