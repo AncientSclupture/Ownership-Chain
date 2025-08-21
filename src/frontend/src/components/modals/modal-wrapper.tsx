@@ -8,6 +8,5 @@ export default function ModalWrapper({ listcontent }: { listcontent: ModalWrappe
         <div className={`${modalKind === null ? 'hidden' : 'fixed inset-0 bg-white/70 z-50 flex items-center justify-center'}`}>
             {listcontent.find(c => c.name === modalKind)?.component}
         </div>
-
     );
 }
