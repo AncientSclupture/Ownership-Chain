@@ -174,34 +174,46 @@ export function TokenAsset() {
     );
 }
 
-export function DocumentAsset() {
-    const { setModalKind } = React.useContext(ModalContext);
+function ComponentDocs({ name, onremove }: { name: string, onremove: (d: string) => void }) {
     return (
-        <div className="space-y-4">
-            <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                        <FileLock2 />
-                        <div className="font-mono">
-                            hallo name
-                        </div>
-                    </div>
-                    <div className="p-2 bg-red-200 rounded-full flex items-center justify-center cursor-pointer" >
-                        <X color="red" size={15} />
-                    </div>
-                </div>
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                        <FileLock2 />
-                        <div className="font-mono">
-                            hallo name
-                        </div>
-                    </div>
-                    <div className="p-2 bg-red-200 rounded-full flex items-center justify-center cursor-pointer" >
-                        <X color="red" size={15} />
-                    </div>
+        <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+                <FileLock2 size={18} />
+                <div className="font-mono text-sm">
+                    {name}
                 </div>
             </div>
+            <button
+                onClick={() => onremove(name)}
+                className="p-1 bg-red-200 rounded-full flex items-center justify-center cursor-pointer"
+            >
+                <X color="red" size={15} />
+            </button>
+        </div>
+    );
+}
+
+export function DocumentAsset() {
+    const { setModalKind, managementAddDocument } = React.useContext(ModalContext);
+    const documentsData = managementAddDocument.data || [];
+    return (
+        <div className="space-y-4">
+            {documentsData.length === 0 && (
+                <p className="text-[12px]">You need to add at least one document</p>
+            )}
+
+            {documentsData.length > 0 && (
+                <div className="space-y-2">
+                    {documentsData.map((data, idx) => (
+                        <ComponentDocs
+                            key={idx}
+                            name={data.name}
+                            onremove={managementAddDocument.remover}
+                        />
+                    ))}
+                </div>
+            )}
+
             <button
                 onClick={() => setModalKind(ModalKindEnum.adddocument)}
                 className="bg-black p-2 rounded-md text-white uppercase text-[10px] cursor-pointer"
@@ -209,8 +221,9 @@ export function DocumentAsset() {
                 add documents
             </button>
         </div>
-    )
+    );
 }
+
 
 export function LocationAsset() {
     return (
@@ -274,9 +287,25 @@ export function RuleAssetHolder() {
                 <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${sellSharing ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}
                 >
-                    <div className="px-2">
-                        <p>Sell Shring Price</p>
-                        <p>Token Holder need vote first to sell their sharing</p>
+                    <div className="px-2 space-y-3">
+                        <input
+                            type="text"
+                            name="sellprice"
+                            id="sellprice"
+                            placeholder="Sell Shring Price"
+                            className="p-2 border border-gray-200 rounded-lg"
+                        />
+                        <div>
+                            <div className="flex justify-between items-center pr-2">
+                                <p>Token Holder need vote first to sell their sharing</p>
+                            </div>
+                            <select
+                                className="border border-gray-400 p-2 w-full rounded"
+                            >
+                                <option>No</option>
+                                <option>Yes</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             }
@@ -289,24 +318,115 @@ export function RuleAssetHolder() {
                 <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${needDp ? "max-h-48 opacity-100" : "max-h-0 opacity-0"}`}
                 >
-                    <div className="px-2">
-                        <p>Minimal Down Payment Percentage Price</p>
-                        <p>Down Payment Cashback</p>
-                        <p>Down Payment Maturity Time or Deadline</p>
+                    <div className="px-2 space-y-3">
+                        <input
+                            type="text"
+                            name="sellprice"
+                            id="sellprice"
+                            placeholder="Minimal Down Payment Percentage Price (%)"
+                            className="p-2 w-full border border-gray-200 rounded-lg"
+                        />
+                        <input
+                            type="text"
+                            name="sellprice"
+                            id="sellprice"
+                            placeholder="Down Payment Cashback Percentage (%)"
+                            className="p-2 w-full border border-gray-200 rounded-lg"
+                        />
+                        <input
+                            type="text"
+                            name="dpmaturity"
+                            id="dpmaturity"
+                            placeholder="Down Payment Maturity Time or Deadline (day)"
+                            className="p-2 w-full border border-gray-200 rounded-lg"
+                        />
                     </div>
                 </div>
             }
-            <p className="border-b px-2 py-3 border-gray-300">Buyer must finished the payment in ... days after approval</p>
-
-            <p className="border-b px-2 py-3 border-gray-300">Every Token Holder will have their own token in this asset until ... days</p>
-
-            <div className="border-b px-2 py-3 border-gray-300 flex items-center justify-between">
-                <p >Add Another Details here</p>
-                <button className="p-1 rounded-full background-dark cursor-pointer" onClick={() => setModalKind(ModalKindEnum.addruledetails)}>
-                    <Plus size={12} color="white" />
-                </button>
+            <div className="border-b px-2 py-3 border-gray-300">
+                <label
+                    htmlFor="fpmaturity"
+                >
+                    After Approval Proposal Succeded, buyer must finished remaining payment until
+                </label>
+                <input
+                    type="text"
+                    name="fpmaturity"
+                    id="fpmaturity"
+                    placeholder="... (days)"
+                    className="p-2 w-full border border-gray-200 rounded-lg"
+                />
             </div>
 
+            <div className="border-b px-2 py-3 border-gray-300">
+                <label
+                    htmlFor="ownershipmaturity"
+                >
+                    Every Token Holder will have their own token in this asset until
+                </label>
+                <input
+                    type="text"
+                    name="ownershipmaturity"
+                    id="ownershipmaturity"
+                    placeholder="... (days)"
+                    className="p-2 w-full border border-gray-200 rounded-lg"
+                />
+            </div>
+            <div>
+                <div className="border-b px-2 py-3 border-gray-300 flex items-center justify-between">
+                    <p >Add Another Details here</p>
+                    <button className="p-1 rounded-full background-dark cursor-pointer" onClick={() => setModalKind(ModalKindEnum.addruledetails)}>
+                        <Plus size={12} color="white" />
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    );
+}
+
+export function TermsAndCondition() {
+    return (
+        <div className="space-y-6 text-sm leading-relaxed">
+            <div className="space-y-2 border-b border-gray-300 pb-4">
+                <h1 className="font-bold text-base">By submitting this document and asset, I consciously declare that:</h1>
+                <ul className="list-decimal list-inside space-y-1">
+                    <li>
+                        If at any point it is proven that my asset constitutes plagiarism, fraud,
+                        manipulation, or any form of scam, all ownership rights to the asset may be revoked
+                        without compensation, and I agree to accept any administrative sanctions or penalties as required.
+                    </li>
+                    <li>
+                        I am fully responsible for completing all administrative obligations,
+                        including dividend distribution, profit sharing, and business closure in the event of
+                        bankruptcy or liquidation.
+                    </li>
+                    <li>
+                        I take full responsibility for the control and management of the asset,
+                        and I am required to comply with all regulations and provisions that I have
+                        established in the <span className="font-semibold">Asset Rules</span> section.
+                    </li>
+                </ul>
+            </div>
+
+            <div className="space-y-2 border-b border-gray-300 pb-4">
+                <h1 className="font-bold text-base">I hereby truthfully declare that:</h1>
+                <ul className="list-decimal list-inside space-y-1">
+                    <li>All documents I upload are accurate, valid, and their authenticity can be accounted for.</li>
+                    <li>I have set the location, type, and total token amount with full awareness and responsibility.</li>
+                    <li>I understand that any mistakes in data entry or negligence are entirely my own responsibility.</li>
+                </ul>
+            </div>
+
+            <div className="space-y-2 border-b border-gray-300 pb-4">
+                <h1 className="font-bold text-base">Additional Terms</h1>
+                <ul className="list-decimal list-inside space-y-1">
+                    <li>I acknowledge that there are market, legal, and technological risks that may affect the value and sustainability of the asset.</li>
+                    <li>I agree to provide clarification, additional evidence, or supporting documents if requested by an authorized party.</li>
+                    <li>I accept that any violation of these terms and conditions may result in suspension, freezing, or removal of the asset.</li>
+                    <li>By submitting, I confirm that I have read, understood, and agreed to all the applicable terms & conditions.</li>
+                </ul>
+            </div>
         </div>
     );
 }
