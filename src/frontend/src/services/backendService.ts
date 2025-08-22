@@ -54,7 +54,7 @@ export const backendService = {
         rule: Rule,
     ): Promise<Result> {
         try {
-            return await backend.createAsset(
+            const res = await backend.createAsset(
                 name,
                 description,
                 totalToken,
@@ -67,10 +67,17 @@ export const backendService = {
                 assetType,
                 assetStatus,
                 rule
-            )
+            );
+
+            if ((res as any).err) {
+                throw new Error((res as any).err);
+            }
+
+            return res;
         } catch (error) {
-            return { err: 'Failed to create asset: ' + (error as Error).message };
+            throw error;
         }
     }
+
 
 };

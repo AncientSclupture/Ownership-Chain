@@ -5,6 +5,7 @@ import { ModalProvider } from "../context/ModalContext";
 import ModalWrapper from "../components/modals/modal-wrapper";
 import { ModalKindEnum } from "../types/ui";
 import { AddDocumentsModal, EditPersonalInfoModal, AddRuleDetails } from "../components/modals/create-asset";
+import { PopUp } from "../components/popup";
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
 
@@ -21,6 +22,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                         { name: ModalKindEnum.addruledetails, component: <AddRuleDetails /> },
                     ]}
                 />
+                <PopUp />
             </div>
         </ModalProvider>
 

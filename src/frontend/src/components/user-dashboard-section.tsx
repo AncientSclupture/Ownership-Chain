@@ -1,9 +1,10 @@
 import React from "react";
 import { CreateAssetStep, FormDataCreateAseet, ModalKindEnum } from "../types/ui";
-import { CreateAssetAccordion, DocumentAsset, LocationAsset, OverviewIdentity, RuleAssetHolder, TermsAndCondition, TokenAsset } from "./create-assets-component";
+import { CreateAssetAccordion, createDataInitial, DocumentAsset, LocationAsset, OverviewIdentity, RuleAssetHolder, TermsAndCondition, TokenAsset } from "./create-assets-component";
 import { ModalContext } from "../context/ModalContext";
 import { CustomizableBarChart, CustomizableLineChart } from "./chart/asset-detail-chart";
 import { DocumentHashDataType } from "../types/rwa";
+import { Loader } from "./loader-component";
 
 export function AboutMeSection() {
     const { setModalKind } = React.useContext(ModalContext);
@@ -93,37 +94,17 @@ export function ProposalsSection() {
 export function CreateAssetSection() {
     const [stepProgress, setStepProgress] = React.useState<CreateAssetStep>(CreateAssetStep.overview)
     const { managementAddDocument } = React.useContext(ModalContext);
+    const [isLoading, setIsLoading] = React.useState(false);
 
-    const [formData, setFormData] = React.useState<FormDataCreateAseet>({
-        name: "",
-        description: "",
-        assetType: "Property",
-        assetStatus: "Active",
+    const [formData, setFormData] = React.useState<FormDataCreateAseet>(createDataInitial);
 
-        totalToken: 0,
-        providedToken: 0,
-        minTokenPurchased: 0,
-        maxTokenPurchased: 0,
-        pricePerToken: 0,
+    function resetFormData() {
+        setFormData(createDataInitial)
+    }
 
-        locationInfo: { lat: 0, long: 0, details: [""] },
-        documentHash: [],
-
-        rule: {
-            sellSharing: false,
-            sellSharingNeedVote: false,
-            sellSharingPrice: 0,
-            needDownPayment: false,
-            minDownPaymentPercentage: 0,
-            downPaymentCashback: 0,
-            downPaymentMaturityTime: 0,
-            paymentMaturityTime: 0,
-            ownerShipMaturityTime: 0,
-            details: [""],
-        },
-
-        agreement: false,
-    });
+    function loadingCreateDataHandler(d: boolean){
+        setIsLoading(d)
+    }
 
     React.useEffect(() => {
         if (managementAddDocument?.data) {
@@ -136,9 +117,7 @@ export function CreateAssetSection() {
         }
     }, [managementAddDocument?.data]);
 
-    React.useEffect(() => {
-        console.log(formData)
-    }, [formData])
+    if (isLoading) return <Loader />
 
     return (
         <div className="p-2 space-y-5">
@@ -187,7 +166,11 @@ export function CreateAssetSection() {
                 isOpen={stepProgress === CreateAssetStep.tag}
                 onToggle={() => setStepProgress(CreateAssetStep.tag)}
             >
-                <TermsAndCondition formData={formData} />
+                <TermsAndCondition
+                    formData={formData}
+                    resetter={resetFormData}
+                    loadingHandler={loadingCreateDataHandler}
+                />
             </CreateAssetAccordion>
         </div>
     );

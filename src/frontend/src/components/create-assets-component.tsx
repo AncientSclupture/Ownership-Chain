@@ -6,6 +6,7 @@ import { ModalContext } from "../context/ModalContext";
 import { backendService } from "../services/backendService";
 import { DocumentHash, LocationType, Rule } from "../../../declarations/backend/backend.did";
 import { mapFormDataToCreateAsset, mapRule } from "../utils/union-handler";
+import { PopUpContext } from "../context/PopUpContext";
 
 export function CreateAssetAccordion({ title, isOpen, onToggle, children }: AccordionProps) {
     return (
@@ -22,6 +23,37 @@ export function CreateAssetAccordion({ title, isOpen, onToggle, children }: Acco
             {isOpen && <div className="transition-all duration-200 mt-3">{children}</div>}
         </div>
     );
+}
+
+export const createDataInitial: FormDataCreateAseet = {
+    name: "",
+    description: "",
+    assetType: "Property",
+    assetStatus: "Active",
+
+    totalToken: 0,
+    providedToken: 0,
+    minTokenPurchased: 0,
+    maxTokenPurchased: 0,
+    pricePerToken: 0,
+
+    locationInfo: { lat: 0, long: 0, details: [""] },
+    documentHash: [],
+
+    rule: {
+        sellSharing: false,
+        sellSharingNeedVote: false,
+        sellSharingPrice: 0,
+        needDownPayment: false,
+        minDownPaymentPercentage: 0,
+        downPaymentCashback: 0,
+        downPaymentMaturityTime: 0,
+        paymentMaturityTime: 0,
+        ownerShipMaturityTime: 0,
+        details: [""],
+    },
+
+    agreement: false,
 }
 
 export function OverviewIdentity({ formData, setFormData }: { formData: any; setFormData: React.Dispatch<React.SetStateAction<any>> }) {
@@ -513,9 +545,15 @@ export function RuleAssetHolder({
 }
 
 
-export function TermsAndCondition({ formData }: { formData: FormDataCreateAseet }) {
+export function TermsAndCondition(
+    { formData, resetter, loadingHandler }:
+        { formData: FormDataCreateAseet, resetter: () => void, loadingHandler: (d: boolean) => void }
+) {
+
+    const { setPopUpData } = React.useContext(PopUpContext);
 
     async function submitCreateAsset(d: FormDataCreateAseet) {
+        loadingHandler(true)
         try {
             const mapped = mapFormDataToCreateAsset(d);
             const mappedRule = mapRule(d.rule);
@@ -535,9 +573,24 @@ export function TermsAndCondition({ formData }: { formData: FormDataCreateAseet 
                 mappedRule as Rule
             );
 
-            console.log(res);
+            setPopUpData({
+                title: "Success create new assset!",
+                description: `asset was created as ${res}`,
+                position: "bottom-right",
+            })
+
+            resetter();
+
+            loadingHandler(false)
+
         } catch (error) {
             console.error("Error creating asset:", error);
+            setPopUpData({
+                title: "Error creating asset!",
+                description: `no asset was created becasue of error happened ${error}`,
+                position: "bottom-right",
+            })
+            loadingHandler(false)
         }
     }
 
