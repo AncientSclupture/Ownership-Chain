@@ -106,7 +106,7 @@ export function CreateAssetSection() {
         maxTokenPurchased: 0,
         pricePerToken: 0,
 
-        locationInfo: { lat: 0, long: 0, details: "" },
+        locationInfo: { lat: 0, long: 0, details: [""] },
         documentHash: [],
 
         rule: {
@@ -187,7 +187,7 @@ export function CreateAssetSection() {
                 isOpen={stepProgress === CreateAssetStep.tag}
                 onToggle={() => setStepProgress(CreateAssetStep.tag)}
             >
-                <TermsAndCondition />
+                <TermsAndCondition formData={formData} />
             </CreateAssetAccordion>
         </div>
     );

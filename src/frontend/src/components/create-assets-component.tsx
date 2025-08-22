@@ -1,8 +1,11 @@
 import { ChevronDown, ChevronRight, FileLock2, Plus, X } from "lucide-react";
-import { AccordionProps, ModalKindEnum } from "../types/ui";
+import { AccordionProps, FormDataCreateAseet, ModalKindEnum } from "../types/ui";
 import { AccessInfoMaps } from "./map/asset-detals-map";
 import React from "react";
 import { ModalContext } from "../context/ModalContext";
+import { backendService } from "../services/backendService";
+import { DocumentHash, LocationType, Rule } from "../../../declarations/backend/backend.did";
+import { mapFormDataToCreateAsset, mapRule } from "../utils/union-handler";
 
 export function CreateAssetAccordion({ title, isOpen, onToggle, children }: AccordionProps) {
     return (
@@ -267,7 +270,6 @@ export function LocationAsset({
     formData: any;
     setFormData: React.Dispatch<React.SetStateAction<any>>;
 }) {
-    // helper untuk update nested locationInfo
     const updateLocation = (key: string, value: any) => {
         setFormData((prev: any) => ({
             ...prev,
@@ -304,7 +306,6 @@ export function LocationAsset({
                 />
             </div>
 
-            {/* Map preview */}
             <AccessInfoMaps
                 lat={formData.locationInfo.lat}
                 long={formData.locationInfo.long}
@@ -512,7 +513,35 @@ export function RuleAssetHolder({
 }
 
 
-export function TermsAndCondition() {
+export function TermsAndCondition({ formData }: { formData: FormDataCreateAseet }) {
+
+    async function submitCreateAsset(d: FormDataCreateAseet) {
+        try {
+            const mapped = mapFormDataToCreateAsset(d);
+            const mappedRule = mapRule(d.rule);
+
+            const res = await backendService.createAsset(
+                mapped.name,
+                mapped.description,
+                mapped.totalToken,
+                mapped.providedToken,
+                mapped.minTokenPurchased,
+                mapped.maxTokenPurchased,
+                mapped.pricePerToken,
+                d.locationInfo as LocationType,
+                d.documentHash as Array<DocumentHash>,
+                mapped.assetType,
+                mapped.assetStatus,
+                mappedRule as Rule
+            );
+
+            console.log(res);
+        } catch (error) {
+            console.error("Error creating asset:", error);
+        }
+    }
+
+
     return (
         <div className="space-y-6 text-sm leading-relaxed">
             <div className="space-y-2 border-b border-gray-300 pb-4">
@@ -554,6 +583,13 @@ export function TermsAndCondition() {
                     <li>By submitting, I confirm that I have read, understood, and agreed to all the applicable terms & conditions.</li>
                 </ul>
             </div>
+
+            <button
+                className="p-2 background-dark rounded-md text-white cursor-pointer"
+                onClick={() => submitCreateAsset(formData)}
+            >
+                Create Asset
+            </button>
         </div>
     );
 }

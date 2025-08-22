@@ -133,7 +133,7 @@ export type FormDataCreateAseet = {
   maxTokenPurchased: number;
   pricePerToken: number;
 
-  locationInfo: { lat: number; long: number; details: string };
+  locationInfo: { lat: number; long: number; details: string[] };
   documentHash: DocumentHashDataType[];
 
   rule: {
