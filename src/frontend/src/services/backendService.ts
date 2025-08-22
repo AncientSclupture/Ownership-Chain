@@ -1,5 +1,5 @@
 import { backend } from "../../../declarations/backend";
-import { Asset } from "../../../declarations/backend/backend.did";
+import { Asset, AssetStatus, AssetType, DocumentHash, LocationType, Result, Rule } from "../../../declarations/backend/backend.did";
 
 
 export const backendService = {
@@ -36,6 +36,40 @@ export const backendService = {
             console.error('Error fetching all assets:', error);
             return null;
 
+        }
+    },
+
+    async createAsset(
+        name: string,
+        description: string,
+        totalToken: bigint,
+        providedToken: bigint,
+        minTokenPurchased: bigint,
+        maxTokenPurchased: bigint,
+        pricePerToken: bigint,
+        locationInfo: LocationType,
+        documentHash: Array<DocumentHash>,
+        assetType: AssetType,
+        assetStatus: AssetStatus,
+        rule: Rule,
+    ): Promise<Result> {
+        try {
+            return await backend.createAsset(
+                name,
+                description,
+                totalToken,
+                providedToken,
+                minTokenPurchased,
+                maxTokenPurchased,
+                pricePerToken,
+                locationInfo,
+                documentHash,
+                assetType,
+                assetStatus,
+                rule
+            )
+        } catch (error) {
+            return { err: 'Failed to create asset: ' + (error as Error).message };
         }
     }
 

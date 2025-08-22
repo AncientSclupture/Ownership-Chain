@@ -11,3 +11,9 @@ export function formatMotokoTime(nanoseconds: bigint) {
     year: "numeric",
   });
 }
+
+export function SignDocument(docString: string): string{
+  return docString;
+}
+
+// export function VerifyDocument(chiper: string, privKey: string){}

@@ -196,7 +196,7 @@ module {
   public type Report = {
     id : Text;
     complainer : Principal;
-    assetId : Text;
+    targetid : Text;
     reportType : ReportType;
     // reputation is based on assets risk score or user kyc riskscore
     reputation : Float;

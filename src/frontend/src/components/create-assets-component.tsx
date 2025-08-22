@@ -21,7 +21,7 @@ export function CreateAssetAccordion({ title, isOpen, onToggle, children }: Acco
     );
 }
 
-export function OverviewIdentity() {
+export function OverviewIdentity({ formData, setFormData }: { formData: any; setFormData: React.Dispatch<React.SetStateAction<any>> }) {
     return (
         <div className="space-y-4">
             {/* name */}
@@ -33,7 +33,11 @@ export function OverviewIdentity() {
                     type="text"
                     name="name"
                     id="name"
+                    value={formData.name}
                     placeholder="put your asset name here"
+                    onChange={(e) =>
+                        setFormData((prev: any) => ({ ...prev, name: e.target.value }))
+                    }
                     className="p-2 border border-gray-400 rounded-md w-full"
                 />
             </div>
@@ -48,6 +52,10 @@ export function OverviewIdentity() {
                     name="description"
                     id="description"
                     placeholder="put your asset description here"
+                    value={formData.description}
+                    onChange={(e) =>
+                        setFormData((prev: any) => ({ ...prev, description: e.target.value }))
+                    }
                     className="p-2 border border-gray-400 rounded-md w-full resize-none"
                     rows={5}
 
@@ -61,14 +69,18 @@ export function OverviewIdentity() {
                     <p>Asset Types</p>
                 </div>
                 <select
+                    onChange={(e) =>
+                        setFormData((prev: any) => ({ ...prev, assetType: e.target.value }))
+                    }
+                    value={formData.assetType}
                     className="border border-gray-400 p-2 w-full rounded"
                 >
-                    <option>Property</option>
-                    <option>Business</option>
-                    <option>Artwork</option>
-                    <option>Vehicle</option>
-                    <option>Equipment</option>
-                    <option>Other</option>
+                    <option value={"Property"}>Property</option>
+                    <option value={"Business"}>Business</option>
+                    <option value={"Artwork"}>Artwork</option>
+                    <option value={"Vehicle"}>Vehicle</option>
+                    <option value={"Equipment"}>Equipment</option>
+                    <option value={"Other"}>Other</option>
                 </select>
             </div>
             {/* type */}
@@ -79,12 +91,16 @@ export function OverviewIdentity() {
                     <p>Asset Status</p>
                 </div>
                 <select
+                    onChange={(e) =>
+                        setFormData((prev: any) => ({ ...prev, assetStatus: e.target.value }))
+                    }
+                    value={formData.assetStatus}
                     className="border border-gray-400 p-2 w-full rounded"
                 >
-                    <option>Active</option>
-                    <option>Inactive</option>
-                    <option>Pending</option>
-                    <option>Open</option>
+                    <option value={"Active"}>Active</option>
+                    <option value={"Inactive"}>Inactive</option>
+                    <option value={"Pending"}>Pending</option>
+                    <option value={"Open"}>Open</option>
                 </select>
             </div>
             {/* status */}
@@ -92,7 +108,7 @@ export function OverviewIdentity() {
     );
 }
 
-export function TokenAsset() {
+export function TokenAsset({ formData, setFormData }: { formData: any; setFormData: React.Dispatch<React.SetStateAction<any>> }) {
     return (
         <div className="space-y-4">
             {/* total token */}
@@ -102,6 +118,10 @@ export function TokenAsset() {
                 </div>
                 <input
                     type="text"
+                    value={formData.totalToken}
+                    onChange={(e) =>
+                        setFormData((prev: any) => ({ ...prev, totalToken: e.target.value }))
+                    }
                     name="totaltoken"
                     id="totaltoken"
                     placeholder="set your total token here"
@@ -118,6 +138,10 @@ export function TokenAsset() {
                 <input
                     type="text"
                     name="providedtoken"
+                    value={formData.providedToken}
+                    onChange={(e) =>
+                        setFormData((prev: any) => ({ ...prev, providedToken: e.target.value }))
+                    }
                     id="providedtoken"
                     placeholder="set your token provided here"
                     className="p-2 border border-gray-400 rounded-md w-full"
@@ -133,6 +157,10 @@ export function TokenAsset() {
                 <input
                     type="text"
                     name="mintoken"
+                    value={formData.minTokenPurchased}
+                    onChange={(e) =>
+                        setFormData((prev: any) => ({ ...prev, minTokenPurchased: e.target.value }))
+                    }
                     id="mintoken"
                     placeholder="set your minimal token purchased here"
                     className="p-2 border border-gray-400 rounded-md w-full"
@@ -148,6 +176,10 @@ export function TokenAsset() {
                 <input
                     type="text"
                     name="maxtoken"
+                    value={formData.maxTokenPurchased}
+                    onChange={(e) =>
+                        setFormData((prev: any) => ({ ...prev, maxTokenPurchased: e.target.value }))
+                    }
                     id="maxtoken"
                     placeholder="set your maximal token purchased here"
                     className="p-2 border border-gray-400 rounded-md w-full"
@@ -163,6 +195,10 @@ export function TokenAsset() {
                 <input
                     type="text"
                     name="tokenprice"
+                    value={formData.pricePerToken}
+                    onChange={(e) =>
+                        setFormData((prev: any) => ({ ...prev, pricePerToken: e.target.value }))
+                    }
                     id="tokenprice"
                     placeholder="set your token price here"
                     className="p-2 border border-gray-400 rounded-md w-full"
@@ -224,37 +260,72 @@ export function DocumentAsset() {
     );
 }
 
+export function LocationAsset({
+    formData,
+    setFormData,
+}: {
+    formData: any;
+    setFormData: React.Dispatch<React.SetStateAction<any>>;
+}) {
+    // helper untuk update nested locationInfo
+    const updateLocation = (key: string, value: any) => {
+        setFormData((prev: any) => ({
+            ...prev,
+            locationInfo: {
+                ...prev.locationInfo,
+                [key]: value,
+            },
+        }));
+    };
 
-export function LocationAsset() {
     return (
         <div className="space-y-4">
             <div className="flex items-center space-x-2">
+                {/* Latitude */}
                 <input
                     type="text"
                     name="lat"
                     id="lat"
+                    value={formData.locationInfo.lat}
+                    onChange={(e) => updateLocation("lat", Number(e.target.value))}
                     placeholder="latitude"
                     className="p-2 border border-gray-400 rounded-md w-full"
                 />
+
+                {/* Longitude */}
                 <input
                     type="text"
                     name="long"
                     id="long"
+                    value={formData.locationInfo.long}
+                    onChange={(e) => updateLocation("long", Number(e.target.value))}
                     placeholder="longitude"
                     className="p-2 border border-gray-400 rounded-md w-full"
                 />
             </div>
-            <AccessInfoMaps lat={10} long={-8} />
+
+            {/* Map preview */}
+            <AccessInfoMaps
+                lat={formData.locationInfo.lat}
+                long={formData.locationInfo.long}
+            />
+
+            {/* Location details */}
             <textarea
                 name="locationdetails"
                 id="locationdetails"
+                value={formData.locationInfo.details?.[0] || ""}
+                onChange={(e) =>
+                    updateLocation("details", [e.target.value]) // simpan sebagai array
+                }
                 placeholder="put your location details here"
                 className="p-2 border border-gray-400 rounded-md w-full resize-none"
                 rows={6}
             />
         </div>
-    )
+    );
 }
+
 
 function SimpleToggle(
     { val, setVal }:
@@ -273,33 +344,66 @@ function SimpleToggle(
     );
 }
 
-export function RuleAssetHolder() {
-    const [sellSharing, setSellSharing] = React.useState(false);
-    const [needDp, setNeedDp] = React.useState(false);
+export function RuleAssetHolder({
+    formData,
+    setFormData,
+}: {
+    formData: any;
+    setFormData: React.Dispatch<React.SetStateAction<any>>;
+}) {
     const { setModalKind } = React.useContext(ModalContext);
+
+    // helper untuk update nested state rule
+    const updateRule = (key: string, value: any) => {
+        setFormData((prev: any) => ({
+            ...prev,
+            rule: {
+                ...prev.rule,
+                [key]: value,
+            },
+        }));
+    };
+
     return (
         <div className="space-y-4">
+            {/* Sell Sharing toggle */}
             <div className="border-b px-2 py-3 border-gray-300 flex items-center justify-between">
                 <p>Allowed Asset holder to sell their token</p>
-                <SimpleToggle val={sellSharing} setVal={setSellSharing} />
+                <SimpleToggle
+                    val={formData.rule.sellSharing}
+                    setVal={(v) => updateRule("sellSharing", v)}
+                />
             </div>
-            {sellSharing &&
+
+            {/* Sell Sharing details */}
+            {formData.rule.sellSharing && (
                 <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${sellSharing ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${formData.rule.sellSharing
+                        ? "max-h-40 opacity-100"
+                        : "max-h-0 opacity-0"
+                        }`}
                 >
                     <div className="px-2 space-y-3">
                         <input
                             type="text"
                             name="sellprice"
                             id="sellprice"
-                            placeholder="Sell Shring Price"
-                            className="p-2 border border-gray-200 rounded-lg"
+                            value={formData.rule.sellSharingPrice}
+                            onChange={(e) =>
+                                updateRule("sellSharingPrice", Number(e.target.value))
+                            }
+                            placeholder="Sell Sharing Price"
+                            className="p-2 border border-gray-200 rounded-lg w-full"
                         />
                         <div>
                             <div className="flex justify-between items-center pr-2">
                                 <p>Token Holder need vote first to sell their sharing</p>
                             </div>
                             <select
+                                value={formData.rule.sellSharingNeedVote ? "Yes" : "No"}
+                                onChange={(e) =>
+                                    updateRule("sellSharingNeedVote", e.target.value === "Yes")
+                                }
                                 className="border border-gray-400 p-2 w-full rounded"
                             >
                                 <option>No</option>
@@ -308,82 +412,105 @@ export function RuleAssetHolder() {
                         </div>
                     </div>
                 </div>
-            }
+            )}
 
+            {/* Down Payment toggle */}
             <div className="border-b px-2 py-3 border-gray-300 flex items-center justify-between">
                 <p>To Buy This Asset Token the buyer need to proceed Down Payment First</p>
-                <SimpleToggle val={needDp} setVal={setNeedDp} />
+                <SimpleToggle
+                    val={formData.rule.needDownPayment}
+                    setVal={(v) => updateRule("needDownPayment", v)}
+                />
             </div>
-            {needDp &&
+
+            {/* Down Payment details */}
+            {formData.rule.needDownPayment && (
                 <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${needDp ? "max-h-48 opacity-100" : "max-h-0 opacity-0"}`}
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${formData.rule.needDownPayment
+                        ? "max-h-48 opacity-100"
+                        : "max-h-0 opacity-0"
+                        }`}
                 >
                     <div className="px-2 space-y-3">
                         <input
                             type="text"
-                            name="sellprice"
-                            id="sellprice"
+                            value={formData.rule.minDownPaymentPercentage}
+                            onChange={(e) =>
+                                updateRule("minDownPaymentPercentage", Number(e.target.value))
+                            }
                             placeholder="Minimal Down Payment Percentage Price (%)"
                             className="p-2 w-full border border-gray-200 rounded-lg"
                         />
                         <input
                             type="text"
-                            name="sellprice"
-                            id="sellprice"
+                            value={formData.rule.downPaymentCashback}
+                            onChange={(e) =>
+                                updateRule("downPaymentCashback", Number(e.target.value))
+                            }
                             placeholder="Down Payment Cashback Percentage (%)"
                             className="p-2 w-full border border-gray-200 rounded-lg"
                         />
                         <input
                             type="text"
-                            name="dpmaturity"
-                            id="dpmaturity"
+                            value={formData.rule.downPaymentMaturityTime}
+                            onChange={(e) =>
+                                updateRule("downPaymentMaturityTime", Number(e.target.value))
+                            }
                             placeholder="Down Payment Maturity Time or Deadline (day)"
                             className="p-2 w-full border border-gray-200 rounded-lg"
                         />
                     </div>
                 </div>
-            }
+            )}
+
+            {/* Full Payment Maturity */}
             <div className="border-b px-2 py-3 border-gray-300">
-                <label
-                    htmlFor="fpmaturity"
-                >
+                <label htmlFor="fpmaturity">
                     After Approval Proposal Succeded, buyer must finished remaining payment until
                 </label>
                 <input
                     type="text"
-                    name="fpmaturity"
-                    id="fpmaturity"
+                    value={formData.rule.paymentMaturityTime}
+                    onChange={(e) =>
+                        updateRule("paymentMaturityTime", Number(e.target.value))
+                    }
                     placeholder="... (days)"
                     className="p-2 w-full border border-gray-200 rounded-lg"
                 />
             </div>
 
+            {/* Ownership Maturity */}
             <div className="border-b px-2 py-3 border-gray-300">
-                <label
-                    htmlFor="ownershipmaturity"
-                >
+                <label htmlFor="ownershipmaturity">
                     Every Token Holder will have their own token in this asset until
                 </label>
                 <input
                     type="text"
-                    name="ownershipmaturity"
-                    id="ownershipmaturity"
+                    value={formData.rule.ownerShipMaturityTime}
+                    onChange={(e) =>
+                        updateRule("ownerShipMaturityTime", Number(e.target.value))
+                    }
                     placeholder="... (days)"
                     className="p-2 w-full border border-gray-200 rounded-lg"
                 />
             </div>
+
+            {/* Extra rule details */}
             <div>
                 <div className="border-b px-2 py-3 border-gray-300 flex items-center justify-between">
-                    <p >Add Another Details here</p>
-                    <button className="p-1 rounded-full background-dark cursor-pointer" onClick={() => setModalKind(ModalKindEnum.addruledetails)}>
+                    <p>Add Another Details here</p>
+                    <button
+                        className="p-1 rounded-full background-dark cursor-pointer"
+                        onClick={() => setModalKind(ModalKindEnum.addruledetails)}
+                    >
                         <Plus size={12} color="white" />
                     </button>
                 </div>
             </div>
-
         </div>
     );
 }
+
 
 export function TermsAndCondition() {
     return (

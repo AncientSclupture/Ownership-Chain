@@ -1,5 +1,6 @@
 import { LucideIcon } from "lucide-react";
 import React from "react";
+import { DocumentHashDataType } from "./rwa";
 
 export enum AssetTypeOptions {
   Artwork = 'Artwork',
@@ -102,3 +103,51 @@ export interface ContentDashboardInterface
   extends Omit<ModalWrapperInterface, "name"> {
   name: UserDashboardMenus;
 }
+
+export interface DocumentHashInterface {
+  name: string;
+  description: string;
+  hash: string;
+}
+
+export enum ReportCenterEnum {
+  asset = 'asset',
+  user = 'user'
+}
+
+
+export interface ContentReportCenterInterface
+  extends Omit<ModalWrapperInterface, "name"> {
+  name: ReportCenterEnum;
+}
+
+export type FormDataCreateAseet = {
+  name: string;
+  description: string;
+  assetType: string;
+  assetStatus: string;
+
+  totalToken: number;
+  providedToken: number;
+  minTokenPurchased: number;
+  maxTokenPurchased: number;
+  pricePerToken: number;
+
+  locationInfo: { lat: number; long: number; details: string };
+  documentHash: DocumentHashDataType[];
+
+  rule: {
+    sellSharing: boolean;
+    sellSharingNeedVote: boolean;
+    sellSharingPrice: number;
+    needDownPayment: boolean;
+    minDownPaymentPercentage: number;
+    downPaymentCashback: number;
+    downPaymentMaturityTime: number;
+    paymentMaturityTime: number;
+    ownerShipMaturityTime: number;
+    details: string[];
+  };
+
+  agreement: boolean;
+};
