@@ -1,5 +1,5 @@
 import { backend } from "../../../declarations/backend";
-import { Asset, AssetStatus, AssetType, DocumentHash, LocationType, Result, Rule } from "../../../declarations/backend/backend.did";
+import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, Ownership, Result, Rule, Transaction, User } from "../../../declarations/backend/backend.did";
 
 
 export const backendService = {
@@ -16,7 +16,6 @@ export const backendService = {
     async getAssets(): Promise<Asset[] | null> {
         try {
             const res = await backend.getAllAssets();
-            console.log(res);
             return res;
         } catch (error) {
             console.error('Error fetching all assets:', error);
@@ -77,7 +76,79 @@ export const backendService = {
         } catch (error) {
             throw error;
         }
-    }
+    },
 
+    async registUser(
+        fullName: string,
+        lastName: string,
+        phone: string,
+        country: string,
+        city: string,
+
+        userIDNumber: string,
+        userIdentity: IdentityNumberType,
+    ): Promise<Result> {
+        try {
+            const res = await backend.registUser(
+                fullName,
+                lastName,
+                phone,
+                country,
+                city,
+                userIDNumber,
+                userIdentity
+            );
+
+            if ((res as any).err) {
+                throw new Error((res as any).err);
+            }
+
+            return res;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async getUser(): Promise<User> {
+        try {
+            const res = await backend.getUsers();
+            if ((res as any).err) {
+                throw new Error((res as any).err);
+            }
+            return res[0];
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async getAssetDetails(assetId: string): Promise<void> {
+        try {
+            const res = await backend.getAssetFullDetails(assetId);
+
+            if ((res as any).err) {
+                throw new Error((res as any).err);
+            }
+
+            console.log(res);
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async proposedToken(
+        assetId: string,
+        token: bigint,
+        pricePerToken: bigint
+    ): Promise<Result> {
+        try {
+            const res = await backend.proposedBuyToken(assetId, token, pricePerToken);
+            if ((res as any).err) {
+                throw new Error((res as any).err);
+            }
+            return res;
+        } catch (error) {
+            throw error;
+        }
+    }
 
 };

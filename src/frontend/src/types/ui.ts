@@ -92,6 +92,7 @@ export enum ModalKindEnum {
   adddocument = "adddocument",
   personalinfo = "personalinfo",
   addruledetails = "addruledetails",
+  proposebuytoken = "proposebuytoken",
 }
 
 export interface ModalWrapperInterface {

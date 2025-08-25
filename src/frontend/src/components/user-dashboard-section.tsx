@@ -5,9 +5,24 @@ import { ModalContext } from "../context/ModalContext";
 import { CustomizableBarChart, CustomizableLineChart } from "./chart/asset-detail-chart";
 import { DocumentHashDataType } from "../types/rwa";
 import { Loader } from "./loader-component";
+import { User } from "../../../declarations/backend/backend.did";
+import { backendService } from "../services/backendService";
 
 export function AboutMeSection() {
-    const { setModalKind } = React.useContext(ModalContext);
+    const { setModalKind, load } = React.useContext(ModalContext);
+    const [fetchUser, setFetchUser] = React.useState<User | null>(null);
+
+    if (load) return <Loader />
+
+    React.useEffect(() => {
+        async function fetch() {
+            const data = await backendService.getUser();
+            setFetchUser(data);
+        }
+
+        fetch();
+    }, [])
+
     return (
         <div className="px-2 space-y-10">
             <div>
@@ -15,10 +30,10 @@ export function AboutMeSection() {
                     <div className="flex items-start justify-between">
                         <div>
                             <h1 className="font-semibold">Personal Information</h1>
-                            <p>user id</p>
+                            <p>{fetchUser?.id ?? ''}</p>
                         </div>
                         <button
-                            className="cursor-pointer bg-black p-2 text-[12px] text-white rounded-xl"
+                            className={`cursor-pointer bg-black p-2 text-[12px] text-white rounded-xl ${fetchUser ? 'hidden' : ''}`}
                             onClick={() => setModalKind(ModalKindEnum.personalinfo)}
                         >
                             Edit
@@ -26,17 +41,17 @@ export function AboutMeSection() {
                     </div>
                     <div className="grid grid-cols-2 gap-1">
                         <p>First name</p>
-                        <p>First name value</p>
+                        <p>{fetchUser?.fullName ?? '-'}</p>
                         <p>Last name</p>
-                        <p>Last name value</p>
+                        <p>{fetchUser?.lastName ?? '-'}</p>
                         <p>phone</p>
-                        <p>phone value</p>
+                        <p>{fetchUser?.phone ?? '-'}</p>
                         <p>Country</p>
-                        <p>Country value</p>
+                        <p>{fetchUser?.country ?? ''}</p>
                         <p>City</p>
-                        <p>City value</p>
+                        <p>{fetchUser?.city ?? '-'}</p>
                         <p>Identity code</p>
-                        <p>Identity code value</p>
+                        <p>{fetchUser?.userIDNumber ?? '-'}</p> 
                     </div>
                 </div>
             </div>

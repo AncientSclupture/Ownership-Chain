@@ -1,12 +1,16 @@
 import { Bot, Check, ChevronDown, ChevronUp, CircleEllipsis, X, FileText, Fingerprint, Flag, MapPin, ShoppingCart } from "lucide-react";
 import React from "react";
-import { SpecificAssetOverview } from "../types/ui";
+import { ModalKindEnum, SpecificAssetOverview } from "../types/ui";
 import { CustomizableBarChart, CustomizableLineChart } from "./chart/asset-detail-chart";
 import { AccessInfoMaps } from "./map/asset-detals-map";
 import { getAssetStatusText } from "../utils/union-handler";
 import { Asset as AssetData, Rule, LocationType } from "../../../declarations/backend/backend.did";
+import { ModalContext } from "../context/ModalContext";
 
 export function AssetMainContent({ data }: { data: AssetData }) {
+
+    const { setModalKind } = React.useContext(ModalContext);
+
     return (
         <div className="flex flex-col space-y-5 md:flex-row md:space-y-0 md:space-x-10">
             <div className="aspect-[4/3] w-full bg-gray-400 flex justify-center items-center rounded-md">Logo Asset</div>
@@ -40,7 +44,12 @@ export function AssetMainContent({ data }: { data: AssetData }) {
                     </div>
                 </div>
                 <div className="flex flex-col w-full space-y-2">
-                    <div className="p-4 rounded-lg cursor-pointer bg-[rgb(17,24,39)] text-white flex capitalize space-x-2 justify-center">
+                    <div
+                        onClick={() => {
+                            setModalKind(ModalKindEnum.proposebuytoken)
+                        }}
+                        className="p-4 rounded-lg cursor-pointer bg-[rgb(17,24,39)] text-white flex capitalize space-x-2 justify-center"
+                    >
                         <ShoppingCart color="white" />
                         <span>proposed to buy</span>
                     </div>
@@ -303,6 +312,7 @@ function TokenBox({ percent, label }: { percent: number; label: string }) {
 }
 
 function TokenCard() {
+
     // data example
     const data1 = [
         { name: 'person-4000', token: 2400 },

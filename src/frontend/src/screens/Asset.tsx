@@ -5,13 +5,15 @@ import React from "react";
 import { backendService } from "../services/backendService";
 import { Asset as AssetData } from "../../../declarations/backend/backend.did";
 import { Loader } from "../components/loader-component";
-
+import { ModalContext } from "../context/ModalContext";
 
 function Asset() {
   const { assetid } = useParams<{ assetid: string }>();
   const [data, setData] = React.useState<AssetData | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+
+  const { changeAssetId } = React.useContext(ModalContext);
 
   React.useEffect(() => {
     if (!assetid) {
@@ -34,7 +36,15 @@ function Asset() {
       }
     }
 
+    async function sureToSetAssetId() {
+      if (!assetid) return null;
+      console.log(assetid);
+      changeAssetId(assetid);
+    }
+
     fetchData();
+    sureToSetAssetId();
+
   }, [assetid]);
 
   if (error) return <div>{error}</div>;

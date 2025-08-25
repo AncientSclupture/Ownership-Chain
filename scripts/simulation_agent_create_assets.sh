@@ -183,7 +183,7 @@ createSingleAsset() {
     # Create the asset with explicit formatting
     echo "Calling createAsset..."
     dfx canister call backend createAsset \
-        "(\"${NAME}\", \"${DESCRIPTION}\", ${TOTAL_TOKEN} : nat, ${PROVIDED_TOKEN} : nat, ${MIN_PURCHASE} : nat, ${MAX_PURCHASE} : nat, ${PRICE_PER_TOKEN} : nat, record { lat = ${LAT} : float64; long = ${LONG} : float64; details = vec { \"${CITY}\"; \"${COUNTRY}\" } }, vec { record { name = \"Legal Document\"; description = \"Asset verification\"; hash = \"${DOC_HASH}\" } }, ${ASSET_TYPE}, variant { Active }, record { sellSharing = true : bool; sellSharingNeedVote = false : bool; sellSharingPrice = 500 : nat; needDownPayment = true : bool; minDownPaymentPercentage = 0.2 : float64; downPaymentCashback = 0.05 : float64; downPaymentMaturityTime = 30 : nat; paymentMaturityTime = 90 : int; ownerShipMaturityTime = 365 : int; details = vec { \"Standard rule\" } })"
+        "(\"${NAME}\", \"${DESCRIPTION}\", ${TOTAL_TOKEN} : nat, ${PROVIDED_TOKEN} : nat, ${MIN_PURCHASE} : nat, ${MAX_PURCHASE} : nat, ${PRICE_PER_TOKEN} : nat, record { lat = ${LAT} : float64; long = ${LONG} : float64; details = vec { \"${CITY}\"; \"${COUNTRY}\" } }, vec { record { name = \"Legal Document\"; description = \"Asset verification\"; hash = \"${DOC_HASH}\" } }, ${ASSET_TYPE}, variant { Open }, record { sellSharing = true : bool; sellSharingNeedVote = false : bool; sellSharingPrice = 500 : nat; needDownPayment = true : bool; minDownPaymentPercentage = 0.2 : float64; downPaymentCashback = 0.05 : float64; downPaymentMaturityTime = 30 : nat; paymentMaturityTime = 90 : int; ownerShipMaturityTime = 365 : int; details = vec { \"Standard rule\" } })"
     
     local RESULT=$?
     if [[ $RESULT -eq 0 ]]; then

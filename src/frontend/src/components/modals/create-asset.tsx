@@ -2,6 +2,10 @@ import { Upload, X } from "lucide-react";
 import React from "react";
 import { ModalContext } from "../../context/ModalContext";
 import { DocumentHashDataType } from "../../types/rwa";
+import countriesData from "../../utils/countries.json"
+import { backendService } from "../../services/backendService";
+import { mapToIdentityNumberType } from "../../utils/rwa-hepler";
+import { PopUpContext } from "../../context/PopUpContext";
 
 export function AddDocumentsModal() {
     const { setModalKind, managementAddDocument } = React.useContext(ModalContext);
@@ -98,12 +102,67 @@ export function AddDocumentsModal() {
     );
 }
 
+
 export function EditPersonalInfoModal() {
-    const { setModalKind } = React.useContext(ModalContext);
+    const { setModalKind, setLoadState } = React.useContext(ModalContext);
+    const { setPopUpData } = React.useContext(PopUpContext);
+
+    const [selectedCountry, setSelectedCountry] = React.useState<string>(countriesData[0].name);
+    const [selectedCity, setSelectedCity] = React.useState<string>(countriesData[0].cities[0].name);
+    const [fisrtname, setFirstname] = React.useState("");
+    const [lastname, setLastname] = React.useState("");
+    const [phone, setPhone] = React.useState("");
+    const [idnumber, setIdnumber] = React.useState("");
+    const [idtype, setIdtype] = React.useState("");
 
     function closeButtonHandler() {
         setModalKind(null);
     }
+
+    async function handleSubmit() {
+        setLoadState(true)
+        try {
+            const res = await backendService.registUser(
+                fisrtname,
+                lastname,
+                phone,
+                selectedCountry,
+                selectedCity,
+                idnumber,
+                mapToIdentityNumberType(idtype)
+            );
+            console.log(res);
+
+            setPopUpData({
+                title: "Success to regist and set user details as kyc details!",
+                description: `user details was created ${res}`,
+                position: "bottom-right",
+            })
+        } catch (error) {
+            console.log(error);
+            setPopUpData({
+                title: "Error To Set User Identity!",
+                description: `no changes happened because becasue of error ${error}`,
+                position: "bottom-right",
+            })
+        }
+        setLoadState(false)
+        
+    }
+
+    const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const country = e.target.value;
+        setSelectedCountry(country);
+        setSelectedCity(""); // reset city ketika ganti country
+    };
+
+    const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedCity(e.target.value);
+    };
+
+    const availableCities =
+        countriesData.find((c) => c.name === selectedCountry)?.cities || [];
+
     return (
         <div className="w-full h-full p-10 flex items-center justify-center">
             <div className="w-full h-[90%] md:w-[60vw] bg-white rounded-lg border border-gray-300 p-4">
@@ -117,11 +176,123 @@ export function EditPersonalInfoModal() {
                             <X size={15} color="white" />
                         </button>
                     </div>
+
+                    <div className="space-y-2">
+                        <div className="flex space-x-5 w-full">
+                            <div className="flex flex-col space-y-1 w-full">
+                                <label htmlFor="firstname">First Name</label>
+                                <input
+                                    value={fisrtname}
+                                    onChange={(e) => setFirstname(e.target.value)}
+                                    type="text"
+                                    name="firstname"
+                                    id="firstname"
+                                    placeholder="firstname"
+                                    className="p-2 rounded-md border border-gray-300"
+                                />
+                            </div>
+
+                            <div className="flex flex-col space-y-1 w-full">
+                                <label htmlFor="lastname">Last Name</label>
+                                <input
+                                    value={lastname}
+                                    onChange={(e) => setLastname(e.target.value)}
+                                    type="text"
+                                    name="lastname"
+                                    id="lastname"
+                                    placeholder="lastname"
+                                    className="p-2 rounded-md border border-gray-300"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col space-y-1 w-full">
+                            <label htmlFor="phone">Phone Number</label>
+                            <input
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                type="text"
+                                name="phone"
+                                id="phone"
+                                placeholder="phone"
+                                className="p-2 rounded-md border border-gray-300"
+                            />
+                        </div>
+
+                        {/* Country + City */}
+                        <div className="flex space-x-5 w-full">
+                            <div className="flex flex-col space-y-1 w-full">
+                                <label htmlFor="country">Country</label>
+                                <select
+                                    className="border border-gray-400 p-2 w-full rounded"
+                                    value={selectedCountry}
+                                    onChange={handleCountryChange}
+                                >
+                                    {countriesData.map((country) => (
+                                        <option key={country.name} value={country.name}>
+                                            {country.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="flex flex-col space-y-1 w-full">
+                                <label htmlFor="city">City</label>
+                                <select
+                                    className="border border-gray-400 p-2 w-full rounded"
+                                    value={selectedCity}
+                                    onChange={handleCityChange}
+                                    disabled={!selectedCountry}
+                                >
+                                    {availableCities.map((city) => (
+                                        <option key={city.name} value={city.name}>
+                                            {city.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Id Section */}
+                        <div className="flex space-x-5 w-full">
+                            <div className="flex flex-col space-y-1 w-full">
+                                <label htmlFor="idtype">Id Number Type</label>
+                                <select
+                                    className="border border-gray-400 p-2 w-full rounded"
+                                    value={idtype}
+                                    onChange={(e) => setIdtype(e.target.value)}
+                                >
+                                    <option value={"IdentityNumber"}>Identity Number</option>
+                                    <option value={"LiscenseNumber"}>Liscense Number</option>
+                                    <option value={"Pasport"}>Pasport</option>
+                                </select>
+                            </div>
+                            <div className="flex flex-col space-y-1 w-full">
+                                <label htmlFor="idnum">Id Number</label>
+                                <input
+                                    value={idnumber}
+                                    onChange={(e) => setIdnumber(e.target.value)}
+                                    type="text"
+                                    name="idnum"
+                                    id="idnum"
+                                    placeholder="idnum"
+                                    className="p-2 rounded-md border border-gray-300"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={() => handleSubmit()}
+                        className="background-dark text-white text-sm p-2 rounded-md cursor-pointer">
+                        Submit
+                    </button>
                 </div>
             </div>
         </div>
     );
 }
+
 
 export function AddRuleDetails() {
     const { setModalKind } = React.useContext(ModalContext);

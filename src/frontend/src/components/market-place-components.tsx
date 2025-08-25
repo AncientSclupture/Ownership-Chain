@@ -222,7 +222,12 @@ function AssetCard({ data }: { data: Asset }) {
                     <p className="text-sm"><span className="text-[rgb(0,51,102)] font-semibold">{data.pricePerToken} </span><span className="font-semibold">USD</span></p>
                     {isAuthenticated &&
                         <button className="w-1/2 flex items-center justify-center">
-                            <Link className="bg-[rgb(0,51,102)] p-1 w-full text-center text-white rounded-md" to={`/asset/${data.id}`}>Take Look</Link>
+                            <Link
+                                className="bg-[rgb(0,51,102)] p-1 w-full text-center text-white rounded-md"
+                                to={`/asset/${data.id}`}
+                            >
+                                Take Look
+                            </Link>
                         </button>
                     }
                 </div>
