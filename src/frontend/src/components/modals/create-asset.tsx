@@ -150,13 +150,13 @@ export function EditPersonalInfoModal() {
                 idnumber,
                 mapToIdentityNumberType(idtype)
             );
-            console.log(res);
 
             setPopUpData({
                 title: "Success to regist and set user details as kyc details!",
                 description: `user details was created ${res}`,
                 position: "bottom-right",
             })
+            setModalKind(null);
         } catch (error) {
             console.log(error);
             setPopUpData({

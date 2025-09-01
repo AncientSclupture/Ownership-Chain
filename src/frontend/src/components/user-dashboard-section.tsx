@@ -33,10 +33,10 @@ export function AboutMeSection() {
                             <p>{fetchUser?.id ?? ''}</p>
                         </div>
                         <button
-                            className={`cursor-pointer bg-black p-2 text-[12px] text-white rounded-xl ${fetchUser ? 'hidden' : ''}`}
+                            className={`cursor-pointer bg-black p-2 text-[12px] text-white rounded-md ${fetchUser ? 'hidden' : ''}`}
                             onClick={() => setModalKind(ModalKindEnum.personalinfo)}
                         >
-                            Edit
+                            Create
                         </button>
                     </div>
                     <div className="grid grid-cols-2 gap-1">
