@@ -3,24 +3,32 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import React from 'react';
 import { useIsMobile } from '../../hook/useMobile';
 
-export function AccessInfoMaps({ lat, long }: { lat: number; long: number }) {
+export function AccessInfoMaps({ lat, long }: { lat: number | string; long: number | string }) {
     const isMobile = useIsMobile();
 
+    const parsedLat = parseFloat(String(lat));
+    const parsedLong = parseFloat(String(long));
+
+    const sanitizedLat = isNaN(parsedLat) ? -7.763634776322426 : parsedLat;
+    const sanitizedLong = isNaN(parsedLong) ? 110.3689353416943 : parsedLong;
+
     React.useEffect(() => {
+        if (isNaN(sanitizedLat) || isNaN(sanitizedLong)) return;
+
         const map = new maplibregl.Map({
             container: "access-info-map",
             style: 'https://api.maptiler.com/maps/streets/style.json?key=rJesvYzd1J4oIcT9N4sA',
-            center: [long, lat],
+            center: [sanitizedLong, sanitizedLat],
             zoom: 11,
             interactive: false
         });
 
         new maplibregl.Marker()
-            .setLngLat([long, lat])
+            .setLngLat([sanitizedLong, sanitizedLat])
             .addTo(map);
 
         return () => map.remove();
-    }, [lat, long]);
+    }, [sanitizedLat, sanitizedLong]);
 
     return (
         <div

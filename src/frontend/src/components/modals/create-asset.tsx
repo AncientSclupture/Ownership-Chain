@@ -12,12 +12,14 @@ export function AddDocumentsModal() {
     const [file, setFile] = React.useState<File | null>(null);
     const [docName, setDocName] = React.useState("");
     const [docDesc, setDocDesc] = React.useState("");
+    const [signature, setSignature] = React.useState("");
 
     function closeButtonHandler() {
         setModalKind(null);
         setFile(null);
         setDocName("");
         setDocDesc("");
+        setSignature("");
     }
 
     function handleAddDocument() {
@@ -29,7 +31,7 @@ export function AddDocumentsModal() {
 
         managementAddDocument.setter(newDoc);
 
-        closeButtonHandler();
+        setModalKind(null);
     }
 
 
@@ -49,10 +51,12 @@ export function AddDocumentsModal() {
                     <div className="space-y-5">
                         <label
                             htmlFor="file"
-                            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
+                            className={`flex flex-col items-center justify-center w-full h-32 border-2 rounded-lg border-gray-300 ${file ? 'bg-blue-300' : 'border-dashed cursor-pointer hover:bg-gray-50'}`}
                         >
-                            <Upload className="w-8 h-8 text-gray-400" />
-                            <span className="mt-2 text-sm text-gray-600">Klik untuk upload PDF</span>
+                            <Upload className={`${!file ? 'w-8 h-8 text-gray-400' : 'hidden'}`} />
+                            <span className="mt-2 text-sm text-gray-600">
+                                {!file ? "Klik untuk upload PDF" : file.name}
+                            </span>
                             <input
                                 id="file"
                                 name="file"
@@ -62,12 +66,11 @@ export function AddDocumentsModal() {
                                 onChange={(e) => {
                                     const f = e.target.files?.[0] || null;
                                     setFile(f);
-                                    console.log("Selected file:", f);
                                 }}
                             />
                         </label>
                         <div className="flex flex-col w-full space-y-2">
-                            <label htmlFor="docname">Document Name</label>
+                            <label className="text-sm" htmlFor="docname">Document Name</label>
                             <input
                                 type="text"
                                 name="docname"
@@ -77,7 +80,7 @@ export function AddDocumentsModal() {
                                 value={docName}
                                 onChange={(e) => setDocName(e.target.value)}
                             />
-                            <label htmlFor="docdesc">Document Description</label>
+                            <label className="text-sm" htmlFor="docdesc">Document Description</label>
                             <input
                                 type="text"
                                 name="docdesc"
@@ -86,6 +89,16 @@ export function AddDocumentsModal() {
                                 className="p-2 rounded-md border border-gray-200"
                                 value={docDesc}
                                 onChange={(e) => setDocDesc(e.target.value)}
+                            />
+                            <label className="text-sm" htmlFor="signature">Put Your Signature Hash</label>
+                            <input
+                                type="text"
+                                name="signature"
+                                id="signature"
+                                placeholder="ex. comp dividend in last 5 years"
+                                className="p-2 rounded-md border border-gray-200"
+                                value={signature}
+                                onChange={(e) => setSignature(e.target.value)}
                             />
                         </div>
                         <button
@@ -104,7 +117,7 @@ export function AddDocumentsModal() {
 
 
 export function EditPersonalInfoModal() {
-    const { setModalKind, setLoadState } = React.useContext(ModalContext);
+    const { setModalKind } = React.useContext(ModalContext);
     const { setPopUpData } = React.useContext(PopUpContext);
 
     const [selectedCountry, setSelectedCountry] = React.useState<string>(countriesData[0].name);
@@ -116,11 +129,17 @@ export function EditPersonalInfoModal() {
     const [idtype, setIdtype] = React.useState("");
 
     function closeButtonHandler() {
+        setSelectedCountry(countriesData[0].cities[0].name);
+        setSelectedCountry(countriesData[0].name);
+        setFirstname("")
+        setLastname("")
+        setPhone("")
+        setIdnumber("")
+        setIdtype("")
         setModalKind(null);
     }
 
     async function handleSubmit() {
-        setLoadState(true)
         try {
             const res = await backendService.registUser(
                 fisrtname,
@@ -146,14 +165,12 @@ export function EditPersonalInfoModal() {
                 position: "bottom-right",
             })
         }
-        setLoadState(false)
-        
     }
 
     const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const country = e.target.value;
         setSelectedCountry(country);
-        setSelectedCity(""); // reset city ketika ganti country
+        setSelectedCity("");
     };
 
     const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -295,11 +312,20 @@ export function EditPersonalInfoModal() {
 
 
 export function AddRuleDetails() {
-    const { setModalKind } = React.useContext(ModalContext);
+    const { setModalKind, managementRuleDetail } = React.useContext(ModalContext);
+    const [detail, setDetail] = React.useState("");
 
     function closeButtonHandler() {
         setModalKind(null);
+        setDetail("")
     }
+
+    function onAddDetailsHandler() {
+        managementRuleDetail.setter(detail);
+        setModalKind(null);
+        setDetail("")
+    }
+
     return (
         <div className="w-full h-full p-10 flex items-center justify-center">
             <div className="w-[80vw] md:w-[40vw] bg-white rounded-lg border border-gray-300 p-4">
@@ -320,8 +346,15 @@ export function AddRuleDetails() {
                             id="ruledetails"
                             placeholder="some rule and details about the token asset"
                             className="p-2 border border-gray-300 rounded-md w-full"
+                            value={detail}
+                            onChange={(e) => setDetail(e.target.value)}
                         />
-                        <button className="text-sm text-white background-dark p-2 rounded-md w-full cursor-pointer">Set Rule Details</button>
+                        <button
+                            className="text-sm text-white background-dark p-2 rounded-md w-full cursor-pointer"
+                            onClick={() => onAddDetailsHandler()}
+                        >
+                            Set Rule Details
+                        </button>
                     </div>
                 </div>
             </div>

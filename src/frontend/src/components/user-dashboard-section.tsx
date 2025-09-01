@@ -51,7 +51,7 @@ export function AboutMeSection() {
                         <p>City</p>
                         <p>{fetchUser?.city ?? '-'}</p>
                         <p>Identity code</p>
-                        <p>{fetchUser?.userIDNumber ?? '-'}</p> 
+                        <p>{fetchUser?.userIDNumber ?? '-'}</p>
                     </div>
                 </div>
             </div>
@@ -108,16 +108,18 @@ export function ProposalsSection() {
 
 export function CreateAssetSection() {
     const [stepProgress, setStepProgress] = React.useState<CreateAssetStep>(CreateAssetStep.overview)
-    const { managementAddDocument } = React.useContext(ModalContext);
+    const { managementAddDocument, managementRuleDetail } = React.useContext(ModalContext);
     const [isLoading, setIsLoading] = React.useState(false);
 
     const [formData, setFormData] = React.useState<FormDataCreateAseet>(createDataInitial);
 
     function resetFormData() {
         setFormData(createDataInitial)
+        managementAddDocument.reseter();
+        managementRuleDetail.reseter();
     }
 
-    function loadingCreateDataHandler(d: boolean){
+    function loadingCreateDataHandler(d: boolean) {
         setIsLoading(d)
     }
 
@@ -130,7 +132,19 @@ export function CreateAssetSection() {
                 };
             });
         }
-    }, [managementAddDocument?.data]);
+
+        if (managementRuleDetail?.data) {
+            setFormData((prev) => {
+                return {
+                    ...prev,
+                    rule: {
+                        ...prev.rule,
+                        details: managementRuleDetail.data as string[]
+                    },
+                };
+            });
+        }
+    }, [managementAddDocument?.data, managementRuleDetail?.data]);
 
     if (isLoading) return <Loader />
 

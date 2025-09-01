@@ -8,11 +8,13 @@ export type ModalContextType = {
         data: string[] | null,
         setter: (d: string) => void;
         remover: (d: string) => void;
+        reseter: () => void;
     },
     managementAddDocument: {
         data: DocumentHashDataType[] | null,
         setter: (d: DocumentHashDataType) => void;
         remover: (d: string) => void;
+        reseter: () => void;
     },
     setModalKind: (d: ModalKindEnum | null) => void;
     load: boolean;
@@ -28,11 +30,13 @@ export const ModalContext = createContext<ModalContextType>({
         data: null,
         setter: () => { },
         remover: () => { },
+        reseter: () => {},
     },
     managementRuleDetail: {
         data: null,
         setter: () => { },
         remover: () => { },
+        reseter: () => {},
     },
     load: false,
     setLoadState: () => { },
@@ -83,6 +87,14 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         });
     }
 
+    function resseterDocument() {
+        setDocumentHashState([]);
+    }
+
+    function resetRuleDetail() {
+        setRuleDetailState([]);
+    }
+
     function changeAssetId(d: string | undefined) {
         console.log("asset id received: ", d)
         if (d === undefined) return;
@@ -93,8 +105,8 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         <ModalContext.Provider
             value={{
                 modalKind,
-                managementAddDocument: { data: documentHash, setter: addDocumentHash, remover: removeDocument },
-                managementRuleDetail: { data: ruleDetail, setter: addRuleDetail, remover: removeRuleDetail },
+                managementAddDocument: { data: documentHash, setter: addDocumentHash, remover: removeDocument, reseter: resseterDocument },
+                managementRuleDetail: { data: ruleDetail, setter: addRuleDetail, remover: removeRuleDetail, reseter: resetRuleDetail },
                 setModalKind: setModalShowUp,
                 load: loading,
                 setLoadState: setLoadingHanndler,

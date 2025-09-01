@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, FileLock2, Plus, X } from "lucide-react";
+import { ChevronDown, ChevronRight, Dot, FileLock2, Hash, Plus, X } from "lucide-react";
 import { AccordionProps, FormDataCreateAseet, ModalKindEnum } from "../types/ui";
 import { AccessInfoMaps } from "./map/asset-detals-map";
 import React from "react";
@@ -37,7 +37,7 @@ export const createDataInitial: FormDataCreateAseet = {
     maxTokenPurchased: 0,
     pricePerToken: 0,
 
-    locationInfo: { lat: 0, long: 0, details: [""] },
+    locationInfo: { lat: 0, long: 0, details: [] },
     documentHash: [],
 
     rule: {
@@ -267,6 +267,7 @@ function ComponentDocs({ name, onremove }: { name: string, onremove: (d: string)
 export function DocumentAsset() {
     const { setModalKind, managementAddDocument } = React.useContext(ModalContext);
     const documentsData = managementAddDocument.data || [];
+
     return (
         <div className="space-y-4">
             {documentsData.length === 0 && (
@@ -295,6 +296,25 @@ export function DocumentAsset() {
     );
 }
 
+function LocationDetailsComp({ content, onDelete }: { content: string; onDelete: () => void }) {
+    return (
+        <div className="flex w-full items-center justify-between space-y-2">
+            <div className="flex space-x-1 items-center">
+                <Hash size={12} />
+                <p>{content}</p>
+            </div>
+            <button
+                type="button"
+                onClick={onDelete}
+                className="p-1 bg-red-200 rounded-full flex items-center justify-center cursor-pointer"
+            >
+                <X color="red" size={15} />
+            </button>
+        </div>
+    );
+}
+
+
 export function LocationAsset({
     formData,
     setFormData,
@@ -302,6 +322,8 @@ export function LocationAsset({
     formData: any;
     setFormData: React.Dispatch<React.SetStateAction<any>>;
 }) {
+    const [detailInput, setDetailInput] = React.useState<string>("");
+
     const updateLocation = (key: string, value: any) => {
         setFormData((prev: any) => ({
             ...prev,
@@ -310,6 +332,12 @@ export function LocationAsset({
                 [key]: value,
             },
         }));
+    };
+
+    const addDetail = () => {
+        if (!detailInput.trim()) return; // jangan tambah kalau kosong
+        updateLocation("details", [...(formData.locationInfo.details || []), detailInput.trim()]);
+        setDetailInput(""); // reset textarea
     };
 
     return (
@@ -321,7 +349,7 @@ export function LocationAsset({
                     name="lat"
                     id="lat"
                     value={formData.locationInfo.lat}
-                    onChange={(e) => updateLocation("lat", Number(e.target.value))}
+                    onChange={(e) => updateLocation("lat", e.target.value)}
                     placeholder="latitude"
                     className="p-2 border border-gray-400 rounded-md w-full"
                 />
@@ -332,32 +360,51 @@ export function LocationAsset({
                     name="long"
                     id="long"
                     value={formData.locationInfo.long}
-                    onChange={(e) => updateLocation("long", Number(e.target.value))}
+                    onChange={(e) => updateLocation("long", e.target.value)}
                     placeholder="longitude"
                     className="p-2 border border-gray-400 rounded-md w-full"
                 />
             </div>
 
-            <AccessInfoMaps
-                lat={formData.locationInfo.lat}
-                long={formData.locationInfo.long}
-            />
+            <AccessInfoMaps lat={formData.locationInfo.lat} long={formData.locationInfo.long} />
 
             {/* Location details */}
-            <textarea
-                name="locationdetails"
-                id="locationdetails"
-                value={formData.locationInfo.details?.[0] || ""}
-                onChange={(e) =>
-                    updateLocation("details", [e.target.value]) // simpan sebagai array
-                }
-                placeholder="put your location details here"
-                className="p-2 border border-gray-400 rounded-md w-full resize-none"
-                rows={6}
-            />
+            <div className="space-y-2">
+                <div>
+                    {formData.locationInfo.details.map((data: string, idx: number) => (
+                        <LocationDetailsComp
+                            key={idx}
+                            content={data}
+                            onDelete={() =>
+                                updateLocation(
+                                    "details",
+                                    formData.locationInfo.details.filter((_: string, i: number) => i !== idx)
+                                )
+                            }
+                        />
+                    ))}
+                </div>
+                <textarea
+                    name="locationdetails"
+                    id="locationdetails"
+                    placeholder="put your location details here"
+                    className="p-2 border border-gray-400 rounded-md w-full resize-none"
+                    rows={4}
+                    value={detailInput}
+                    onChange={(e) => setDetailInput(e.target.value)}
+                />
+                <button
+                    type="button"
+                    onClick={addDetail}
+                    className="background-dark rounded-md p-2 text-white text-sm"
+                >
+                    Add Details
+                </button>
+            </div>
         </div>
     );
 }
+
 
 
 function SimpleToggle(
@@ -377,6 +424,25 @@ function SimpleToggle(
     );
 }
 
+
+function RuleDetailsComponent({ content }: { content: string }) {
+    const { managementRuleDetail } = React.useContext(ModalContext);
+    return (
+        <div className="w-full flex justify-between">
+            <div className="flex items-center space-x-1">
+                <Dot size={24} />
+                <p>{content}</p>
+            </div>
+            <button
+                className="p-1 bg-red-200 rounded-full flex items-center justify-center cursor-pointer"
+                onClick={() => managementRuleDetail.remover(content)}
+            >
+                <X color="red" size={15} />
+            </button>
+        </div>
+    )
+}
+
 export function RuleAssetHolder({
     formData,
     setFormData,
@@ -384,7 +450,9 @@ export function RuleAssetHolder({
     formData: any;
     setFormData: React.Dispatch<React.SetStateAction<any>>;
 }) {
-    const { setModalKind } = React.useContext(ModalContext);
+    const { setModalKind, managementRuleDetail } = React.useContext(ModalContext);
+
+    const ruleDetails = managementRuleDetail.data || [];
 
     // helper untuk update nested state rule
     const updateRule = (key: string, value: any) => {
@@ -539,6 +607,12 @@ export function RuleAssetHolder({
                         <Plus size={12} color="white" />
                     </button>
                 </div>
+                <div className="px-1 my-3 text-sm space-y-1">
+                    {ruleDetails.map((d, idx) => (
+                        <RuleDetailsComponent content={d} key={idx} />
+                    ))}
+                    {ruleDetails.length === 0 && <p>You need to add at least one detail here</p>}
+                </div>
             </div>
         </div>
     );
@@ -558,6 +632,12 @@ export function TermsAndCondition(
             const mapped = mapFormDataToCreateAsset(d);
             const mappedRule = mapRule(d.rule);
 
+            const location: LocationType = {
+                ...d.locationInfo,
+                lat: parseFloat(String(d.locationInfo.lat)),
+                long: parseFloat(String(d.locationInfo.long)),
+            };
+
             const res = await backendService.createAsset(
                 mapped.name,
                 mapped.description,
@@ -566,7 +646,7 @@ export function TermsAndCondition(
                 mapped.minTokenPurchased,
                 mapped.maxTokenPurchased,
                 mapped.pricePerToken,
-                d.locationInfo as LocationType,
+                location,
                 d.documentHash as Array<DocumentHash>,
                 mapped.assetType,
                 mapped.assetStatus,

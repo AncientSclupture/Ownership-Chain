@@ -1,5 +1,7 @@
 import { Files, FileScan, Footprints, Hash } from "lucide-react";
 import { ContentReportCenterInterface, ReportCenterEnum } from "../types/ui";
+import React from "react";
+import { AuthContext } from "../context/AuthContext";
 
 export function ReportCenterContent({ selectedTab, contentLists }: { selectedTab: ReportCenterEnum; contentLists: ContentReportCenterInterface[] }) {
     return (
@@ -10,6 +12,8 @@ export function ReportCenterContent({ selectedTab, contentLists }: { selectedTab
 }
 
 export function PlagiarismReporting() {
+    const { principal } = React.useContext(AuthContext);
+
     return (
         <div className="space-y-4">
 
@@ -45,13 +49,21 @@ export function PlagiarismReporting() {
             <div className="p-4 rounded-md border border-gray-400 space-y-2 cursor-pointer w-full">
                 <div className="flex flex-col space-y-1">
                     <label htmlFor="complainer">Complainer</label>
-                    <input type="text" name="complainer" id="complainer" placeholder="me" className="p-2 border rounded-md border-gray-400" disabled />
+                    <input
+                        type="text"
+                        name="complainer"
+                        id="complainer"
+                        placeholder={principal?.toString()}
+                        value={principal?.toString()}
+                        className="p-2 border rounded-md border-gray-400"
+                        disabled
+                    />
                 </div>
                 <div className="flex flex-col space-y-1">
                     <label htmlFor="reporttype">Report type</label>
                     <select
                         name="reporttype"
-                        id="complainer"
+                        id="complaintype"
                         className="border border-gray-400 p-2 w-full rounded"
                     >
                         <option>Scam</option>
@@ -69,6 +81,7 @@ export function PlagiarismReporting() {
 }
 
 export function FraudReporting() {
+    const { principal } = React.useContext(AuthContext);
     return (
         <div className="space-y-4">
 
@@ -104,7 +117,15 @@ export function FraudReporting() {
             <div className="p-4 rounded-md border border-gray-400 space-y-2 cursor-pointer w-full">
                 <div className="flex flex-col space-y-1">
                     <label htmlFor="complainer">Complainer</label>
-                    <input type="text" name="complainer" id="complainer" placeholder="me" className="p-2 border rounded-md border-gray-400" disabled />
+                    <input
+                        type="text"
+                        name="complainer"
+                        id="complainer"
+                        placeholder={principal?.toString()}
+                        value={principal?.toString()}
+                        className="p-2 border rounded-md border-gray-400"
+                        disabled
+                    />
                 </div>
                 <div className="flex flex-col space-y-1">
                     <label htmlFor="reporttype">Report type</label>

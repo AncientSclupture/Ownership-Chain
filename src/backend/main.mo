@@ -18,46 +18,22 @@ persistent actor {
 
   // data storage
 
-  private transient var assetsStorage = HashMap.HashMap<Text, DataType.Asset>(
-    100,
-    Text.equal,
-    Text.hash,
-  );
+  private transient var assetsStorage = HashMap.HashMap<Text, DataType.Asset>(100,Text.equal,Text.hash,);
   private transient var assetCounter : Nat = 0;
 
-  private transient var transactionsStorage = HashMap.HashMap<Text, DataType.Transaction>(
-    1000,
-    Text.equal,
-    Text.hash,
-  );
+  private transient var transactionsStorage = HashMap.HashMap<Text, DataType.Transaction>(100,Text.equal,Text.hash,);
   private transient var transactionCounter : Nat = 0;
 
-  private transient var ownershipsStorage = HashMap.HashMap<Text, TrieMap.TrieMap<Principal, DataType.Ownership>>(
-    1000,
-    Text.equal,
-    Text.hash,
-  );
+  private transient var ownershipsStorage = HashMap.HashMap<Text, TrieMap.TrieMap<Principal, DataType.Ownership>>(100,Text.equal,Text.hash,);
   private transient var ownershipsCounter : Nat = 0;
 
-  private transient var usersStorage = HashMap.HashMap<Principal, DataType.User>(
-    100,
-    Principal.equal,
-    Principal.hash,
-  );
+  private transient var usersStorage = HashMap.HashMap<Principal, DataType.User>(100,Principal.equal,Principal.hash,);
   private transient var userCounter : Nat = 0;
 
-  private transient var buyProposalsStorage = HashMap.HashMap<Text, DataType.BuyProposal>(
-    100,
-    Text.equal,
-    Text.hash,
-  );
+  private transient var buyProposalsStorage = HashMap.HashMap<Text, DataType.BuyProposal>(100,Text.equal,Text.hash,);
   private transient var buyProposalsCounter : Nat = 0;
 
-  private transient var investorProposalsStorage = HashMap.HashMap<Text, DataType.InvestorProposal>(
-    100,
-    Text.equal,
-    Text.hash,
-  );
+  private transient var investorProposalsStorage = HashMap.HashMap<Text, DataType.InvestorProposal>(100,Text.equal,Text.hash,);
   private transient var investorProposalsCounter : Nat = 0;
 
   //   private transient var assetsReport = HashMap.HashMap<Text, TrieMap.TrieMap<Text, DataType.Report>>(
@@ -83,10 +59,6 @@ persistent actor {
         return false;
       };
     };
-  };
-
-  public shared (msg) func whoami() : async Text {
-    return Principal.toText(msg.caller);
   };
 
   public shared (msg) func registUser(

@@ -28,6 +28,7 @@ function Asset() {
       try {
         if (!assetid) return null;
         const res = await backendService.getAssetById(assetid);
+        console.log(data, assetid);
         setData(res);
       } catch (err) {
         setError("Failed to load asset data");
@@ -45,7 +46,7 @@ function Asset() {
     fetchData();
     sureToSetAssetId();
 
-  }, [assetid]);
+  }, []);
 
   if (error) return <div>{error}</div>;
 

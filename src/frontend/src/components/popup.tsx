@@ -3,7 +3,6 @@ import { PopUpContext } from "../context/PopUpContext";
 
 export function PopUp() {
   const context = useContext(PopUpContext);
-  if (!context) return null;
 
   const { popUpData, setPopUpData } = context;
   const [visible, setVisible] = useState(false);
