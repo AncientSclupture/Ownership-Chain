@@ -84,6 +84,7 @@ export const backendService = {
         phone: string,
         country: string,
         city: string,
+        publicKey: string,
 
         userIDNumber: string,
         userIdentity: IdentityNumberType,
@@ -96,7 +97,8 @@ export const backendService = {
                 country,
                 city,
                 userIDNumber,
-                userIdentity
+                userIdentity,
+                publicKey
             );
 
             if ((res as any).err) {

@@ -1,3 +1,4 @@
+import * as forge from 'node-forge';
 import { IdentityNumberType } from "../../../declarations/backend/backend.did";
 
 export function ReduceCharacters(d: string, num: number = 20): string {
@@ -36,6 +37,21 @@ export const value2BigInt = (value: string) => {
     } catch (error) {
         return BigInt(0);
     }
+};
+
+export const CreatePairKey = (): [string, string] => {
+  try {
+    const keypair = forge.pki.rsa.generateKeyPair(2048);
+    
+    const publicKeyPem = forge.pki.publicKeyToPem(keypair.publicKey);
+    const privateKeyPem = forge.pki.privateKeyToPem(keypair.privateKey);
+
+    
+    return [publicKeyPem, privateKeyPem];
+  } catch (error) {
+    console.error("Error generating key pair:", error);
+    throw new Error("Failed to generate key pair");
+  }
 };
 
 

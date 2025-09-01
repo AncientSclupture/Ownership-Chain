@@ -1,10 +1,10 @@
-import { Upload, X } from "lucide-react";
+import { RotateCcwKey, Upload, X } from "lucide-react";
 import React from "react";
 import { ModalContext } from "../../context/ModalContext";
 import { DocumentHashDataType } from "../../types/rwa";
 import countriesData from "../../utils/countries.json"
 import { backendService } from "../../services/backendService";
-import { mapToIdentityNumberType } from "../../utils/rwa-hepler";
+import { CreatePairKey, mapToIdentityNumberType, ReduceCharacters } from "../../utils/rwa-hepler";
 import { PopUpContext } from "../../context/PopUpContext";
 
 export function AddDocumentsModal() {
@@ -127,6 +127,8 @@ export function EditPersonalInfoModal() {
     const [phone, setPhone] = React.useState("");
     const [idnumber, setIdnumber] = React.useState("");
     const [idtype, setIdtype] = React.useState("");
+    const [pubKey, setPubKey] = React.useState("");
+    const [privKey, setPrivKey] = React.useState("");
 
     function closeButtonHandler() {
         setSelectedCountry(countriesData[0].cities[0].name);
@@ -148,7 +150,8 @@ export function EditPersonalInfoModal() {
                 selectedCountry,
                 selectedCity,
                 idnumber,
-                mapToIdentityNumberType(idtype)
+                pubKey,
+                mapToIdentityNumberType(idtype),
             );
 
             setPopUpData({
@@ -156,6 +159,7 @@ export function EditPersonalInfoModal() {
                 description: `user details was created ${res}`,
                 position: "bottom-right",
             })
+            onDownload();
             setModalKind(null);
         } catch (error) {
             console.log(error);
@@ -176,6 +180,27 @@ export function EditPersonalInfoModal() {
     const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedCity(e.target.value);
     };
+
+    function handleGeneratePairKey() {
+        const [pub, priv] = CreatePairKey();
+        setPubKey(pub);
+        setPrivKey(priv);
+    }
+
+    function onDownload() {
+        if (!privKey) return;
+
+        const blob = new Blob([privKey], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "ownership_chainner_privkey_DONOT_SHARE.txt";
+        a.click();
+
+        URL.revokeObjectURL(url);
+    }
+
 
     const availableCities =
         countriesData.find((c) => c.name === selectedCountry)?.cities || [];
@@ -294,6 +319,29 @@ export function EditPersonalInfoModal() {
                                     id="idnum"
                                     placeholder="idnum"
                                     className="p-2 rounded-md border border-gray-300"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <div className="flex space-x-2 items-center my-2">
+                                <button
+                                    onClick={() => handleGeneratePairKey()}
+                                    className="p-1 cursor-pointer"
+                                >
+                                    <RotateCcwKey size={20} />
+                                </button>
+                                <p>Signature Identity</p>
+                            </div>
+                            <div className="flex space-x-5 w-full">
+                                <input
+                                    type="text"
+                                    name="public key"
+                                    id="public key"
+                                    placeholder="pubkey"
+                                    className="p-2 rounded-md border border-gray-300 w-full"
+                                    value={ReduceCharacters(pubKey.split("\n")[1] ?? "")}
+                                    disabled
                                 />
                             </div>
                         </div>

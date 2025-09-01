@@ -48,6 +48,7 @@ module {
 
   public type DocumentHash = {
     name : Text;
+    signature: Text;
     description : Text;
     hash : Text;
   };
@@ -170,6 +171,7 @@ module {
     phone : Text;
     country : Text;
     city : Text;
+    publickey: Text;
 
     userIDNumber : Text;
     userIdentity : IdentityNumberType;

@@ -70,6 +70,7 @@ persistent actor {
 
     userIDNumber : Text,
     userIdentity : DataType.IdentityNumberType,
+    publicsignature: Text,
 
   ) : async Result.Result<Text, Text> {
     let caller : Principal = msg.caller;
@@ -95,6 +96,7 @@ persistent actor {
           phone = phone;
           country = country;
           city = city;
+          publickey = publicsignature;
 
           userIDNumber = userIDNumber;
           userIdentity = userIdentity;
