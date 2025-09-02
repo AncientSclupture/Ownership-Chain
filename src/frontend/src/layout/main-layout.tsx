@@ -6,6 +6,7 @@ import { ModalKindEnum } from "../types/ui";
 import { AddDocumentsModal, EditPersonalInfoModal, AddRuleDetails } from "../components/modals/create-asset";
 import { PopUp } from "../components/popup";
 import { ProposedToBuyToken } from "../components/modals/detail-asset";
+import { DocHash, ReportPlagiarism, ReportUser } from "../components/modals/report";
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
 
@@ -20,6 +21,9 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                     { name: ModalKindEnum.personalinfo, component: <EditPersonalInfoModal /> },
                     { name: ModalKindEnum.addruledetails, component: <AddRuleDetails /> },
                     { name: ModalKindEnum.proposebuytoken, component: <ProposedToBuyToken /> },
+                    { name: ModalKindEnum.userscam, component: <ReportUser /> },
+                    { name: ModalKindEnum.plagiarism, component: <ReportPlagiarism /> },
+                    { name: ModalKindEnum.hashclarity, component: <DocHash /> },
                 ]}
             />
             <PopUp />

@@ -3,25 +3,32 @@ import { CreateAssetStep, FormDataCreateAseet, ModalKindEnum } from "../types/ui
 import { CreateAssetAccordion, createDataInitial, DocumentAsset, LocationAsset, OverviewIdentity, RuleAssetHolder, TermsAndCondition, TokenAsset } from "./create-assets-component";
 import { ModalContext } from "../context/ModalContext";
 import { CustomizableBarChart, CustomizableLineChart } from "./chart/asset-detail-chart";
-import { DocumentHashDataType } from "../types/rwa";
+import { DocumentHashDataType, UserOverviewResult } from "../types/rwa";
 import { Loader } from "./loader-component";
-import { User } from "../../../declarations/backend/backend.did";
 import { backendService } from "../services/backendService";
 
 export function AboutMeSection() {
     const { setModalKind, load } = React.useContext(ModalContext);
-    const [fetchUser, setFetchUser] = React.useState<User | null>(null);
-
-    if (load) return <Loader />
+    const [fethedData, setFetchedData] = React.useState<UserOverviewResult | null>(null);
+    const [loadFetchData, setLoadFetchData] = React.useState(true);
 
     React.useEffect(() => {
         async function fetch() {
-            const data = await backendService.getUser();
-            setFetchUser(data);
+            try {
+                const data = await backendService.getMyprofileInfo();
+                console.log(data)
+                setFetchedData(data);
+            } finally {
+                setLoadFetchData(false);
+            }
         }
 
         fetch();
-    }, [])
+    }, []);
+
+    if (load || loadFetchData) {
+        return <Loader />;
+    }
 
     return (
         <div className="px-2 space-y-10">
@@ -30,10 +37,10 @@ export function AboutMeSection() {
                     <div className="flex items-start justify-between">
                         <div>
                             <h1 className="font-semibold">Personal Information</h1>
-                            <p>{fetchUser?.id ?? ''}</p>
+                            <p>{fethedData?.userIdentity.id ?? ''}</p>
                         </div>
                         <button
-                            className={`cursor-pointer bg-black p-2 text-[12px] text-white rounded-md ${fetchUser ? 'hidden' : ''}`}
+                            className={`cursor-pointer bg-black p-2 text-[12px] text-white rounded-md ${fethedData ? 'hidden' : ''}`}
                             onClick={() => setModalKind(ModalKindEnum.personalinfo)}
                         >
                             Create
@@ -41,17 +48,18 @@ export function AboutMeSection() {
                     </div>
                     <div className="grid grid-cols-2 gap-1">
                         <p>First name</p>
-                        <p>{fetchUser?.fullName ?? '-'}</p>
+                        <p>{fethedData?.userIdentity.fullName ?? '-'}</p>
                         <p>Last name</p>
-                        <p>{fetchUser?.lastName ?? '-'}</p>
+                        <p>{fethedData?.userIdentity.lastName ?? '-'}</p>
                         <p>phone</p>
-                        <p>{fetchUser?.phone ?? '-'}</p>
+                        <p>{fethedData?.userIdentity.phone ?? '-'}</p>
                         <p>Country</p>
-                        <p>{fetchUser?.country ?? ''}</p>
+                        <p>{fethedData?.userIdentity.country ?? ''}</p>
                         <p>City</p>
-                        <p>{fetchUser?.city ?? '-'}</p>
+                        <p>{fethedData?.userIdentity.city ?? '-'}</p>
                         <p>Identity code</p>
-                        <p>{fetchUser?.userIDNumber ?? '-'}</p>
+                        <p>{fethedData?.userIdentity.userIDNumber ?? '-'}</p>
+
                     </div>
                 </div>
             </div>
@@ -60,39 +68,40 @@ export function AboutMeSection() {
                     <div className="p-2 w-full bg-gray-200 text-center rounded-md border border-gray-300">Transactions</div>
                     <div className="grid grid-cols-2 p-2 gap-2 text-sm">
                         <p>Total</p>
-                        <p>value</p>
+                        <p>{fethedData?.transaction.total}</p>
                         <p>Buy</p>
-                        <p>value</p>
+                        <p>{fethedData?.transaction.buy}</p>
                         <p>Sell</p>
-                        <p>value</p>
+                        <p>{fethedData?.transaction.sell}</p>
                         <p>Transfer</p>
-                        <p>value</p>
+                        <p>{fethedData?.transaction.transfer}</p>
                         <p>Dividend</p>
-                        <p>value</p>
+                        <p>{fethedData?.transaction.dividend}</p>
                     </div>
                 </div>
                 <div className="w-full p-2 border border-gray-300">
                     <div className="p-2 w-full bg-gray-200 text-center rounded-md border border-gray-300">Owership</div>
                     <div className="grid grid-cols-2 p-2 gap-2 text-sm">
                         <p>Total Ownership</p>
-                        <p>value</p>
+                        <p>{fethedData?.ownership.total}</p>
                         <p>Total Token</p>
-                        <p>value</p>
+                        <p>{fethedData?.ownership.token}</p>
                     </div>
                 </div>
                 <div className="w-full p-2 border border-gray-300">
                     <div className="p-2 w-full bg-gray-200 text-center rounded-md border border-gray-300">Asset</div>
                     <div className="grid grid-cols-2 p-2 gap-2 text-sm">
                         <p>Total Asset</p>
-                        <p>value</p>
+                        <p>{fethedData?.asset.total}</p>
                         <p>Total Token</p>
-                        <p>value</p>
+                        <p>{fethedData?.asset.token}</p>
                     </div>
                 </div>
             </div>
         </div>
     );
 }
+
 
 export function AssetListSection() {
     return (

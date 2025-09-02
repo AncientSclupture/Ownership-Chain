@@ -18,30 +18,26 @@ persistent actor {
 
   // data storage
 
-  private transient var assetsStorage = HashMap.HashMap<Text, DataType.Asset>(100,Text.equal,Text.hash,);
+  private transient var assetsStorage = HashMap.HashMap<Text, DataType.Asset>(100, Text.equal, Text.hash);
   private transient var assetCounter : Nat = 0;
 
-  private transient var transactionsStorage = HashMap.HashMap<Text, DataType.Transaction>(100,Text.equal,Text.hash,);
+  private transient var transactionsStorage = HashMap.HashMap<Text, DataType.Transaction>(100, Text.equal, Text.hash);
   private transient var transactionCounter : Nat = 0;
 
-  private transient var ownershipsStorage = HashMap.HashMap<Text, TrieMap.TrieMap<Principal, DataType.Ownership>>(100,Text.equal,Text.hash,);
+  private transient var ownershipsStorage = HashMap.HashMap<Text, TrieMap.TrieMap<Principal, DataType.Ownership>>(100, Text.equal, Text.hash);
   private transient var ownershipsCounter : Nat = 0;
 
-  private transient var usersStorage = HashMap.HashMap<Principal, DataType.User>(100,Principal.equal,Principal.hash,);
+  private transient var usersStorage = HashMap.HashMap<Principal, DataType.User>(100, Principal.equal, Principal.hash);
   private transient var userCounter : Nat = 0;
 
-  private transient var buyProposalsStorage = HashMap.HashMap<Text, DataType.BuyProposal>(100,Text.equal,Text.hash,);
+  private transient var buyProposalsStorage = HashMap.HashMap<Text, DataType.BuyProposal>(100, Text.equal, Text.hash);
   private transient var buyProposalsCounter : Nat = 0;
 
-  private transient var investorProposalsStorage = HashMap.HashMap<Text, DataType.InvestorProposal>(100,Text.equal,Text.hash,);
+  private transient var investorProposalsStorage = HashMap.HashMap<Text, DataType.InvestorProposal>(100, Text.equal, Text.hash);
   private transient var investorProposalsCounter : Nat = 0;
 
-  //   private transient var assetsReport = HashMap.HashMap<Text, TrieMap.TrieMap<Text, DataType.Report>>(
-  //     100,
-  //     Text.equal,
-  //     Text.hash,
-  //   );
-  //   private transient var assetsReportCounter : Nat = 0;
+  private transient var assetsReport = HashMap.HashMap<Text, TrieMap.TrieMap<Principal, DataType.Report>>(100, Text.equal, Text.hash);
+  private transient var assetsReportCounter : Nat = 0;
 
   //   private transient var assetReportAction = HashMap.HashMap<Text, TrieMap.TrieMap<Text, DataType.ReportAction>>(
   //     100,
@@ -70,7 +66,7 @@ persistent actor {
 
     userIDNumber : Text,
     userIdentity : DataType.IdentityNumberType,
-    publicsignature: Text,
+    publicsignature : Text,
 
   ) : async Result.Result<Text, Text> {
     let caller : Principal = msg.caller;
@@ -928,6 +924,83 @@ persistent actor {
     Iter.toArray(usersStorage.vals());
   };
 
+  public shared (msg) func getMyProfiles() : async ?DataType.UserOverviewResult {
+    let caller : Principal = msg.caller;
+
+    if (not isUserNotBanned(caller)) {
+      return null;
+    };
+
+    var totalTx = 0;
+    var buy = 0;
+    var sell = 0;
+    var transfer = 0;
+    var dividend = 0;
+
+    for ((_, tx) in transactionsStorage.entries()) {
+      if (tx.from == caller) {
+        totalTx += 1;
+        switch (tx.transactionType) {
+          case (#Buy) buy += 1;
+          case (#Sell) sell += 1;
+          case (#Transfer) transfer += 1;
+          case (#Dividend) dividend += 1;
+          case (#Downpayment) {};
+          case (#DownpaymentCashBack) {};
+          case (#Extending) {};
+          case (#Redeem) {};
+        };
+      };
+    };
+
+    var totalOwn = 0;
+    var ownToken = 0;
+
+    for ((_, owns) in ownershipsStorage.entries()) {
+      switch (owns.get(caller)) {
+        case (?data) {
+          totalOwn += 1;
+          ownToken += data.tokenOwned;
+        };
+        case null {};
+      };
+    };
+
+    var totalAsset = 0;
+    var assetToken = 0;
+
+    for ((_, asset) in assetsStorage.entries()) {
+      if (asset.creator == caller) {
+        totalAsset += 1;
+        assetToken += (asset.totalToken - asset.providedToken);
+      };
+    };
+
+    switch (usersStorage.get(caller)) {
+      case (null) { return null };
+      case (?user) {
+        return ?{
+          userIdentity = user;
+          transaction = {
+            total = totalTx;
+            buy = buy;
+            sell = sell;
+            transfer = transfer;
+            dividend = dividend;
+          };
+          ownership = {
+            total = totalOwn;
+            token = ownToken;
+          };
+          asset = {
+            total = totalAsset;
+            token = assetToken;
+          };
+        };
+      };
+    };
+  };
+
   public shared (msg) func getMyAssets() : async [DataType.Asset] {
     let caller : Principal = msg.caller;
     let data = Array.filter<DataType.Asset>(
@@ -1007,6 +1080,46 @@ persistent actor {
           transactions = transactionList;
           dividends = dividendList;
         };
+      };
+    };
+  };
+
+  public shared (msg) func createReport(
+    targetId : Text,
+    reportType : DataType.ReportType,
+  ) : async Result.Result<Text, Text> {
+
+    var complainer: Principal = msg.caller;
+
+    if (not isUserNotBanned(complainer)) {
+      return #err("You are not allowed to create a report");
+    };
+
+    switch (usersStorage.get(complainer)) {
+      case (null) {
+        return #err("You are not allowed to create a report");
+      };
+      case (?existUser) {
+        let now = Time.now();
+        assetsReportCounter += 1;
+        var genReportId = Helper.reportID(assetsReportCounter, reportType);
+
+        var createdReportMap = TrieMap.TrieMap<Principal, DataType.Report>(Principal.equal, Principal.hash);
+        var createdReport : DataType.Report = {
+          complainer = complainer;
+          targetid = targetId;
+          reportType = reportType;
+          reputation = existUser.kyc_level.riskScore;
+          isDone = 0;
+          isDoneTimeStamp = 0;
+          created = now;
+        };
+
+        createdReportMap.put(complainer, createdReport);
+
+        assetsReport.put(genReportId, createdReportMap);
+
+        return #ok("Report succesfully created" # genReportId);
       };
     };
   }

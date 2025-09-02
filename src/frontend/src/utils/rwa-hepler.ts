@@ -1,9 +1,9 @@
 import * as forge from 'node-forge';
-import { IdentityNumberType } from "../../../declarations/backend/backend.did";
+import { IdentityNumberType, ReportType } from "../../../declarations/backend/backend.did";
 
 export function ReduceCharacters(d: string, num: number = 20): string {
-    if (d.length <= num) return d;
-    return d.slice(0, num) + "....";
+  if (d.length <= num) return d;
+  return d.slice(0, num) + "....";
 }
 
 export function formatMotokoTime(nanoseconds: bigint) {
@@ -27,32 +27,46 @@ export function mapToIdentityNumberType(value: string): IdentityNumberType {
   }
 }
 
-export function SignDocument(docString: string): string{
+export function mapToReportType(value: string): ReportType {
+  switch (value) {
+    case "Fraud":
+      return { Fraud: null };
+    case "Plagiarism":
+      return { Plagiarism: null };
+    case "Legality":
+      return { Legality: null };
+    case "Bankrupting":
+      return { Bankrupting: null };
+    default:
+      throw new Error("Invalid id type");
+  }
+}
+
+export function SignDocument(docString: string): string {
   return docString;
 }
 
 export const value2BigInt = (value: string) => {
-    try {
-        return value && value.trim() !== '' ? BigInt(value) : BigInt(0);
-    } catch (error) {
-        return BigInt(0);
-    }
+  try {
+    return value && value.trim() !== '' ? BigInt(value) : BigInt(0);
+  } catch (error) {
+    return BigInt(0);
+  }
 };
 
 export const CreatePairKey = (): [string, string] => {
   try {
     const keypair = forge.pki.rsa.generateKeyPair(2048);
-    
+
     const publicKeyPem = forge.pki.publicKeyToPem(keypair.publicKey);
     const privateKeyPem = forge.pki.privateKeyToPem(keypair.privateKey);
 
-    
+
     return [publicKeyPem, privateKeyPem];
   } catch (error) {
     console.error("Error generating key pair:", error);
     throw new Error("Failed to generate key pair");
   }
 };
-
 
 // export function VerifyDocument(chiper: string, privKey: string){}

@@ -48,7 +48,6 @@ module {
 
   public type DocumentHash = {
     name : Text;
-    signature: Text;
     description : Text;
     hash : Text;
   };
@@ -196,12 +195,11 @@ module {
   };
 
   public type Report = {
-    id : Text;
     complainer : Principal;
     targetid : Text;
     reportType : ReportType;
     // reputation is based on assets risk score or user kyc riskscore
-    reputation : Float;
+    reputation : Nat;
     isDone : Int;
     isDoneTimeStamp : Int;
 
@@ -244,6 +242,25 @@ module {
     pricePerToken: Nat;
     approvalResult : Float;
     myVotePercentage: Float;
+  };
+
+  public type UserOverviewResult = {
+    userIdentity: User;
+    transaction: {
+      total: Int;
+      buy: Int;
+      sell: Int;
+      transfer: Int;
+      dividend: Int;
+    };
+    ownership: {
+      total: Int;
+      token: Int;
+    };
+    asset: {
+      total: Int;
+      token: Int;
+    }
   };
 
 };

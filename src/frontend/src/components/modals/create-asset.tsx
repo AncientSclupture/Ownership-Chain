@@ -126,7 +126,7 @@ export function EditPersonalInfoModal() {
     const [lastname, setLastname] = React.useState("");
     const [phone, setPhone] = React.useState("");
     const [idnumber, setIdnumber] = React.useState("");
-    const [idtype, setIdtype] = React.useState("");
+    const [idtype, setIdtype] = React.useState("IdentityNumber");
     const [pubKey, setPubKey] = React.useState("");
     const [privKey, setPrivKey] = React.useState("");
 
@@ -150,8 +150,8 @@ export function EditPersonalInfoModal() {
                 selectedCountry,
                 selectedCity,
                 idnumber,
-                pubKey,
                 mapToIdentityNumberType(idtype),
+                pubKey,
             );
 
             setPopUpData({
@@ -165,7 +165,7 @@ export function EditPersonalInfoModal() {
             console.log(error);
             setPopUpData({
                 title: "Error To Set User Identity!",
-                description: `no changes happened because becasue of error ${error}`,
+                description: `no changes happened becasue of error ${error}`,
                 position: "bottom-right",
             })
         }
@@ -207,7 +207,7 @@ export function EditPersonalInfoModal() {
 
     return (
         <div className="w-full h-full p-10 flex items-center justify-center">
-            <div className="w-full h-[90%] md:w-[60vw] bg-white rounded-lg border border-gray-300 p-4">
+            <div className="w-full md:w-[60vw] bg-white rounded-lg border border-gray-300 p-4">
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <p>Personal Info</p>
@@ -336,8 +336,8 @@ export function EditPersonalInfoModal() {
                             <div className="flex space-x-5 w-full">
                                 <input
                                     type="text"
-                                    name="public key"
-                                    id="public key"
+                                    name="publickey"
+                                    id="publickey"
                                     placeholder="pubkey"
                                     className="p-2 rounded-md border border-gray-300 w-full"
                                     value={ReduceCharacters(pubKey.split("\n")[1] ?? "")}

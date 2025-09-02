@@ -93,6 +93,10 @@ export enum ModalKindEnum {
   personalinfo = "personalinfo",
   addruledetails = "addruledetails",
   proposebuytoken = "proposebuytoken",
+  plagiarism = "plagiarism",
+  userscam = "userscam",
+  hashclarity = "hashclarity",
+  userfootprintflow = "userfootprintflow",
 }
 
 export interface ModalWrapperInterface {

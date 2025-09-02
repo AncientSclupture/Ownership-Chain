@@ -1,15 +1,16 @@
 import { backend } from "../../../declarations/backend";
-import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, Result, Rule, User } from "../../../declarations/backend/backend.did";
+import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, ReportType, Result, Rule, UserOverviewResult } from "../../../declarations/backend/backend.did";
 
 
 export const backendService = {
 
-    async getUsers(): Promise<void> {
+    async getMyprofileInfo(): Promise<UserOverviewResult | null> {
         try {
-            const res = await backend.getUsers();
-            console.log("hallo", res);
+            const res = await backend.getMyProfiles();
+            return res.length === 0 ? null : res[0];
         } catch (error) {
-            console.error('Error fetching all assets:', error);
+            console.log(error)
+            return null;
         }
     },
 
@@ -84,10 +85,9 @@ export const backendService = {
         phone: string,
         country: string,
         city: string,
-        publicKey: string,
-
         userIDNumber: string,
         userIdentity: IdentityNumberType,
+        publicKey: string,
     ): Promise<Result> {
         try {
             const res = await backend.registUser(
@@ -106,18 +106,6 @@ export const backendService = {
             }
 
             return res;
-        } catch (error) {
-            throw error;
-        }
-    },
-
-    async getUser(): Promise<User> {
-        try {
-            const res = await backend.getUsers();
-            if ((res as any).err) {
-                throw new Error((res as any).err);
-            }
-            return res[0];
         } catch (error) {
             throw error;
         }
@@ -151,6 +139,18 @@ export const backendService = {
         } catch (error) {
             throw error;
         }
-    }
+    },
+
+    async createreport(
+        targetId: string,
+        reportType: ReportType,
+    ): Promise<Result> {
+        try {
+            const res = await backend.createReport(targetId, reportType)
+            return res;
+        } catch (error) {
+            throw error;
+        }
+    },
 
 };
