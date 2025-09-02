@@ -4,27 +4,60 @@ import { ModalContext } from "../../context/ModalContext";
 import { DocumentHashDataType } from "../../types/rwa";
 import countriesData from "../../utils/countries.json"
 import { backendService } from "../../services/backendService";
-import { CreatePairKey, mapToIdentityNumberType, ReduceCharacters } from "../../utils/rwa-hepler";
+import { CreatePairKey, encryptWithPublicKey, mapToIdentityNumberType, ReduceCharacters } from "../../utils/rwa-hepler";
 import { PopUpContext } from "../../context/PopUpContext";
+import { AuthContext } from "../../context/AuthContext";
 
 export function AddDocumentsModal() {
     const { setModalKind, managementAddDocument } = React.useContext(ModalContext);
     const [file, setFile] = React.useState<File | null>(null);
     const [docName, setDocName] = React.useState("");
     const [docDesc, setDocDesc] = React.useState("");
-    const [signature, setSignature] = React.useState("");
+    const { setPopUpData } = React.useContext(PopUpContext);
+
+    const { pubkey } = React.useContext(AuthContext);
+
+    console.log(pubkey);
 
     function closeButtonHandler() {
         setModalKind(null);
         setFile(null);
         setDocName("");
         setDocDesc("");
-        setSignature("");
     }
 
-    function handleAddDocument() {
+    async function handleAddDocument() {
+        if (!pubkey) {
+            setPopUpData({
+                title: "Cannot add document!",
+                description: `you have no public key`,
+                position: "bottom-right",
+            })
+
+            return
+        }
+
+        if (!file) {
+            setPopUpData({
+                title: "Error, you have to set the documents first!",
+                description: `no document uploaded`,
+                position: "bottom-right",
+            })
+
+            return
+        }
+
+        const arrayBuffer = await file.arrayBuffer();
+        const hashBuffer = await crypto.subtle.digest("SHA-256", arrayBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+
+        console.log(hashHex);
+
+        const encryptSignature = encryptWithPublicKey(pubkey, hashHex);
+
         const newDoc: DocumentHashDataType = {
-            hash: file?.name || 'abcd',
+            hash: encryptSignature,
             name: docName,
             description: docDesc,
         };
@@ -32,6 +65,12 @@ export function AddDocumentsModal() {
         managementAddDocument.setter(newDoc);
 
         setModalKind(null);
+
+        setPopUpData({
+            title: "Created!",
+            description: "succesfully add document, hash and sign it with your signature",
+            position: "bottom-right",
+        })
     }
 
 
@@ -89,16 +128,6 @@ export function AddDocumentsModal() {
                                 className="p-2 rounded-md border border-gray-200"
                                 value={docDesc}
                                 onChange={(e) => setDocDesc(e.target.value)}
-                            />
-                            <label className="text-sm" htmlFor="signature">Put Your Signature Hash</label>
-                            <input
-                                type="text"
-                                name="signature"
-                                id="signature"
-                                placeholder="ex. comp dividend in last 5 years"
-                                className="p-2 rounded-md border border-gray-200"
-                                value={signature}
-                                onChange={(e) => setSignature(e.target.value)}
                             />
                         </div>
                         <button

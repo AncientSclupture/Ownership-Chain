@@ -153,4 +153,14 @@ export const backendService = {
         }
     },
 
+    async getPubKeyUser(): Promise<string | null>{
+        try {
+            const res = await backend.getUserPublicSignature();
+            return res[0] ?? null;
+        } catch (error) {
+            console.log("get pub key: ", error);
+            throw error;
+        }
+    }
+
 };

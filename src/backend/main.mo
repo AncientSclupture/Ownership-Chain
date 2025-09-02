@@ -1140,6 +1140,20 @@ persistent actor {
         return #ok("Report succesfully created" # genReportId);
       };
     };
-  }
+  };
+
+  public shared (msg) func getUserPublicSignature(): async ?Text {
+    var caller: Principal = msg.caller;
+    if (not isUserNotBanned(caller)){
+      return null;
+    };
+
+    switch(usersStorage.get(caller)){
+      case (null) {return null;};
+      case (?user) {
+        return ?user.publickey;
+      }
+    };
+  };
 
 };

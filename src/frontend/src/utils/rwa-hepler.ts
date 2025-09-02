@@ -60,13 +60,36 @@ export const CreatePairKey = (): [string, string] => {
 
     const publicKeyPem = forge.pki.publicKeyToPem(keypair.publicKey);
     const privateKeyPem = forge.pki.privateKeyToPem(keypair.privateKey);
-
-
     return [publicKeyPem, privateKeyPem];
+    
   } catch (error) {
     console.error("Error generating key pair:", error);
     throw new Error("Failed to generate key pair");
   }
 };
 
-// export function VerifyDocument(chiper: string, privKey: string){}
+export const encryptWithPublicKey = (publicKeyPem: string, plainText: string): string => {
+  const publicKey = forge.pki.publicKeyFromPem(publicKeyPem);
+
+  const encrypted = publicKey.encrypt(plainText, "RSA-OAEP", {
+    md: forge.md.sha256.create(),
+  });
+
+  console.log(forge.util.encode64(encrypted));
+  return forge.util.encode64(encrypted);
+};
+
+export const decryptWithPrivateKey = (privateKeyPem: string, encryptedBase64: string): string => {
+  const privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
+
+  const decrypted = privateKey.decrypt(
+    forge.util.decode64(encryptedBase64),
+    "RSA-OAEP",
+    {
+      md: forge.md.sha256.create(),
+    }
+  );
+
+  console.log(decrypted);
+  return decrypted;
+};

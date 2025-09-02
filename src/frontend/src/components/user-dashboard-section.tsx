@@ -16,7 +16,6 @@ export function AboutMeSection() {
         async function fetch() {
             try {
                 const data = await backendService.getMyprofileInfo();
-                console.log(data)
                 setFetchedData(data);
             } finally {
                 setLoadFetchData(false);
