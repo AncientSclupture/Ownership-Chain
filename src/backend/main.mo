@@ -1089,10 +1089,28 @@ persistent actor {
     reportType : DataType.ReportType,
   ) : async Result.Result<Text, Text> {
 
-    var complainer: Principal = msg.caller;
+    var complainer : Principal = msg.caller;
 
     if (not isUserNotBanned(complainer)) {
       return #err("You are not allowed to create a report");
+    };
+
+    switch (assetsStorage.get(targetId)) {
+      case (?_existAsset) {
+      };
+      case (null) {
+        var foundUser = false;
+        label l for ((_, user) in usersStorage.entries()) {
+          if (user.id == targetId) {
+            foundUser := true;
+            break l;
+          };
+        };
+
+        if (not foundUser) {
+          return #err("Invalid target id");
+        };
+      };
     };
 
     switch (usersStorage.get(complainer)) {
