@@ -53,3 +53,9 @@ export interface UserOverviewResult {
   },
   'userIdentity': User,
 }
+
+export interface PlagiarismManagement {
+  content: string;
+  description: string;
+  hashClarity?: string;
+}

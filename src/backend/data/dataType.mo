@@ -194,14 +194,22 @@ module {
     #Bankrupting;
   };
 
+  public type TypeReportEvidence = {
+    hashclarity: ?Text;
+    footPrintFlow: ?Int;
+  };
+
   public type Report = {
     complainer : Principal;
     targetid : Text;
     reportType : ReportType;
+    content: Text;
+    description: Text;
     // reputation is based on assets risk score or user kyc riskscore
     reputation : Nat;
     isDone : Int;
     isDoneTimeStamp : Int;
+    evidence: ?TypeReportEvidence;
 
     created : Int;
   };

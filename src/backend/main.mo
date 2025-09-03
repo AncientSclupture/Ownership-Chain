@@ -1087,6 +1087,9 @@ persistent actor {
   public shared (msg) func createReport(
     targetId : Text,
     reportType : DataType.ReportType,
+    content: Text,
+    description: Text,
+    evidence: ?DataType.TypeReportEvidence
   ) : async Result.Result<Text, Text> {
 
     var complainer : Principal = msg.caller;
@@ -1131,6 +1134,9 @@ persistent actor {
           isDone = 0;
           isDoneTimeStamp = 0;
           created = now;
+          content = content;
+          description = description;
+          evidence = evidence;
         };
 
         createdReportMap.put(complainer, createdReport);

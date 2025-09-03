@@ -1,6 +1,6 @@
 import { createContext, useState } from "react";
 import { ModalKindEnum } from "../types/ui";
-import { DocumentHashDataType } from "../types/rwa";
+import { DocumentHashDataType, PlagiarismManagement } from "../types/rwa";
 
 export type ModalContextType = {
     modalKind: ModalKindEnum | null,
@@ -14,6 +14,12 @@ export type ModalContextType = {
         data: DocumentHashDataType[] | null,
         setter: (d: DocumentHashDataType) => void;
         remover: (d: string) => void;
+        reseter: () => void;
+    },
+    plagiarismManagement: {
+        data: PlagiarismManagement | null,
+        setter: (d: string, key: keyof PlagiarismManagement) => void;
+        remover: (key: keyof PlagiarismManagement) => void;
         reseter: () => void;
     },
     setModalKind: (d: ModalKindEnum | null) => void;
@@ -30,13 +36,19 @@ export const ModalContext = createContext<ModalContextType>({
         data: null,
         setter: () => { },
         remover: () => { },
-        reseter: () => {},
+        reseter: () => { },
     },
     managementRuleDetail: {
         data: null,
         setter: () => { },
         remover: () => { },
-        reseter: () => {},
+        reseter: () => { },
+    },
+    plagiarismManagement: {
+        data: null,
+        setter: () => { },
+        remover: () => { },
+        reseter: () => { }
     },
     load: false,
     setLoadState: () => { },
@@ -45,9 +57,10 @@ export const ModalContext = createContext<ModalContextType>({
 });
 
 export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [modalKind, setModalKind] = useState<ModalKindEnum | null>(null);
+    const [modalKind, setModalKind] = useState<ModalKindEnum | null>(ModalKindEnum.plagiarism);
     const [ruleDetail, setRuleDetailState] = useState<string[] | null>(null);
     const [documentHash, setDocumentHashState] = useState<DocumentHashDataType[]>([]);
+    const [plagiarismData, setPlagiarismData] = useState<PlagiarismManagement | null>(null);
     const [assetId, setAssetId] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -101,17 +114,38 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setAssetId(d);
     }
 
+    function setterPlagiarismData(
+        d: string,
+        key: keyof PlagiarismManagement,
+    ) {
+        setPlagiarismData((prev) =>
+            prev ? { ...prev, [key]: d } : { content: "", description: "", hashClarity: "", [key]: d }
+        );
+    }
+
+    function removePlagiarismData(key: keyof PlagiarismManagement) {
+        setPlagiarismData((prev) =>
+            prev ? { ...prev, [key]: "" } : null
+        );
+    }
+
+    function reseterPlagiarism() {
+        setPlagiarismData(null);
+    }
+
     return (
         <ModalContext.Provider
             value={{
                 modalKind,
                 managementAddDocument: { data: documentHash, setter: addDocumentHash, remover: removeDocument, reseter: resseterDocument },
                 managementRuleDetail: { data: ruleDetail, setter: addRuleDetail, remover: removeRuleDetail, reseter: resetRuleDetail },
+                plagiarismManagement: { data: plagiarismData, setter: setterPlagiarismData, remover: removePlagiarismData, reseter: reseterPlagiarism },
                 setModalKind: setModalShowUp,
                 load: loading,
                 setLoadState: setLoadingHanndler,
                 assetId: assetId,
-                changeAssetId: changeAssetId
+                changeAssetId: changeAssetId,
+
             }}
         >
             {children}

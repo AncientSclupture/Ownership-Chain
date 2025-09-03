@@ -6,7 +6,6 @@ import countriesData from "../../utils/countries.json"
 import { backendService } from "../../services/backendService";
 import { CreatePairKey, encryptWithPublicKey, mapToIdentityNumberType, ReduceCharacters } from "../../utils/rwa-hepler";
 import { PopUpContext } from "../../context/PopUpContext";
-import { AuthContext } from "../../context/AuthContext";
 
 export function AddDocumentsModal() {
     const { setModalKind, managementAddDocument } = React.useContext(ModalContext);
@@ -14,10 +13,6 @@ export function AddDocumentsModal() {
     const [docName, setDocName] = React.useState("");
     const [docDesc, setDocDesc] = React.useState("");
     const { setPopUpData } = React.useContext(PopUpContext);
-
-    const { pubkey } = React.useContext(AuthContext);
-
-    console.log(pubkey);
 
     function closeButtonHandler() {
         setModalKind(null);
@@ -27,6 +22,8 @@ export function AddDocumentsModal() {
     }
 
     async function handleAddDocument() {
+        const pubkey : string | null = await backendService.getPubKeyUser();
+
         if (!pubkey) {
             setPopUpData({
                 title: "Cannot add document!",

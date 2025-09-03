@@ -3,7 +3,6 @@ import { AuthClient } from "@dfinity/auth-client";
 import { HttpAgent, Actor } from "@dfinity/agent";
 import { idlFactory as backend_idl } from "../../../declarations/backend";
 import { canisterId as backend_id } from "../../../declarations/backend";
-import { backendService } from "../services/backendService";
 
 type AuthContextType = {
   authClient: AuthClient | null;
@@ -12,7 +11,6 @@ type AuthContextType = {
   actor: any;
   login: () => Promise<void>;
   logout: () => Promise<void>;
-  pubkey: string | null;
 };
 
 export const AuthContext = createContext<AuthContextType>({
@@ -22,14 +20,12 @@ export const AuthContext = createContext<AuthContextType>({
   actor: null,
   login: async () => { },
   logout: async () => { },
-  pubkey: null
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [authClient, setAuthClient] = useState<AuthClient | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [principal, setPrincipal] = useState<string | null>(null);
-  const [pubkey, setPubkey] = useState<string | null>(null);
   const [actor, setActor] = useState<any>(null);
 
   useEffect(() => {
@@ -41,8 +37,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await handleLoginSuccess(client);
       }
 
-      const fetchedpubkey = await backendService.getPubKeyUser();
-      setPubkey(fetchedpubkey)
     })();
   }, []);
 
@@ -95,7 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ authClient, isAuthenticated, principal, actor, login, logout, pubkey }}>
+    <AuthContext.Provider value={{ authClient, isAuthenticated, principal, actor, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
