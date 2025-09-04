@@ -3,9 +3,9 @@ import { ContentReportCenterInterface, ModalKindEnum, ReportCenterEnum } from ".
 import React from "react";
 import { AuthContext } from "../context/AuthContext";
 import { ModalContext } from "../context/ModalContext";
-import { backendService } from "../services/backendService";
 import { PopUpContext } from "../context/PopUpContext";
 import { mapToReportType } from "../utils/rwa-hepler";
+import { backendService } from "../services/backendService";
 
 export function ReportCenterContent(
     { selectedTab, contentLists }:
@@ -20,7 +20,7 @@ export function ReportCenterContent(
 
 export function PlagiarismReporting() {
     const { principal } = React.useContext(AuthContext);
-    const { setModalKind } = React.useContext(ModalContext);
+    const { setModalKind, reportManagement } = React.useContext(ModalContext);
     const { setPopUpData } = React.useContext(PopUpContext);
 
     const [assetId, setAssetId] = React.useState("")
@@ -28,12 +28,29 @@ export function PlagiarismReporting() {
 
     async function onSubmitReport() {
         try {
-            const res = await backendService.createreport(assetId, mapToReportType(reportType));
+            const res = await backendService.createreport(
+                assetId,
+                mapToReportType(reportType),
+                reportManagement.data?.content ?? "",
+                reportManagement.data?.description ?? "",
+                [{
+                    hashclarity: reportManagement.data?.hashClarity
+                        ? [reportManagement.data.hashClarity]
+                        : [],
+                    footPrintFlow: reportManagement.data?.footPrintFlow
+                        ? [BigInt(reportManagement.data.footPrintFlow)]
+                        : []
+                }]
+            );
+
+            console.log(reportManagement.data)
+
             setPopUpData({
                 title: "Success to Create Reporting!",
                 description: `reporting was created ${res}`,
                 position: "bottom-right",
             })
+
             setModalKind(null);
         } catch (error) {
             setPopUpData({
@@ -43,6 +60,10 @@ export function PlagiarismReporting() {
             })
             setModalKind(null);
         }
+
+        reportManagement.reseter()
+        setAssetId("");
+
     }
 
 
@@ -132,21 +153,39 @@ export function PlagiarismReporting() {
 
 export function FraudReporting() {
     const { principal } = React.useContext(AuthContext);
-    const { setModalKind } = React.useContext(ModalContext);
+    const { setModalKind, reportManagement } = React.useContext(ModalContext);
     const [userTargetId, setUserTargetId] = React.useState("")
     const [reportType, setReportType] = React.useState("Fraud");
 
     const { setPopUpData } = React.useContext(PopUpContext);
 
+
     async function onSubmitReport() {
+        console.log(reportManagement.data)
         try {
-            const res = await backendService.createreport(userTargetId, mapToReportType(reportType));
+            const res = await backendService.createreport(
+                userTargetId,
+                mapToReportType(reportType),
+                reportManagement.data?.content ?? "",
+                reportManagement.data?.description ?? "",
+                [{
+                    hashclarity: reportManagement.data?.hashClarity
+                        ? [reportManagement.data.hashClarity]
+                        : [],
+                    footPrintFlow: reportManagement.data?.footPrintFlow
+                        ? [BigInt(reportManagement.data.footPrintFlow)]
+                        : []
+                }]
+            );
+
             setPopUpData({
                 title: "Success to Create Reporting!",
                 description: `reporting was created ${res}`,
                 position: "bottom-right",
             })
+
             setModalKind(null);
+
         } catch (error) {
             setPopUpData({
                 title: "Error To Create Report!",
@@ -155,6 +194,9 @@ export function FraudReporting() {
             })
             setModalKind(null);
         }
+
+        reportManagement.reseter();
+        setUserTargetId("");
     }
 
     return (
@@ -177,10 +219,12 @@ export function FraudReporting() {
             </div>
 
             <div
-                onClick={() => setModalKind(ModalKindEnum.userscam)}
                 className="space-y-4 w-full md:space-y-0 md:space-x-5 md:flex"
             >
-                <div className="p-4 rounded-md border border-gray-400 space-y-2 cursor-pointer w-full">
+                <div
+                    onClick={() => setModalKind(ModalKindEnum.userscam)}
+                    className="p-4 rounded-md border border-gray-400 space-y-2 cursor-pointer w-full"
+                >
                     <div className="flex items-center space-x-2">
                         <FileScan size={20} />
                         <h2>Straight Report</h2>

@@ -58,4 +58,5 @@ export interface PlagiarismManagement {
   content: string;
   description: string;
   hashClarity?: string;
+  footPrintFlow?: bigint;
 }

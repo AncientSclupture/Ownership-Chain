@@ -5,9 +5,35 @@ import { PopUpContext } from "../../context/PopUpContext";
 import { ReduceCharacters } from "../../utils/rwa-hepler";
 
 export function ReportPlagiarism() {
-    const { setModalKind, plagiarismManagement } = React.useContext(ModalContext);
+    const { setModalKind, reportManagement } = React.useContext(ModalContext);
+    const [content, setContent] = React.useState<string | undefined>(reportManagement.data?.content)
+    const [desc, setDesc] = React.useState<string | undefined>(reportManagement.data?.description)
+    const { setPopUpData } = React.useContext(PopUpContext);
 
     function closeButtonHandler() {
+        setModalKind(null);
+    }
+
+    function onSetHandler() {
+        if (!content || !desc) {
+            setPopUpData({
+                title: "No Content or description setted up",
+                description: "if you want to make any changes pleaase set up the field first!",
+                position: "bottom-right",
+            })
+
+            return;
+        }
+
+        reportManagement.setter(content, "content");
+        reportManagement.setter(desc, "description");
+
+        setPopUpData({
+            title: "Success to make a change",
+            description: "change the reporting form, you can now submit the report",
+            position: "bottom-right"
+        });
+
         setModalKind(null);
     }
 
@@ -32,8 +58,8 @@ export function ReportPlagiarism() {
                                 className="p-2 border rounded-md border-gray-300 text-sm"
                                 placeholder="tell your complaint here.."
                                 required
-                                value={plagiarismManagement.data?.content}
-                                onChange={(e) => plagiarismManagement.setter(e.target.value, "content")}
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
                             />
                         </div>
 
@@ -44,8 +70,8 @@ export function ReportPlagiarism() {
                                 className="p-2 border rounded-md border-gray-300 text-sm"
                                 placeholder="describe your complaint here.."
                                 required
-                                value={plagiarismManagement.data?.description}
-                                onChange={(e) => plagiarismManagement.setter(e.target.value, "description")}
+                                value={desc}
+                                onChange={(e) => setDesc(e.target.value)}
                             />
                         </div>
 
@@ -54,12 +80,13 @@ export function ReportPlagiarism() {
                             <input
                                 type="text" name="claritycheck" id="claritycheck"
                                 className="p-2 border rounded-md border-gray-300 text-sm"
-                                value={plagiarismManagement.data?.hashClarity ? "setted up" : "not set up"}
+                                value={reportManagement.data?.hashClarity ? "setted up" : "not set up"}
                                 disabled
                             />
                         </div>
 
                         <button
+                            onClick={() => onSetHandler()}
                             className="background-dark text-white p-2 rounded-md w-full cursor-pointer text-sm"
                         >
                             Set Report Form
@@ -72,9 +99,37 @@ export function ReportPlagiarism() {
 }
 
 export function ReportUser() {
-    const { setModalKind, plagiarismManagement } = React.useContext(ModalContext);
+    const { setModalKind, reportManagement } = React.useContext(ModalContext);
+
+    const [content, setContent] = React.useState<string | undefined>(reportManagement.data?.content)
+    const [desc, setDesc] = React.useState<string | undefined>(reportManagement.data?.description)
+    const { setPopUpData } = React.useContext(PopUpContext);
 
     function closeButtonHandler() {
+        setModalKind(null);
+    }
+
+
+    function onSetHandler() {
+        if (!content || !desc) {
+            setPopUpData({
+                title: "No Content or description setted up",
+                description: "if you want to make any changes pleaase set up the field first!",
+                position: "bottom-right",
+            })
+
+            return;
+        }
+
+        reportManagement.setter(content, "content");
+        reportManagement.setter(desc, "description");
+
+        setPopUpData({
+            title: "Success to make a change",
+            description: "change the reporting form, you can now submit the report",
+            position: "bottom-right"
+        });
+
         setModalKind(null);
     }
 
@@ -83,7 +138,7 @@ export function ReportUser() {
             <div className="w-[80vw] md:w-[40vw] bg-white rounded-lg border border-gray-300 p-4">
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <p>Report Plagiarism</p>
+                        <p>Report User</p>
                         <button
                             className="p-2 rounded-full cursor-pointer"
                             onClick={() => closeButtonHandler()}
@@ -99,8 +154,8 @@ export function ReportUser() {
                                 className="p-2 border rounded-md border-gray-300 text-sm"
                                 placeholder="tell your complaint here.."
                                 required
-                                value={plagiarismManagement.data?.content}
-                                onChange={(e) => plagiarismManagement.setter(e.target.value, "content")}
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
                             />
                         </div>
 
@@ -111,22 +166,13 @@ export function ReportUser() {
                                 className="p-2 border rounded-md border-gray-300 text-sm"
                                 placeholder="describe your complaint here.."
                                 required
-                                value={plagiarismManagement.data?.description}
-                                onChange={(e) => plagiarismManagement.setter(e.target.value, "description")}
-                            />
-                        </div>
-
-                        <div className="flex flex-col space-y-1">
-                            <label htmlFor="claritycheck" className="text-sm font-semibold">Clarity Check Result</label>
-                            <input
-                                type="text" name="claritycheck" id="claritycheck"
-                                className="p-2 border rounded-md border-gray-300 text-sm"
-                                value={plagiarismManagement.data?.hashClarity ? "setted up" : "not set up"}
-                                disabled
+                                value={desc}
+                                onChange={(e) => setDesc(e.target.value)}
                             />
                         </div>
 
                         <button
+                            onClick={() => onSetHandler()}
                             className="background-dark text-white p-2 rounded-md w-full cursor-pointer text-sm"
                         >
                             Set Report Form
@@ -139,16 +185,14 @@ export function ReportUser() {
 }
 
 export function DocHash() {
-    const { setModalKind, plagiarismManagement } = React.useContext(ModalContext);
+    const { setModalKind, reportManagement } = React.useContext(ModalContext);
     const { setPopUpData } = React.useContext(PopUpContext);
 
     const [file, setFile] = React.useState<File | null>(null);
-    const [hashValue, setHashValue] = React.useState<string | null>(null);
+    const [hashValue, setHashValue] = React.useState<string | undefined>(reportManagement.data?.hashClarity);
 
     function closeButtonHandler() {
         setModalKind(null);
-        setFile(null);
-        setHashValue(null);
     }
 
     async function onUploadDoc(e: React.ChangeEvent<HTMLInputElement>) {
@@ -190,7 +234,7 @@ export function DocHash() {
             return;
         }
 
-        plagiarismManagement.setter(hashValue, "hashClarity")
+        reportManagement.setter(hashValue, "hashClarity")
 
         setPopUpData({
             title: "Hash setted!",
@@ -206,7 +250,7 @@ export function DocHash() {
             <div className="w-[80vw] md:w-[40vw] bg-white rounded-lg border border-gray-300 p-4">
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <p>Rules Details</p>
+                        <p>Document Evidence</p>
                         <button
                             className="p-2 rounded-full cursor-pointer"
                             onClick={() => closeButtonHandler()}
@@ -238,7 +282,7 @@ export function DocHash() {
                             <input
                                 type="text" name="claritycheck" id="claritycheck"
                                 className="p-2 border rounded-md border-gray-300 text-sm"
-                                value={plagiarismManagement.data?.hashClarity ? ReduceCharacters(plagiarismManagement.data?.hashClarity) : "not setup"}
+                                value={reportManagement.data?.hashClarity ? ReduceCharacters(reportManagement.data?.hashClarity) : "not setup"}
                                 disabled
                             />
                         </div>
@@ -265,10 +309,10 @@ export function UserFootPrint() {
 
     return (
         <div className="w-full h-full p-10 flex items-center justify-center">
-            <div className="w-[80vw] md:w-[40vw] bg-white rounded-lg border border-gray-300 p-4">
+            <div className="w-[80vw] bg-white rounded-lg border border-gray-300 p-4">
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <p>Rules Details</p>
+                        <p>User Foot Print Evidence</p>
                         <button
                             className="p-2 rounded-full cursor-pointer"
                             onClick={() => closeButtonHandler()}

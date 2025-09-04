@@ -1,5 +1,5 @@
 import { backend } from "../../../declarations/backend";
-import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, ReportType, Result, Rule, UserOverviewResult } from "../../../declarations/backend/backend.did";
+import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, ReportType, Result, Rule, TypeReportEvidence, UserOverviewResult } from "../../../declarations/backend/backend.did";
 
 
 export const backendService = {
@@ -144,9 +144,12 @@ export const backendService = {
     async createreport(
         targetId: string,
         reportType: ReportType,
+        content: string,
+        description: string,
+        evidence: [TypeReportEvidence] | []
     ): Promise<Result> {
         try {
-            const res = await backend.createReport(targetId, reportType)
+            const res = await backend.createReport(targetId, reportType, content, description, evidence)
             return res;
         } catch (error) {
             throw error;

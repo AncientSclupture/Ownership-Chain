@@ -3,9 +3,18 @@ import { MainLayout } from "../layout/main-layout";
 import React from "react";
 import { ReportCenterEnum } from "../types/ui";
 import { FraudReporting, PlagiarismReporting, ReportCenterContent } from "../components/reporting-components";
+import { ModalContext } from "../context/ModalContext";
 
 function Courting() {
   const [selectedTab, setSelectedTab] = React.useState<ReportCenterEnum>(ReportCenterEnum.asset);
+  const {reportManagement} = React.useContext(ModalContext);
+
+
+  React.useEffect(() => {
+    console.log(reportManagement.data)
+  }, [
+    reportManagement.data
+  ])
 
   return (
     <MainLayout>
@@ -22,13 +31,19 @@ function Courting() {
           <div className="space-y-4">
             <div className="flex space-x-2 border-b border-gray-300 pb-2">
               <div
-                onClick={() => setSelectedTab(ReportCenterEnum.asset)}
+                onClick={() => {
+                  setSelectedTab(ReportCenterEnum.asset)
+                  reportManagement.reseter()
+                }}
                 className={`${selectedTab === ReportCenterEnum.asset ? 'text-gray-500' : ''} cursor-pointer`}
               >
                 Plagiarism Report
               </div>
               <div
-                onClick={() => setSelectedTab(ReportCenterEnum.user)}
+                onClick={() => {
+                  setSelectedTab(ReportCenterEnum.user)
+                  reportManagement.reseter()
+                }}
                 className={`${selectedTab === ReportCenterEnum.user ? 'text-gray-500' : ''} cursor-pointer`}
               >
                 User Report

@@ -16,7 +16,7 @@ export type ModalContextType = {
         remover: (d: string) => void;
         reseter: () => void;
     },
-    plagiarismManagement: {
+    reportManagement: {
         data: PlagiarismManagement | null,
         setter: (d: string, key: keyof PlagiarismManagement) => void;
         remover: (key: keyof PlagiarismManagement) => void;
@@ -44,7 +44,7 @@ export const ModalContext = createContext<ModalContextType>({
         remover: () => { },
         reseter: () => { },
     },
-    plagiarismManagement: {
+    reportManagement: {
         data: null,
         setter: () => { },
         remover: () => { },
@@ -57,7 +57,7 @@ export const ModalContext = createContext<ModalContextType>({
 });
 
 export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [modalKind, setModalKind] = useState<ModalKindEnum | null>(ModalKindEnum.plagiarism);
+    const [modalKind, setModalKind] = useState<ModalKindEnum | null>(null);
     const [ruleDetail, setRuleDetailState] = useState<string[] | null>(null);
     const [documentHash, setDocumentHashState] = useState<DocumentHashDataType[]>([]);
     const [plagiarismData, setPlagiarismData] = useState<PlagiarismManagement | null>(null);
@@ -115,11 +115,14 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     function setterPlagiarismData(
-        d: string,
+        d: string | bigint,
         key: keyof PlagiarismManagement,
     ) {
         setPlagiarismData((prev) =>
-            prev ? { ...prev, [key]: d } : { content: "", description: "", hashClarity: "", [key]: d }
+            prev ? { ...prev, [key]: d } : { 
+                content: "", description: "", hashClarity: "", footPrintFlow: BigInt(0),
+                [key]: d
+             }
         );
     }
 
@@ -139,7 +142,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 modalKind,
                 managementAddDocument: { data: documentHash, setter: addDocumentHash, remover: removeDocument, reseter: resseterDocument },
                 managementRuleDetail: { data: ruleDetail, setter: addRuleDetail, remover: removeRuleDetail, reseter: resetRuleDetail },
-                plagiarismManagement: { data: plagiarismData, setter: setterPlagiarismData, remover: removePlagiarismData, reseter: reseterPlagiarism },
+                reportManagement: { data: plagiarismData, setter: setterPlagiarismData, remover: removePlagiarismData, reseter: reseterPlagiarism },
                 setModalKind: setModalShowUp,
                 load: loading,
                 setLoadState: setLoadingHanndler,
