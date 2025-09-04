@@ -68,28 +68,24 @@ export const CreatePairKey = (): [string, string] => {
   }
 };
 
-export const encryptWithPublicKey = (publicKeyPem: string, plainText: string): string => {
-  const publicKey = forge.pki.publicKeyFromPem(publicKeyPem);
-
-  const encrypted = publicKey.encrypt(plainText, "RSA-OAEP", {
-    md: forge.md.sha256.create(),
-  });
-
-  console.log(forge.util.encode64(encrypted));
-  return forge.util.encode64(encrypted);
-};
-
-export const decryptWithPrivateKey = (privateKeyPem: string, encryptedBase64: string): string => {
+export const signDoc = (privateKeyPem: string, hashHex: string): string => {
   const privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
 
-  const decrypted = privateKey.decrypt(
-    forge.util.decode64(encryptedBase64),
-    "RSA-OAEP",
-    {
-      md: forge.md.sha256.create(),
-    }
-  );
+  const md = forge.md.sha256.create();
+  md.update(forge.util.hexToBytes(hashHex));
 
-  console.log(decrypted);
-  return decrypted;
+  const signature = privateKey.sign(md);
+  return forge.util.encode64(signature);
+};
+
+export const verifyHash = (
+  publicKeyPem: string,
+  hashText: string,
+  signatureBase64: string
+): boolean => {
+  const publicKey = forge.pki.publicKeyFromPem(publicKeyPem);
+
+  const signature = forge.util.decode64(signatureBase64);
+  console.log(publicKey.verify(hashText, signature));
+  return publicKey.verify(hashText, signature);
 };

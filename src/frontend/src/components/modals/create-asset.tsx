@@ -4,12 +4,13 @@ import { ModalContext } from "../../context/ModalContext";
 import { DocumentHashDataType } from "../../types/rwa";
 import countriesData from "../../utils/countries.json"
 import { backendService } from "../../services/backendService";
-import { CreatePairKey, encryptWithPublicKey, mapToIdentityNumberType, ReduceCharacters } from "../../utils/rwa-hepler";
+import { CreatePairKey, mapToIdentityNumberType, ReduceCharacters, signDoc } from "../../utils/rwa-hepler";
 import { PopUpContext } from "../../context/PopUpContext";
 
 export function AddDocumentsModal() {
     const { setModalKind, managementAddDocument } = React.useContext(ModalContext);
     const [file, setFile] = React.useState<File | null>(null);
+    const [privKey, setPrivKey] = React.useState<File | null>(null);
     const [docName, setDocName] = React.useState("");
     const [docDesc, setDocDesc] = React.useState("");
     const { setPopUpData } = React.useContext(PopUpContext);
@@ -22,16 +23,14 @@ export function AddDocumentsModal() {
     }
 
     async function handleAddDocument() {
-        const pubkey : string | null = await backendService.getPubKeyUser();
-
-        if (!pubkey) {
+        if (!privKey) {
             setPopUpData({
                 title: "Cannot add document!",
-                description: `you have no public key`,
+                description: `set your privatekey first`,
                 position: "bottom-right",
             })
 
-            return
+            return;
         }
 
         if (!file) {
@@ -49,12 +48,12 @@ export function AddDocumentsModal() {
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 
-        console.log(hashHex);
-
-        const encryptSignature = encryptWithPublicKey(pubkey, hashHex);
+        const privBuffer = await privKey.arrayBuffer();
+        const privPem = new TextDecoder().decode(privBuffer);
+        const signature = signDoc(privPem, hashHex);
 
         const newDoc: DocumentHashDataType = {
-            hash: encryptSignature,
+            hash: signature,
             name: docName,
             description: docDesc,
         };
@@ -85,26 +84,48 @@ export function AddDocumentsModal() {
                         </button>
                     </div>
                     <div className="space-y-5">
-                        <label
-                            htmlFor="file"
-                            className={`flex flex-col items-center justify-center w-full h-32 border-2 rounded-lg border-gray-300 ${file ? 'bg-blue-300' : 'border-dashed cursor-pointer hover:bg-gray-50'}`}
-                        >
-                            <Upload className={`${!file ? 'w-8 h-8 text-gray-400' : 'hidden'}`} />
-                            <span className="mt-2 text-sm text-gray-600">
-                                {!file ? "Klik untuk upload PDF" : file.name}
-                            </span>
-                            <input
-                                id="file"
-                                name="file"
-                                type="file"
-                                accept="application/pdf"
-                                className="hidden"
-                                onChange={(e) => {
-                                    const f = e.target.files?.[0] || null;
-                                    setFile(f);
-                                }}
-                            />
-                        </label>
+                        <div className="flex items-center space-x-10">
+                            <label
+                                htmlFor="file"
+                                className={`flex flex-col items-center justify-center w-full h-32 border-2 rounded-lg border-gray-300 ${file ? 'bg-blue-300' : 'border-dashed cursor-pointer hover:bg-gray-50'}`}
+                            >
+                                <Upload className={`${!file ? 'w-8 h-8 text-gray-400' : 'hidden'}`} />
+                                <span className="mt-2 text-sm text-gray-600">
+                                    {!file ? "Klik untuk upload document PDF" : file.name}
+                                </span>
+                                <input
+                                    id="file"
+                                    name="file"
+                                    type="file"
+                                    accept="application/pdf"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const f = e.target.files?.[0] || null;
+                                        setFile(f);
+                                    }}
+                                />
+                            </label>
+                            <label
+                                htmlFor="privfile"
+                                className={`flex flex-col items-center justify-center w-full h-32 border-2 rounded-lg border-gray-300 ${file ? 'bg-blue-300' : 'border-dashed cursor-pointer hover:bg-gray-50'}`}
+                            >
+                                <Upload className={`${!privKey ? 'w-8 h-8 text-gray-400' : 'hidden'}`} />
+                                <span className="mt-2 text-sm text-gray-600">
+                                    {!privKey ? "Klik untuk memasukan private key" : privKey.name}
+                                </span>
+                                <input
+                                    id="privfile"
+                                    name="privfile"
+                                    type="file"
+                                    accept="text"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const f = e.target.files?.[0] || null;
+                                        setPrivKey(f);
+                                    }}
+                                />
+                            </label>
+                        </div>
                         <div className="flex flex-col w-full space-y-2">
                             <label className="text-sm" htmlFor="docname">Document Name</label>
                             <input
@@ -137,7 +158,6 @@ export function AddDocumentsModal() {
                 </div>
             </div>
         </div>
-
     );
 }
 
