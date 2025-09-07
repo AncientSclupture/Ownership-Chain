@@ -48,6 +48,8 @@ export function AddDocumentsModal() {
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 
+        console.log(hashHex)
+
         const privBuffer = await privKey.arrayBuffer();
         const privPem = new TextDecoder().decode(privBuffer);
         const signature = signDoc(privPem, hashHex);
@@ -91,7 +93,7 @@ export function AddDocumentsModal() {
                             >
                                 <Upload className={`${!file ? 'w-8 h-8 text-gray-400' : 'hidden'}`} />
                                 <span className="mt-2 text-sm text-gray-600">
-                                    {!file ? "Klik untuk upload document PDF" : file.name}
+                                    {!file ? "Click to uplaod document PDF" : file.name}
                                 </span>
                                 <input
                                     id="file"
@@ -107,11 +109,11 @@ export function AddDocumentsModal() {
                             </label>
                             <label
                                 htmlFor="privfile"
-                                className={`flex flex-col items-center justify-center w-full h-32 border-2 rounded-lg border-gray-300 ${file ? 'bg-blue-300' : 'border-dashed cursor-pointer hover:bg-gray-50'}`}
+                                className={`flex flex-col items-center justify-center w-full h-32 border-2 rounded-lg border-gray-300 ${privKey ? 'bg-blue-300' : 'border-dashed cursor-pointer hover:bg-gray-50'}`}
                             >
                                 <Upload className={`${!privKey ? 'w-8 h-8 text-gray-400' : 'hidden'}`} />
                                 <span className="mt-2 text-sm text-gray-600">
-                                    {!privKey ? "Klik untuk memasukan private key" : privKey.name}
+                                    {!privKey ? "Click to upload private key" : privKey.name}
                                 </span>
                                 <input
                                     id="privfile"

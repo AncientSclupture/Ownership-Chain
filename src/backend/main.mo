@@ -36,10 +36,10 @@ persistent actor {
   private transient var investorProposalsStorage = HashMap.HashMap<Text, DataType.InvestorProposal>(100, Text.equal, Text.hash);
   private transient var investorProposalsCounter : Nat = 0;
 
-  private transient var assetsReport = HashMap.HashMap<Text, TrieMap.TrieMap<Principal, DataType.Report>>(100, Text.equal, Text.hash);
+  private transient var assetsStorageReport = HashMap.HashMap<Text, TrieMap.TrieMap<Principal, DataType.Report>>(100, Text.equal, Text.hash);
   private transient var assetsReportCounter : Nat = 0;
 
-  //   private transient var assetReportAction = HashMap.HashMap<Text, TrieMap.TrieMap<Text, DataType.ReportAction>>(
+  //   private transient var assetReportStorageAction = HashMap.HashMap<Text, TrieMap.TrieMap<Text, DataType.ReportAction>>(
   //     100,
   //     Text.equal,
   //     Text.hash,
@@ -1087,9 +1087,9 @@ persistent actor {
   public shared (msg) func createReport(
     targetId : Text,
     reportType : DataType.ReportType,
-    content: Text,
-    description: Text,
-    evidence: ?DataType.TypeReportEvidence
+    content : Text,
+    description : Text,
+    evidence : ?DataType.TypeReportEvidence,
   ) : async Result.Result<Text, Text> {
 
     var complainer : Principal = msg.caller;
@@ -1099,8 +1099,7 @@ persistent actor {
     };
 
     switch (assetsStorage.get(targetId)) {
-      case (?_existAsset) {
-      };
+      case (?_existAsset) {};
       case (null) {
         var foundUser = false;
         label l for ((_, user) in usersStorage.entries()) {
@@ -1127,6 +1126,7 @@ persistent actor {
 
         var createdReportMap = TrieMap.TrieMap<Principal, DataType.Report>(Principal.equal, Principal.hash);
         var createdReport : DataType.Report = {
+          id = genReportId;
           complainer = complainer;
           targetid = targetId;
           reportType = reportType;
@@ -1141,24 +1141,103 @@ persistent actor {
 
         createdReportMap.put(complainer, createdReport);
 
-        assetsReport.put(genReportId, createdReportMap);
+        assetsStorageReport.put(genReportId, createdReportMap);
 
         return #ok("Report succesfully created" # genReportId);
       };
     };
   };
 
-  public shared (msg) func getUserPublicSignature(): async ?Text {
-    var caller: Principal = msg.caller;
-    if (not isUserNotBanned(caller)){
+  public shared (msg) func getUserPublicSignature() : async ?Text {
+    var caller : Principal = msg.caller;
+    if (not isUserNotBanned(caller)) {
       return null;
     };
 
-    switch(usersStorage.get(caller)){
-      case (null) {return null;};
+    switch (usersStorage.get(caller)) {
+      case (null) { return null };
       case (?user) {
         return ?user.publickey;
-      }
+      };
+    };
+  };
+
+  public shared (msg) func getReportToMe() : async [DataType.Report] {
+    var caller : Principal = msg.caller;
+    var reports : [DataType.Report] = [];
+
+    switch (usersStorage.get(caller)) {
+      case (null) { return reports };
+      case (?user) {
+        for (subMap in assetsStorageReport.vals()) {
+          for (report in subMap.vals()) {
+            if (report.targetid == user.id) {
+              reports := Array.append(reports, [report]);
+            };
+          };
+        };
+      };
+    };
+
+    return reports;
+  };
+
+  public shared (msg) func getMyAssetReport() : async [DataType.Report] {
+    var caller : Principal = msg.caller;
+    var reports : [DataType.Report] = [];
+
+    for (subMap in assetsStorageReport.vals()) {
+      for (report in subMap.vals()) {
+        switch (assetsStorage.get(report.targetid)) {
+          case (null) {};
+          case (?asset) {
+            if (asset.creator == caller) {
+              reports := Array.append(reports, [report]);
+            };
+          };
+        };
+      };
+    };
+
+    return reports;
+  };
+
+  public shared (msg) func getReportDetails(
+    reportId : Text
+  ) : async ?DataType.Report {
+    var caller : Principal = msg.caller;
+
+    if (not isUserNotBanned(caller)) {
+      return null;
+    };
+
+    switch (assetsStorageReport.get(reportId)) {
+      case (null) { return null };
+      case (?reportMap) {
+        label lrep for (report in reportMap.vals()) {
+          if (report.id == reportId) {
+            return ?report;
+          };
+        };
+      };
+    };
+
+    return null;
+  };
+
+  public shared (msg) func getAssetSignature(
+    assetId : Text
+  ) : async ?[DataType.DocumentHash] {
+    var caller : Principal = msg.caller;
+    if (not isUserNotBanned(caller)) {
+      return null;
+    };
+
+    switch (assetsStorage.get(assetId)) {
+      case (null) { return null };
+      case (?asset) {
+        return ?asset.documentHash;
+      };
     };
   };
 

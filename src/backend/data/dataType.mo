@@ -200,6 +200,7 @@ module {
   };
 
   public type Report = {
+    id: Text;
     complainer : Principal;
     targetid : Text;
     reportType : ReportType;

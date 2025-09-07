@@ -1,7 +1,9 @@
-import { ChevronDown, ChevronRight, PanelsLeftBottomIcon, LayoutList, CircleDollarSign, FileCheck, Flag, ImagePlus, User, Images, Banknote, ArrowLeftRight } from "lucide-react";
+import { ChevronDown, ChevronRight, PanelsLeftBottomIcon, LayoutList, CircleDollarSign, FileCheck, Flag, ImagePlus, User, Images, Banknote, ArrowLeftRight, ArrowUpRight } from "lucide-react";
 import { useIsMobile } from "../hook/useMobile";
 import React from "react";
 import { ContentDashboardInterface, UserDashboardMenus, UserDashboardMenusInterface } from "../types/ui";
+import { formatMotokoTime, ReduceCharacters } from "../utils/rwa-hepler";
+import { Link } from "react-router-dom";
 
 export const DashboardMenu: UserDashboardMenusInterface[] = [
     {
@@ -171,6 +173,46 @@ export function ContentDashboard(
                 </div>
                 <div className="pt-4">
                     {contentList.find(c => c.name === selectedMenu)?.component}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export function ReportAimToMeCard(
+    { id, content, description, reputation, created, hashClarity, footprint }:
+        { id:string, content: string; description: string; reputation: bigint, created: bigint, hashClarity: [] | [string] | undefined, footprint: [] | [bigint] | undefined }
+) {
+    const [isOpen, setIsOpen] = React.useState(false);
+
+    return (
+        <div className="w-full bg-white p-4 rounded-md border border-gray-300 shadow-md">
+            <div
+            >
+                <div
+                    className="flex items-center justify-between uppercase font-semibold my-2"
+                >
+                    <div
+                        className="cursor-pointer"
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
+                        {content}
+                    </div>
+                    <Link
+                        className="p-1 bg-gray-300 rounded-sm cursor-pointer"
+                        to={`/report/${id}`}
+                    >
+                        <ArrowUpRight size={20} />
+                    </Link>
+                </div>
+                <div className={`text-sm my-2 ${isOpen ? 'block' : 'hidden'}`}>
+                    {description}
+                </div>
+                <div className="text-sm space-y-2">
+                    <p>{formatMotokoTime(created)}</p>
+                    <p>Report Score {reputation.toString()}</p>
+                    <p>{hashClarity ? ReduceCharacters(hashClarity.toString()) : "-"}</p>
+                    <p>User foot print score {footprint?.toString() ?? "-"}</p>
                 </div>
             </div>
         </div>

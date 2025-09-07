@@ -3,9 +3,11 @@ import { CreateAssetStep, FormDataCreateAseet, ModalKindEnum } from "../types/ui
 import { CreateAssetAccordion, createDataInitial, DocumentAsset, LocationAsset, OverviewIdentity, RuleAssetHolder, TermsAndCondition, TokenAsset } from "./create-assets-component";
 import { ModalContext } from "../context/ModalContext";
 import { CustomizableBarChart, CustomizableLineChart } from "./chart/asset-detail-chart";
-import { DocumentHashDataType, UserOverviewResult } from "../types/rwa";
+import { DocumentHashDataType, ReportTypeResult, UserOverviewResult } from "../types/rwa";
 import { Loader } from "./loader-component";
 import { backendService } from "../services/backendService";
+import { Search } from "lucide-react";
+import { ReportAimToMeCard } from "./user-dashboard-component";
 
 export function AboutMeSection() {
     const { setModalKind, load } = React.useContext(ModalContext);
@@ -277,7 +279,67 @@ export function TransactionSection() {
 }
 
 export function ReportingSection() {
+    const [search, setSearch] = React.useState("")
+    const [isLoad, setIsLoad] = React.useState(true);
+    const [data, setData] = React.useState<ReportTypeResult | null>(null);
+
+    React.useEffect(() => {
+        async function fetchData() {
+            const res = await backendService.getReportToMe();
+            setData(res);
+            setIsLoad(false)
+        }
+        fetchData()
+    }, [])
+
+    if (isLoad) return <Loader />
+
     return (
-        <div>Hallo This is Reporting Section</div>
+        <div className="w-full flex items-center justify-center flex-col">
+            <div className="w-full p-5">
+                <div className="flex justify-between items-center">
+                    <h1 className="font-semibold">Report aim to me</h1>
+                    <div className="flex space-x-1 items-center border border-gray-300 rounded-md">
+                        <input
+                            type="text" name="search" id="search"
+                            className="p-2 text-sm"
+                            placeholder="find report title here ..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                        <button className="p-3 cursor-pointer bg-gray-200 rounded-r-md">
+                            <Search size={15} />
+                        </button>
+                    </div>
+                </div>
+                <div className="my-4 space-y-3">
+                    {!data || data.asset.length + data.personal.length == 0 && <div>Belom ada data</div>}
+                    {data?.asset.map((d, idx) => (
+                        <ReportAimToMeCard
+                            key={idx}
+                            id={d.id}
+                            content={d.content}
+                            description={d.description}
+                            reputation={d.reputation}
+                            created={d.created}
+                            footprint={d.evidence[0]?.footPrintFlow}
+                            hashClarity={d.evidence[0]?.hashclarity}
+                        />
+                    ))}
+                    {data?.personal.map((d, idx) => (
+                        <ReportAimToMeCard
+                            key={idx}
+                            id={d.id}
+                            content={d.content}
+                            description={d.description}
+                            reputation={d.reputation}
+                            created={d.created}
+                            footprint={d.evidence[0]?.footPrintFlow}
+                            hashClarity={d.evidence[0]?.hashclarity}
+                        />
+                    ))}
+                </div>
+            </div>
+        </div>
     );
 }

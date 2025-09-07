@@ -42,10 +42,6 @@ export function mapToReportType(value: string): ReportType {
   }
 }
 
-export function SignDocument(docString: string): string {
-  return docString;
-}
-
 export const value2BigInt = (value: string) => {
   try {
     return value && value.trim() !== '' ? BigInt(value) : BigInt(0);

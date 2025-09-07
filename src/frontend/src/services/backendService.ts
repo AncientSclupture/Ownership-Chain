@@ -1,5 +1,6 @@
 import { backend } from "../../../declarations/backend";
-import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, ReportType, Result, Rule, TypeReportEvidence, UserOverviewResult } from "../../../declarations/backend/backend.did";
+import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, Report, ReportType, Result, Rule, TypeReportEvidence, UserOverviewResult } from "../../../declarations/backend/backend.did";
+import { ReportTypeResult } from "../types/rwa";
 
 
 export const backendService = {
@@ -163,6 +164,40 @@ export const backendService = {
         } catch (error) {
             console.log("get pub key: ", error);
             throw error;
+        }
+    },
+
+    async getReportToMe(): Promise<ReportTypeResult>{
+        try {
+            const resTome = await backend.getReportToMe();
+            const resMyAsset = await backend.getMyAssetReport();
+
+            return {
+                asset: resMyAsset,
+                personal: resTome
+            };
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async getDetailsReport(repId: string): Promise<[Report] | []>{
+        try {
+            const res = await backend.getReportDetails(repId);
+            return res;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async getAssetDocumentHash(assetid: string): Promise<[DocumentHash[]] | []> {
+        try {
+            const res = await backend.getAssetSignature(assetid);
+            console.log(res);
+            return res;
+        } catch (error) {
+            console.log(error)
+            throw error
         }
     }
 

@@ -1,14 +1,99 @@
 import { CircleX, FileCheck, Upload } from "lucide-react";
 import React from "react";
-import { ReduceCharacters } from "../utils/rwa-hepler";
+import { ReduceCharacters, signDoc, verifyHash } from "../utils/rwa-hepler";
+import { backendService } from "../services/backendService";
+import { PopUpContext } from "../context/PopUpContext";
+import { DocumentHash } from "../../../declarations/backend/backend.did";
+import { Loader } from "./loader-component";
 
-export function AgainsPlagiarism({ hashComplain }: { hashComplain: [string] | [] | undefined }) {
+export function AgainstPlagiarism(
+    { hashComplain, assetId }:
+        { hashComplain: [string] | [] | undefined, assetId: string | undefined }
+) {
     const [isOpen, setIsOpen] = React.useState(false);
-    const [hashComp, setHashComp] = React.useState<[string] | [] | undefined>(hashComplain);
-    const [pubKey, setPubkey] = React.useState<string>("");
     const [privKey, setPrivKey] = React.useState<File | null>(null);
-    const [isMatchHash, setIsMatchHash] = React.useState(false)
-    const [isMatchSignature, setIsMatchSignature] = React.useState(false)
+    const [isMatchHash, setIsMatchHash] = React.useState(false);
+    const [isMatchSignature, setIsMatchSignature] = React.useState(false);
+    const [docHash, setDocHash] = React.useState<[DocumentHash[]] | []>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+
+    const { setPopUpData } = React.useContext(PopUpContext);
+
+    React.useEffect(() => {
+        async function fetchData() {
+            if (!hashComplain || hashComplain.length == 0 || !assetId) {
+                setPopUpData({
+                    title: "Failed!",
+                    description: "hash or asset id not settup well",
+                    position: "bottom-right"
+                });
+                return;
+            }
+            try {
+                const res = await backendService.getAssetDocumentHash(assetId);
+                setDocHash(res);
+            } catch (error) {
+                setPopUpData({
+                    title: "Failed!",
+                    description: "Failed to load hash document target",
+                    position: "bottom-right"
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        fetchData()
+    }, [])
+
+    async function onDefenseHandler() {
+        const pubKey = await backendService.getPubKeyUser();
+        if (!pubKey) {
+            setPopUpData({
+                title: "Failed to verify!",
+                description: "You have no public key stored",
+                position: "bottom-right"
+            });
+            return;
+        };
+
+        if (!hashComplain || hashComplain.length == 0 || !assetId) {
+            setPopUpData({
+                title: "Failed!",
+                description: "hash or asset id not settup well",
+                position: "bottom-right"
+            });
+            return;
+        }
+
+        if (!privKey) {
+            setPopUpData({
+                title: "Failed!",
+                description: "You have no private key setted up",
+                position: "bottom-right"
+            });
+            return;
+        }
+
+        const privBuffer = await privKey.arrayBuffer();
+        const privPem = new TextDecoder().decode(privBuffer);
+
+        console.log(hashComplain[0]);
+
+        console.log(docHash);
+
+        const signHash = signDoc(privPem, hashComplain[0]);
+        const verifyHashStatus = verifyHash(pubKey, hashComplain[0], privPem)
+
+        console.log(signHash);
+
+        console.log(verifyHashStatus)
+
+        setIsMatchHash(verifyHashStatus);
+        setIsMatchSignature(verifyHashStatus);
+
+    };
+
+    if (isLoading) return <Loader fullScreen />;
 
     return (
         <div className="w-full">
@@ -22,7 +107,7 @@ export function AgainsPlagiarism({ hashComplain }: { hashComplain: [string] | []
                 <div className={`space-y-3 ${isOpen ? 'block' : 'hidden space-y-0'}`}>
                     <div className="space-y-1">
                         <p className="font-semibold">
-                            hashcomplainer
+                            hash complainer
                         </p>
                         <div className="flex border border-gray-300 rounded-md p-2">
                             <input
@@ -37,7 +122,7 @@ export function AgainsPlagiarism({ hashComplain }: { hashComplain: [string] | []
                     </div>
                     <div className="space-y-1">
                         <p className="font-semibold">
-                            docsignature
+                            signatured document
                         </p>
                         <div className="flex border border-gray-300 rounded-md p-2">
                             <input
@@ -46,7 +131,7 @@ export function AgainsPlagiarism({ hashComplain }: { hashComplain: [string] | []
                                 disabled
                                 placeholder="doc signature"
                             />
-                            {isMatchHash ? <FileCheck /> : <CircleX color="red" />}
+                            {isMatchSignature ? <FileCheck /> : <CircleX color="red" />}
                         </div>
                     </div>
                     <label
@@ -69,6 +154,12 @@ export function AgainsPlagiarism({ hashComplain }: { hashComplain: [string] | []
                             }}
                         />
                     </label>
+                    <button
+                        className="p-2 background-dark rounded-md text-white text-sm w-full cursor-pointer"
+                        onClick={() => onDefenseHandler()}
+                    >
+                        Submit Clarification
+                    </button>
                 </div>
 
             </div>

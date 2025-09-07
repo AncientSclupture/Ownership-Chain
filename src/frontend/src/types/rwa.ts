@@ -1,5 +1,5 @@
 import type { Principal } from '@dfinity/principal';
-import { User } from '../../../declarations/backend/backend.did';
+import { Report, User } from '../../../declarations/backend/backend.did';
 
 export interface AssetDataType {
   'id': string,
@@ -59,4 +59,9 @@ export interface PlagiarismManagement {
   description: string;
   hashClarity?: string;
   footPrintFlow?: bigint;
+}
+
+export interface ReportTypeResult {
+  'personal': Report[];
+  'asset': Report[]
 }
