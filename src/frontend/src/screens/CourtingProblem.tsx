@@ -6,7 +6,7 @@ import { backendService } from "../services/backendService";
 import { Report } from "../../../declarations/backend/backend.did";
 import { Loader } from "../components/loader-component";
 import { formatMotokoTime } from "../utils/rwa-hepler";
-import { AgainstPlagiarism, AgainsUserFlow } from "../components/against-court-component";
+import { AgainstPlagiarism } from "../components/against-court-component";
 
 function CourtingProblem() {
   const { reportid } = useParams<{ reportid: string }>();
