@@ -13,7 +13,6 @@ module {
     #Artwork;
     #Vehicle;
     #Equipment;
-    #Other : Text;
   };
 
   public type TransactionType = {
@@ -103,6 +102,7 @@ module {
     purchaseDate : Int;
     purchasePrice : Nat;
     maturityDate : Int;
+    acquiredAt: Int;
   };
 
   public type BuyProposal = {

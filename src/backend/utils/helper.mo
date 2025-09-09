@@ -7,95 +7,46 @@ import Bool "mo:base/Bool";
 import HashMap "mo:base/HashMap";
 
 module {
-  public func assetID(assetType : DataType.AssetType, id : Nat) : Text {
+  public func assetID(assetType : DataType.AssetType) : Text {
     let now = Time.now();
     let secs = now / 1_000;
 
     let typeText = switch (assetType) {
-      case (#Property) "Property";
-      case (#Business) "Business";
-      case (#Artwork) "Artwork";
-      case (#Vehicle) "Vehicle";
-      case (#Equipment) "Equipment";
-      case (#Other(t)) t;
+      case (#Property) "prop";
+      case (#Business) "bns";
+      case (#Artwork) "art";
+      case (#Vehicle) "vehc";
+      case (#Equipment) "eqp";
     };
 
-    return "asset-" # typeText # "-" # Int.toText(secs) # "-" # Nat.toText(id);
+    return "asset_" # typeText # "_" # Int.toText(secs);
   };
 
   public func transactionID(transactionType : DataType.TransactionType, id : Nat) : Text {
-    let now = Time.now();
-    let secs = now / 1_000;
-
     let typeText = switch (transactionType) {
-      case (#Buy) "Property";
-      case (#Sell) "Sell";
-      case (#Transfer) "Transfer";
-      case (#Dividend) "Dividend";
-      case (#Downpayment) "Downpayment";
-      case (#Extending) "Extending";
-      case (#Redeem) "Redeem";
-      case (#DownpaymentCashBack) "DownpaymentCashBack";
+      case (#Buy) "buy";
+      case (#Sell) "sell";
+      case (#Transfer) "trans";
+      case (#Dividend) "div";
+      case (#Downpayment) "dp";
+      case (#Extending) "extd";
+      case (#Redeem) "rdm";
+      case (#DownpaymentCashBack) "dpcs";
     };
 
-    return "tnx-" # typeText # "-" # Int.toText(secs) # "-" # Nat.toText(id);
+    return "tnx_" # typeText # "_" # Nat.toText(id);
   };
 
-  public func ownershipID(id : Nat) : Text {
-    let now = Time.now();
-    let secs = now / 1_000;
-
-    return "asset-ownership" # Int.toText(secs) # "-" # Nat.toText(id);
-  };
-
-  public func buyproposalID(id : Nat) : Text {
-    let now = Time.now();
-    let secs = now / 1_000;
-
-    return "tnx-buyprop" # Int.toText(secs) # "-" # Nat.toText(id);
-  };
-
-  public func investorproposalID(id : Nat) : Text {
-    let now = Time.now();
-    let secs = now / 1_000;
-
-    return "tnx-investorprop" # Int.toText(secs) # "-" # Nat.toText(id);
-  };
-
-  public func userID(id : Nat) : Text {
-    let now = Time.now();
-    let secs = now / 1_000;
-
-    return "user-" # Int.toText(secs) # "-" # Nat.toText(id);
-  };
-
-  public func reportID(id : Nat, reportType : DataType.ReportType) : Text {
-    let now = Time.now();
-    let secs = now / 1_000;
-
-    let typeText = switch (reportType) {
-      case (#Scam) "Scam";
-      case (#Fraud) "Fraud";
-      case (#Legality) "Legality";
-      case (#Plagiarism) "Plagiarism";
-      case (#Bankrupting) "Bankrupting";
+  public func ownershipID(id : Nat, assetType: DataType.AssetType) : Text {
+    let typeText = switch (assetType) {
+      case (#Property) "prop";
+      case (#Business) "bns";
+      case (#Artwork) "art";
+      case (#Vehicle) "vehc";
+      case (#Equipment) "eqp";
     };
 
-    return "report-" # typeText # "-" # Int.toText(secs) # "-" # Nat.toText(id);
-  };
-
-  public func reportactionID(id : Nat, reportType : DataType.ReportActionType) : Text {
-    let now = Time.now();
-    let secs = now / 1_000;
-
-    let typeText = switch (reportType) {
-      case (#Freeze) "Freeze";
-      case (#Pending) "Pending";
-      case (#Cancled) "Cancled";
-      case (#NotGuilty) "NotGuilty";
-    };
-
-    return "report-" # typeText # "-" # Int.toText(secs) # "-" # Nat.toText(id);
+    return "ow" # typeText # "_" # Nat.toText(id);
   };
 
   public func isExpired(
