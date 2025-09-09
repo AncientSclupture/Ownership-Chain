@@ -66,59 +66,42 @@ module {
   public func validateExistAssetAndExistToken(
     buyer : Principal,
     assetId : Text,
-    currentAssetId : Nat,
     amount : Nat,
     assetsStorage : HashMap.HashMap<Text, DataType.Asset>,
   ) : Result.Result<(), Text> {
 
-    let words = Text.split(assetId, #char('-'));
-    let wordsArray = Iter.toArray(words);
-    let arraySize = wordsArray.size();
-
-    if (arraySize == 0) {
-      return #err("Invalid asset ID format.");
-    };
-
-    let lastPart = wordsArray[arraySize - 1];
-
-    switch (Nat.fromText(lastPart)) {
+    switch (assetsStorage.get(assetId)) {
       case (null) {
-        return #err("Invalid asset ID number.");
+        return #err("Asset not found.");
       };
-      case (?assetNum) {
-        if (assetNum == 0 or assetNum > currentAssetId) {
-          return #err("Asset not found.");
+      case (?asset) {
+        if (amount == 0) {
+          return #err("There is no token you are going to purchased.");
         };
 
-        switch (assetsStorage.get(assetId)) {
-          case (null) {
-            return #err("Asset not found.");
-          };
-          case (?asset) {
-            if (asset.tokenLeft < amount) {
-              return #err("No token available for this asset.");
-            };
-
-            if (asset.minTokenPurchased > amount or asset.maxTokenPurchased < amount) {
-              return #err("Cannot proceed because of token minimum or maximum puchased is not suficient.");
-            };
-
-            if (asset.assetStatus != #Open) {
-              return #err("This is asset token is not open for sale.");
-            };
-
-            if (asset.rule.minDownPaymentPercentage > 1.0) {
-              return #err("Cannot downpayment percentage is cannot be greater than 100%.");
-            };
-
-            if (asset.creator == buyer) {
-              return #err("You cannot proposed to buy your own asset as an asset creator.");
-            };
-
-            return #ok(());
-          };
+        if (asset.tokenLeft < amount) {
+          return #err("No token available for this asset.");
         };
+
+        if (asset.minTokenPurchased > amount or asset.maxTokenPurchased < amount) {
+          return #err("Cannot proceed because of token minimum or maximum puchased is not suficient.");
+        };
+
+        if (asset.assetStatus != #Open) {
+          return #err("This is asset token is not open for sale.");
+        };
+
+        if (asset.rule.minDownPaymentPercentage > 1.0) {
+          return #err("Cannot downpayment percentage is cannot be greater than 100%.");
+        };
+
+        if (asset.creator == buyer) {
+          return #err("You cannot proposed to buy your own asset as an asset creator.");
+        };
+
+        return #ok(());
       };
+
     };
   };
 };

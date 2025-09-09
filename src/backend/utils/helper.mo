@@ -7,21 +7,6 @@ import Bool "mo:base/Bool";
 import HashMap "mo:base/HashMap";
 
 module {
-  public func assetID(assetType : DataType.AssetType) : Text {
-    let now = Time.now();
-    let secs = now / 1_000;
-
-    let typeText = switch (assetType) {
-      case (#Property) "prop";
-      case (#Business) "bns";
-      case (#Artwork) "art";
-      case (#Vehicle) "vehc";
-      case (#Equipment) "eqp";
-    };
-
-    return "asset_" # typeText # "_" # Int.toText(secs);
-  };
-
   public func transactionID(transactionType : DataType.TransactionType, id : Nat) : Text {
     let typeText = switch (transactionType) {
       case (#Buy) "buy";
@@ -46,7 +31,7 @@ module {
       case (#Equipment) "eqp";
     };
 
-    return "ow" # typeText # "_" # Nat.toText(id);
+    return "ows" # typeText # "_" # Nat.toText(id);
   };
 
   public func isExpired(

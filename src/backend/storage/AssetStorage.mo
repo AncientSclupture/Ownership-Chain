@@ -58,12 +58,5 @@ module AssetStorage {
         case null { false };
       };
     };
-
-    public func delete(id : Text) : Bool {
-      switch (assetsStorage.remove(id)) {
-        case (?_removed) { true };
-        case null { false };
-      };
-    };
   };
 };

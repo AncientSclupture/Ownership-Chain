@@ -7,6 +7,8 @@ import TrieMap "mo:base/TrieMap";
 
 module ReportStorage {
     public class ReportStorageClass() {
+        // IMPORTANT NOTES: id key in reportActionsStorage hash is the same as the assetsStorage hash id key
+
         private var assetReportsStorage = HashMap.HashMap<Text, TrieMap.TrieMap<Principal, DataType.Report>>(100, Text.equal, Text.hash);
         private var assetReportsCounter : Nat = 0;
 

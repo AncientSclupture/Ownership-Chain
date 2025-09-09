@@ -102,7 +102,6 @@ module {
     purchaseDate : Int;
     purchasePrice : Nat;
     maturityDate : Int;
-    acquiredAt: Int;
   };
 
   public type BuyProposal = {
