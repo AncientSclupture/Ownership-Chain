@@ -49,6 +49,10 @@ module AssetStorage {
       Iter.toArray(assetsStorage.vals());
     };
 
+    public func getEntries() : Iter.Iter<(Text, DataType.Asset)> {
+      return assetsStorage.entries();
+    };
+
     public func update(id : Text, asset : DataType.Asset) : Bool {
       switch (assetsStorage.get(id)) {
         case (?_existing) {

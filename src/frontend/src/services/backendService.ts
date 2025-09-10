@@ -5,6 +5,7 @@ import { ReportTypeResult } from "../types/rwa";
 
 export const backendService = {
 
+    // done
     async getMyprofileInfo(): Promise<UserOverviewResult | null> {
         try {
             const res = await backend.getMyProfiles();
@@ -15,6 +16,7 @@ export const backendService = {
         }
     },
 
+    // done
     async getAssets(): Promise<Asset[] | null> {
         try {
             const res = await backend.getAllAssets();
@@ -25,6 +27,7 @@ export const backendService = {
         }
     },
 
+    // done
     async getAssetById(assetId: string): Promise<Asset | null> {
         try {
             const res = await backend.getAssetById(assetId);
@@ -40,6 +43,7 @@ export const backendService = {
         }
     },
 
+    // done
     async createAsset(
         name: string,
         description: string,
@@ -79,7 +83,8 @@ export const backendService = {
             throw error;
         }
     },
-
+    
+    // done
     async registUser(
         fullName: string,
         lastName: string,
@@ -112,6 +117,7 @@ export const backendService = {
         }
     },
 
+    // done
     async getAssetDetails(assetId: string): Promise<void> {
         try {
             const res = await backend.getAssetFullDetails(assetId);
@@ -126,6 +132,7 @@ export const backendService = {
         }
     },
 
+    // done
     async proposedToken(
         assetId: string,
         token: bigint,
@@ -142,6 +149,7 @@ export const backendService = {
         }
     },
 
+    // done
     async createreport(
         targetId: string,
         reportType: ReportType,
@@ -157,6 +165,7 @@ export const backendService = {
         }
     },
 
+    // done
     async getPubKeyUser(): Promise<string | null>{
         try {
             const res = await backend.getUserPublicSignature();
@@ -167,6 +176,7 @@ export const backendService = {
         }
     },
 
+    // done
     async getReportToMe(): Promise<ReportTypeResult>{
         try {
             const resTome = await backend.getReportToMe();
@@ -190,6 +200,7 @@ export const backendService = {
         }
     },
 
+    // done
     async getAssetDocumentHash(assetid: string): Promise<[DocumentHash[]] | []> {
         try {
             const res = await backend.getAssetSignature(assetid);

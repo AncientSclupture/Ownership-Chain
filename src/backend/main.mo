@@ -11,6 +11,8 @@ import AssetStorage "storage/AssetStorage";
 import ProposalService "services/proposalService";
 import UserService "services/userService";
 import DataType "data/dataType";
+import ReportService "services/reportService";
+import ReportsStorage "storage/ReportsStorage";
 
 persistent actor {
   // storage
@@ -20,12 +22,14 @@ persistent actor {
   private transient let ownershipStorage = OwnershipsStorage.OwnershipStorageClass();
   private transient let buyproposalStorage = BuyProposalsStorage.BuyProposalStorageClass();
   private transient let investorStorage = InvestorProposalsStorage.InvestorProposalStorageClass();
+  private transient let reportStorage = ReportsStorage.ReportStorageClass();
 
   // service
   private transient let llm = LLMService.LLMServiceClass();
   private transient let assetservice = AssetService.AssetServiceClass(assetStorage, ownershipStorage, userStorage);
   private transient let proposalservice = ProposalService.ProposalService(assetStorage, ownershipStorage, userStorage, transactionStorage, buyproposalStorage, investorStorage);
   private transient let userservice = UserService.UserServiceClass(userStorage, assetStorage, ownershipStorage, transactionStorage);
+  private transient let reportservice = ReportService.ReportServiceClass(reportStorage, assetStorage);
 
   // llm api
   public func askAI(question : Text) : async Text {
@@ -54,6 +58,10 @@ persistent actor {
     await userservice.getMyOwnerShip(msg.caller);
   };
 
+  public shared (msg) func getMyProfiles() : async ?DataType.UserOverviewResult {
+    await userservice.getMyProfiles(msg.caller);
+  };
+
   public func getAssetFullDetails(assetId : Text) : async ?{
     asset : DataType.Asset;
     ownerships : [DataType.Ownership];
@@ -63,7 +71,22 @@ persistent actor {
     await userservice.getAssetFullDetails(assetId);
   };
 
+  public shared (msg) func getUserPublicSignature() : async ?Text {
+    switch (userStorage.get(msg.caller)) {
+      case (null) { return null };
+      case (?user) { return ?user.publickey };
+    };
+  };
+
   // asset api
+  public func getAllAssets() : async [DataType.Asset] {
+    assetStorage.getAll();
+  };
+
+  public func getAssetById(assetId : Text) : async ?DataType.Asset {
+    assetStorage.get(assetId);
+  };
+
   public shared (msg) func createAsset(
     name : Text,
     description : Text,
@@ -137,5 +160,17 @@ persistent actor {
     price : Nat,
   ) : async Result.Result<Text, Text> {
     await proposalservice.finishTheInvitation(investorProposalId, price, msg.caller);
+  };
+
+  // report api
+  public func getAssetSignature(assetId : Text) : async ?[DataType.DocumentHash] {
+    switch (assetStorage.get(assetId)) {
+      case (null) return null;
+      case (?asset) { return ?asset.documentHash };
+    };
+  };
+
+  public shared (msg) func getMyAssetReport() : async [DataType.Report] {
+    await reportservice.getMyAssetReport(msg.caller);
   };
 };

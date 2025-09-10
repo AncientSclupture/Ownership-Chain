@@ -175,6 +175,10 @@ module OwnershipStorage {
       ownershipsStorage.get(id);
     };
 
+    public func getEntries(): Iter.Iter<(Text, TrieMap.TrieMap<Principal, DataType.Ownership>)>{
+      ownershipsStorage.entries();
+    };
+
     public func getAll() : [TrieMap.TrieMap<Principal, DataType.Ownership>] {
       Iter.toArray(ownershipsStorage.vals());
     };

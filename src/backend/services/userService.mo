@@ -27,7 +27,7 @@ module {
       userIDNumber : Text,
       userIdentity : DataType.IdentityNumberType,
       publicsignature : Text,
-      caller: Principal
+      caller : Principal
 
     ) : async Result.Result<Text, Text> {
       switch (usersstorage.get(caller)) {
@@ -70,7 +70,7 @@ module {
 
     };
 
-    public func getMyAssets(caller: Principal) : async [DataType.Asset] {
+    public func getMyAssets(caller : Principal) : async [DataType.Asset] {
       let data = Array.filter<DataType.Asset>(
         assetstorage.getAll(),
         func(asset : DataType.Asset) : Bool {
@@ -80,7 +80,7 @@ module {
       return data;
     };
 
-    public func getMyOwnerShip(caller: Principal) : async [DataType.Ownership] {
+    public func getMyOwnerShip(caller : Principal) : async [DataType.Ownership] {
       var myOwnerships : [DataType.Ownership] = [];
 
       let allMaps = ownershipstorage.getAll();
@@ -135,6 +135,80 @@ module {
             ownerships = ownershipList;
             transactions = transactionList;
             dividends = dividendList;
+          };
+        };
+      };
+    };
+
+    public func getMyProfiles(
+      caller: Principal
+    ) : async ?DataType.UserOverviewResult {
+
+      var totalTx = 0;
+      var buy = 0;
+      var sell = 0;
+      var transfer = 0;
+      var dividend = 0;
+
+      for ((_, tx) in transactionsstorage.getEntries()) {
+        if (tx.from == caller) {
+          totalTx += 1;
+          switch (tx.transactionType) {
+            case (#Buy) buy += 1;
+            case (#Sell) sell += 1;
+            case (#Transfer) transfer += 1;
+            case (#Dividend) dividend += 1;
+            case (#Downpayment) {};
+            case (#DownpaymentCashBack) {};
+            case (#Extending) {};
+            case (#Redeem) {};
+          };
+        };
+      };
+
+      var totalOwn = 0;
+      var ownToken = 0;
+
+      for ((_, owns) in ownershipstorage.getEntries()) {
+        switch (owns.get(caller)) {
+          case (?data) {
+            totalOwn += 1;
+            ownToken += data.tokenOwned;
+          };
+          case null {};
+        };
+      };
+
+      var totalAsset = 0;
+      var assetToken = 0;
+
+      for ((_, asset) in assetstorage.getEntries()) {
+        if (asset.creator == caller) {
+          totalAsset += 1;
+          assetToken += (asset.totalToken - asset.providedToken);
+        };
+      };
+
+      switch (usersstorage.get(caller)) {
+        case (null) { return null };
+        case (?user) {
+          return ?{
+            userIdentity = user;
+            transaction = {
+              total = totalTx;
+              buy = buy;
+              sell = sell;
+              transfer = transfer;
+              dividend = dividend;
+            };
+            ownership = {
+              total = totalOwn;
+              token = ownToken;
+            };
+            asset = {
+              total = totalAsset;
+              token = assetToken;
+            };
           };
         };
       };

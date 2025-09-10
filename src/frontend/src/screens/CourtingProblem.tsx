@@ -2,7 +2,6 @@ import { BadgeCheck, BadgeX, Scale } from "lucide-react";
 import { MainLayout } from "../layout/main-layout";
 import { useParams } from "react-router-dom";
 import React from "react";
-import { backendService } from "../services/backendService";
 import { Report } from "../../../declarations/backend/backend.did";
 import { Loader } from "../components/loader-component";
 import { formatMotokoTime } from "../utils/rwa-hepler";
@@ -26,9 +25,9 @@ function CourtingProblem() {
       setError(null);
       try {
         if (!reportid) return null;
-        const res = await backendService.getDetailsReport(reportid);
-        setData(res);
-        console.log(res);
+        // const res = await backendService.getDetailsReport(reportid);
+        setData([]);
+        // console.log(res);
       } catch (error) {
         setError("Failed to load asset data");
       } finally {
