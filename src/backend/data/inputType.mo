@@ -73,5 +73,20 @@ module {
     purchasePrice : Nat;
     maturityDate : Int;
   };
+
+  public type UserInput = {
+    fullName : Text;
+    lastName : Text;
+    phone : Text;
+    country : Text;
+    city : Text;
+    publickey: Text;
+
+    userIDNumber : Text;
+    userIdentity : DataType.IdentityNumberType;
+
+    kyc_level : DataType.UserKyc;
+    timeStamp : Int;
+  };
   
 };

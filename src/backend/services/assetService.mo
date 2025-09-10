@@ -17,7 +17,7 @@ module {
     userstorage : UserStorage.UserStorageClass,
   ) {
 
-    public shared (msg) func createAsset(
+    public func createAsset(
       name : Text,
       description : Text,
       totalToken : Nat,
@@ -30,9 +30,8 @@ module {
       assetType : DataType.AssetType,
       assetStatus : DataType.AssetStatus,
       rule : DataType.Rule,
+      caller : Principal
     ) : async Result.Result<Text, Text> {
-      let caller : Principal = msg.caller;
-
       // user validation
       switch (userstorage.get(caller)) {
         case (null) { return #err("user is not regitered") };
@@ -108,11 +107,11 @@ module {
       return #ok("asset created" #createdAssetid);
     };
 
-    public shared (msg) func changeAssetStatus(
+    public func changeAssetStatus(
       id : Text,
       status : DataType.AssetStatus,
+      caller : Principal
     ) : async Result.Result<Text, Text> {
-      var caller : Principal = msg.caller;
 
       // user validation
       switch (userstorage.get(caller)) {

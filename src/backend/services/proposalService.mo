@@ -25,13 +25,12 @@ module {
     investorproposal : InvestorProposalsStorage.InvestorProposalStorageClass,
   ) {
 
-    public shared (msg) func proposedBuyToken(
+    public func proposedBuyToken(
       assetId : Text,
       amount : Nat,
       pricePerToken : Nat,
+      caller: Principal
     ) : async Result.Result<Text, Text> {
-
-      let caller : Principal = msg.caller;
 
       // user validation
       switch (userstorage.get(caller)) {
@@ -149,11 +148,11 @@ module {
       return #ok("Your proposal is created, waiting for the voting approval.");
     };
 
-    public shared (msg) func proceedDownPayment(
+    public func proceedDownPayment(
       price : Nat,
       buyProposalId : Text,
+      caller: Principal
     ) : async Result.Result<Text, Text> {
-      let caller : Principal = msg.caller;
 
       // user validation
       switch (userstorage.get(caller)) {
@@ -275,11 +274,11 @@ module {
 
     };
 
-    public shared (msg) func finishedPayment(
+    public func finishedPayment(
       proposalId : Text,
       price : Int,
+      caller: Principal
     ) : async Result.Result<Text, Text> {
-      let caller : Principal = msg.caller;
 
       // user validation
       switch (userstorage.get(caller)) {
@@ -402,10 +401,10 @@ module {
       };
     };
 
-    public shared (msg) func approveBuyProposal(
-      buyProposalId : Text
+    public func approveBuyProposal(
+      buyProposalId : Text,
+      caller: Principal
     ) : async Result.Result<Text, Text> {
-      let caller : Principal = msg.caller;
 
       // user validation
       switch (userstorage.get(caller)) {
@@ -468,13 +467,13 @@ module {
       };
     };
 
-    public shared (msg) func createIvestorProposal(
+    public func createIvestorProposal(
       assetId : Text,
       incomingInvestor : Principal,
       amount : Nat,
       pricePerToken : Nat,
+      caller: Principal
     ) : async Result.Result<Text, Text> {
-      let caller : Principal = msg.caller;
 
       // user validation
       switch (userstorage.get(caller)) {
@@ -560,10 +559,10 @@ module {
       };
     };
 
-    public shared (msg) func approveInvestorProposal(
-      investorProposalId : Text
+    public func approveInvestorProposal(
+      investorProposalId : Text,
+      caller: Principal
     ) : async Result.Result<Text, Text> {
-      let caller : Principal = msg.caller;
 
       switch (userstorage.get(caller)) {
         case (null) { return #err("user is not regitered") };
@@ -621,11 +620,11 @@ module {
       };
     };
 
-    public shared (msg) func finishTheInvitation(
+    public func finishTheInvitation(
       investorProposalId : Text,
       price : Nat,
+      caller: Principal
     ) : async Result.Result<Text, Text> {
-      let caller : Principal = msg.caller;
 
       // user validation
       switch (userstorage.get(caller)) {

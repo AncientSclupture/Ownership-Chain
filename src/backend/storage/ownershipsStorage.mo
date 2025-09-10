@@ -136,7 +136,7 @@ module OwnershipStorage {
         case (?existing) {
           switch (existing.get(owner)) {
             case (?_existingOwnership) {
-              false
+              false;
             };
             case null {
               if (percentage <= 0.0 or percentage > 1.0) {

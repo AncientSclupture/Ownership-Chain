@@ -42,6 +42,10 @@ module TransactionStorage {
       Iter.toArray(transactionsStorage.vals());
     };
 
+    public func getEntries() : Iter.Iter<(Text, DataType.Transaction)> {
+      transactionsStorage.entries();
+    };
+
     public func update(id : Text, transaction : DataType.Transaction) : Bool {
       switch (transactionsStorage.get(id)) {
         case (?_existing) {
