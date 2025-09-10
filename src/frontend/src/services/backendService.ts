@@ -1,6 +1,5 @@
 import { backend } from "../../../declarations/backend";
-import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, Report, ReportType, Result, Rule, TypeReportEvidence, UserOverviewResult } from "../../../declarations/backend/backend.did";
-import { ReportTypeResult } from "../types/rwa";
+import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, Result, Rule, UserOverviewResult } from "../../../declarations/backend/backend.did";
 
 
 export const backendService = {
@@ -150,22 +149,6 @@ export const backendService = {
     },
 
     // done
-    async createreport(
-        targetId: string,
-        reportType: ReportType,
-        content: string,
-        description: string,
-        evidence: [TypeReportEvidence] | []
-    ): Promise<Result> {
-        try {
-            const res = await backend.createReport(targetId, reportType, content, description, evidence)
-            return res;
-        } catch (error) {
-            throw error;
-        }
-    },
-
-    // done
     async getPubKeyUser(): Promise<string | null>{
         try {
             const res = await backend.getUserPublicSignature();
@@ -175,32 +158,6 @@ export const backendService = {
             throw error;
         }
     },
-
-    // done
-    async getReportToMe(): Promise<ReportTypeResult>{
-        try {
-            const resTome = await backend.getReportToMe();
-            const resMyAsset = await backend.getMyAssetReport();
-
-            return {
-                asset: resMyAsset,
-                personal: resTome
-            };
-        } catch (error) {
-            throw error;
-        }
-    },
-
-    async getDetailsReport(repId: string): Promise<[Report] | []>{
-        try {
-            const res = await backend.getReportDetails(repId);
-            return res;
-        } catch (error) {
-            throw error;
-        }
-    },
-
-    // done
     async getAssetDocumentHash(assetid: string): Promise<[DocumentHash[]] | []> {
         try {
             const res = await backend.getAssetSignature(assetid);

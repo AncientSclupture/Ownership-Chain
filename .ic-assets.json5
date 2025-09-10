@@ -1,0 +1,30 @@
+[
+  {
+    "match": "**/*.wasm",
+    "security_policy": "no_csp"
+  },
+  {
+    "match": "**/*.html",
+    "security_policy": "strict"
+  },
+  {
+    "match": "**/*.js",
+    "security_policy": "standard"
+  },
+  {
+    "match": "**/*.css",
+    "security_policy": "standard"
+  },
+  {
+    "match": "**/*.{png,jpg,jpeg,gif,svg,ico,webp}",
+    "security_policy": "strict"
+  },
+  {
+    "match": "**/*.{woff,woff2,ttf,eot}",
+    "security_policy": "standard"
+  },
+  {
+    "match": "**/*",
+    "security_policy": "standard"
+  }
+]
