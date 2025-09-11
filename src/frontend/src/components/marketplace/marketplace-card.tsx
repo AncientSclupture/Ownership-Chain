@@ -3,6 +3,7 @@ import { useAuth } from "../../context/AuthContext"
 import { NotificationContext } from "../../context/NotificationContext";
 import { AssetStatus } from "../../types/rwa";
 import { getAssetStatusText, ReduceCharacters } from "../../helper/rwa-helper";
+import { useNavigate } from "react-router-dom";
 
 export default function MarketPlaceAssetCard(
     {name, description, tokenLeft, totalToken, price, status, id}: 
@@ -10,15 +11,20 @@ export default function MarketPlaceAssetCard(
 ) {
     const { isAuthenticated } = useAuth();
     const { setNotificationData } = React.useContext(NotificationContext)
+    let navigate = useNavigate();
 
-    function takelookhandler() {
+    function takelookhandler(id: string) {
         if (!isAuthenticated) {
             setNotificationData({
                 title: "Not Allowed",
                 description: "you are not allowed to view this asset detail, you need to login first with conect my self button !",
                 position: "center-fit"
             })
+
+            return;
         };
+
+        navigate(`/asset/${id}`);
     };
 
     return (
@@ -34,7 +40,7 @@ export default function MarketPlaceAssetCard(
                 <div className="flex items-center justify-between pt-4">
                     <div>{price} ICP</div>
                     <button
-                        onClick={() => takelookhandler()}
+                        onClick={() => takelookhandler(id)}
                         className="background-dark text-white p-2 rounded-md cursor-pointer"
                     >
                         Take a Look
