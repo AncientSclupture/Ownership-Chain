@@ -5,19 +5,28 @@ import Asset from "./screens/Asset";
 import Authentication from "./screens/Authentication";
 import Courting from "./screens/Courting";
 import CourtingProblem from "./screens/CourtingProblem";
+import { AuthProvider } from "./context/AuthContext";
+import { ModalProvider } from "./context/ModalContext";
+import { PopUpProvider } from "./context/NotificationContext";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Markeatplace />} index />
-        <Route path="/auth" element={<Authentication />} />
-        <Route path="/dashboard" element={<DashboardUser />} />
-        <Route path="/asset/:assetid" element={<Asset />} />
-        <Route path="/report" element={<Courting />} />
-        <Route path="/report/:reportid" element={<CourtingProblem />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <PopUpProvider>
+        <ModalProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Markeatplace />} index />
+              <Route path="/auth" element={<Authentication />} />
+              <Route path="/dashboard" element={<DashboardUser />} />
+              <Route path="/asset/:assetid" element={<Asset />} />
+              <Route path="/report" element={<Courting />} />
+              <Route path="/report/:reportid" element={<CourtingProblem />} />
+            </Routes>
+          </Router>
+        </ModalProvider>
+      </PopUpProvider>
+    </AuthProvider>
   );
 }
 

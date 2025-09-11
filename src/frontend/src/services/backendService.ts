@@ -26,6 +26,24 @@ export const backendService = {
         }
     },
 
+    async getAssetbyRange(start: bigint, end: bigint): Promise<Asset[] | null> {
+        try {
+            const res = await backend.getAssetbyRange(start, end);
+            return res;
+        } catch (error) {
+            throw (error)
+        }
+    },
+
+    async getTotalAssetCount(): Promise<bigint> {
+        try {
+            const res = await backend.getAssetTotalCount();
+            return res;
+        } catch (error) {
+            throw (error)
+        }
+    },
+
     // done
     async getAssetById(assetId: string): Promise<Asset | null> {
         try {
@@ -166,6 +184,17 @@ export const backendService = {
         } catch (error) {
             console.log(error)
             throw error
+        }
+    },
+
+    async searchAsset(query: string, assetType: [] | [AssetStatus]): Promise<[] | [Asset]> {
+        try {
+            const res = await backend.seacrhAsset(query, assetType);
+            console.log(query, assetType, res);
+            return res;
+        } catch (error) {
+            console.log(error)
+            throw(error)
         }
     }
 

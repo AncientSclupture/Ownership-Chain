@@ -87,6 +87,18 @@ persistent actor {
     assetStorage.get(assetId);
   };
 
+  public func getAssetbyRange(startIndex : Nat, endIndex : Nat) : async [DataType.Asset] {
+    assetStorage.getRange(startIndex, endIndex);
+  };
+
+  public func getAssetTotalCount() : async Nat {
+    assetStorage.getTotalCount();
+  };
+
+  public func seacrhAsset(name: Text, assetType: ?DataType.AssetStatus): async ?DataType.Asset {
+    await assetservice.searchAssetByNameTypeStatus(name, assetType);
+  };
+
   public shared (msg) func createAsset(
     name : Text,
     description : Text,

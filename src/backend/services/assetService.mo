@@ -30,19 +30,32 @@ module {
       assetType : DataType.AssetType,
       assetStatus : DataType.AssetStatus,
       rule : DataType.Rule,
-      caller : Principal
+      caller : Principal,
     ) : async Result.Result<Text, Text> {
-      // user validation
+
+      // debug only
       switch (userstorage.get(caller)) {
-        case (null) { return #err("user is not regitered") };
+        case (null) {};
         case (?user) {
           switch (user.kyc_level.status) {
-            case (#Pending) { return #err("your account is pending") };
-            case (#Rejected) { return #err("your account is rejected") };
             case (#Verivied) {};
+            case (#Pending) {};
+            case (#Rejected) {};
           };
         };
       };
+
+      // user validation
+      // switch (userstorage.get(caller)) {
+      //   case (null) { return #err("user is not regitered") };
+      //   case (?user) {
+      //     switch (user.kyc_level.status) {
+      //       case (#Pending) { return #err("your account is pending") };
+      //       case (#Rejected) { return #err("your account is rejected") };
+      //       case (#Verivied) {};
+      //     };
+      //   };
+      // };
 
       // sanity asset input validation
       switch (
@@ -104,13 +117,13 @@ module {
         return #err("asset id has already taken");
       };
 
-      return #ok("asset created" #createdAssetid);
+      return #ok("asset created" # createdAssetid);
     };
 
     public func changeAssetStatus(
       id : Text,
       status : DataType.AssetStatus,
-      caller : Principal
+      caller : Principal,
     ) : async Result.Result<Text, Text> {
 
       // user validation
@@ -196,7 +209,7 @@ module {
               };
             };
           };
-          
+
           // owner validation if the creator != caller
           return #err("you are not the owner of asset");
         };
@@ -204,6 +217,32 @@ module {
 
       return #ok("updated asset status");
     };
+
+    public func searchAssetByNameTypeStatus(
+      searchName : Text,
+      assetStatus : ?DataType.AssetStatus,
+    ) : async ?DataType.Asset {
+      switch (assetstorage.findAssetIdByName(searchName)) {
+        case (null) { return null };
+        case (?id) {
+          switch (assetstorage.get(id)) {
+            case (null) { return null };
+            case (?asset) {
+              switch (assetStatus) {
+                case (null) {};
+                case (?s) {
+                  if (asset.assetStatus != s) {
+                    return null;
+                  };
+                };
+              };
+
+              return ?asset;
+            };
+          };
+        };
+      };
+    }
 
   };
 };
