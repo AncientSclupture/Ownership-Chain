@@ -51,3 +51,12 @@ export function isSameAssetType(a: AssetType, b: AssetType): boolean {
   const keyB = Object.keys(b)[0];
   return keyA === keyB;
 }
+
+export function formatMotokoTime(nanoseconds: bigint) : string {
+  const ms = Number(nanoseconds / 1000000n);
+  return new Date(ms).toLocaleString("en-EN", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).toString();
+}

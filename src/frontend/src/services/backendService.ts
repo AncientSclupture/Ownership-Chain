@@ -1,5 +1,6 @@
 import { backend } from "../../../declarations/backend";
 import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, Result, Rule, UserOverviewResult } from "../../../declarations/backend/backend.did";
+import { Ownership, Transaction } from "../types/rwa";
 
 
 export const backendService = {
@@ -100,7 +101,7 @@ export const backendService = {
             throw error;
         }
     },
-    
+
     // done
     async registUser(
         fullName: string,
@@ -135,7 +136,12 @@ export const backendService = {
     },
 
     // done
-    async getAssetDetails(assetId: string): Promise<void> {
+    async getAssetDetails(assetId: string): Promise<[] | [{
+        asset: Asset;
+        ownerships: Array<Ownership>;
+        transactions: Array<Transaction>;
+        dividends: Array<Transaction>;
+    }]> {
         try {
             const res = await backend.getAssetFullDetails(assetId);
 
@@ -144,6 +150,8 @@ export const backendService = {
             }
 
             console.log(res);
+            return res
+
         } catch (error) {
             throw error;
         }
@@ -167,7 +175,7 @@ export const backendService = {
     },
 
     // done
-    async getPubKeyUser(): Promise<string | null>{
+    async getPubKeyUser(): Promise<string | null> {
         try {
             const res = await backend.getUserPublicSignature();
             return res[0] ?? null;
@@ -194,7 +202,7 @@ export const backendService = {
             return res;
         } catch (error) {
             console.log(error)
-            throw(error)
+            throw (error)
         }
     }
 
