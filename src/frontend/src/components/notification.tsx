@@ -15,8 +15,9 @@ export function Notification() {
                     title: "default notif",
                     description: "no-description",
                     position: "bottom-right",
+                    duration: 3000
                 });
-            }, 3000);
+            }, notificationData.duration ?? 3000);
             return () => clearTimeout(timer);
         }
     }, [notificationData, setNotificationData]);

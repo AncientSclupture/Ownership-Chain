@@ -4,6 +4,7 @@ export type NotificationType = {
     title: string | "default title";
     description: string | "no-description";
     position: "top-left" | "top-right" | "bottom-left" | "bottom-right" | "center-fit";
+    duration?: number;
 };
 
 export type NotificationContextType = {
@@ -12,7 +13,7 @@ export type NotificationContextType = {
 };
 
 export const NotificationContext = createContext<NotificationContextType>({
-    notificationData: { title: "default title", description: "no-description", position: "bottom-right" },
+    notificationData: { title: "default title", description: "no-description", position: "bottom-right", duration: 3000 },
     setNotificationData: () => { }
 });
 
@@ -21,6 +22,7 @@ export const PopUpProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         title: "default notif",
         description: "no-description",
         position: "bottom-right",
+        duration: 3000
     });
 
     return (
