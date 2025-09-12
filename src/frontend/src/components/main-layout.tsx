@@ -8,11 +8,19 @@ import FindAssetModal from "./modal/modal-find-asset";
 import AskToLogoutModal from "./modal/modal-ask-logout";
 import { AuthContext } from "../context/AuthContext";
 import ProtectedPage from "./protected-component";
+import { LoaderComponent } from "./LoaderComponent";
 
 export function MainLayout({ index = false, children }: { index?: boolean, children: React.ReactNode }) {
-    const { isAuthenticated } = React.useContext(AuthContext);
 
-    if (!isAuthenticated && !index) {
+    const { isAuthenticated, isLoading } = React.useContext(AuthContext);
+
+    if (isLoading) {
+        return (
+            <LoaderComponent fullScreen text="Please Wait" />
+        );
+    }
+
+    if (isAuthenticated === false && !index && !isLoading) {
         return <ProtectedPage />
     }
 

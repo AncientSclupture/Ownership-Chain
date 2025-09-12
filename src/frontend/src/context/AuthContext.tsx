@@ -11,6 +11,7 @@ type AuthContextType = {
     actor: any;
     login: () => Promise<void>;
     logout: () => Promise<void>;
+    isLoading: boolean;
 };
 
 export const AuthContext = createContext<AuthContextType>({
@@ -20,6 +21,7 @@ export const AuthContext = createContext<AuthContextType>({
     actor: null,
     login: async () => { },
     logout: async () => { },
+    isLoading: true,
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -27,15 +29,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [principal, setPrincipal] = useState<string | null>(null);
     const [actor, setActor] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         (async () => {
+            setIsLoading(true);
             const client = await AuthClient.create();
             setAuthClient(client);
 
             if (await client.isAuthenticated()) {
                 await handleLoginSuccess(client);
             }
+
+            setIsLoading(false);
 
         })();
     }, []);
@@ -95,7 +101,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             principal,
             actor,
             login,
-            logout
+            logout,
+            isLoading
         }}>
             {children}
         </AuthContext.Provider>
