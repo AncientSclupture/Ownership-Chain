@@ -5,7 +5,7 @@ export default function ErrorDataNotFetched() {
     return (
         <MainLayout>
             <div className="w-full h-screen flex justify-center items-center">
-                <div className="space-y-8 text-center">
+                <div className="space-y-8 text-center border border-gray-300 p-8 rounded-md">
                     {/* Title */}
                     <div className="text-2xl font-bold text-gray-800">
                         Oops! Something went wrong

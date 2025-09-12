@@ -85,7 +85,7 @@ function MarketPlace() {
   if (load) return <LoaderComponent fullScreen={true} />
 
   return (
-    <MainLayout>
+    <MainLayout index>
       <div className="bg-gray-100">
         <div className="p-10">
           <div className="w-full space-y-4 text-center my-8">

@@ -1,7 +1,13 @@
+import { MainLayout } from "../components/main-layout";
+
 function DashboardUser() {
 
   return (
-    <div>Hallo dashboard</div>
+    <MainLayout>
+      <div className="p-10">
+        hallo dashboard
+      </div>
+    </MainLayout>
   );
 }
 

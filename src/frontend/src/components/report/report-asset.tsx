@@ -58,6 +58,10 @@ export default function AssetReportFlow() {
 
     async function handleSetAsset() {
         setIsloading(true);
+        setShowVerification(true);
+        setShowExaminer(true);
+        setShowSubmission(true);
+        
         try {
             const res = await backendService.getAssetById(assetId);
             if (!res) {
