@@ -6,8 +6,16 @@ import ModalWrapper from "./modal/modal-wrapper";
 import { ModalKindEnum } from "../context/ModalContext";
 import FindAssetModal from "./modal/modal-find-asset";
 import AskToLogoutModal from "./modal/modal-ask-logout";
+import { AuthContext } from "../context/AuthContext";
+import ProtectedPage from "./protected-component";
 
-export function MainLayout({ children }: { children: React.ReactNode }) {
+export function MainLayout({ index = false, children }: { index?: boolean, children: React.ReactNode }) {
+    const { isAuthenticated } = React.useContext(AuthContext);
+
+    if (!isAuthenticated && !index) {
+        return <ProtectedPage />
+    }
+
     return (
         <div className="w-full overflow-hidden min-h-screen">
             <NavigationBar />
@@ -16,8 +24,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
             <ModalWrapper
                 listcontent={[
-                    {name: ModalKindEnum.findassetsearch, component: <FindAssetModal />},
-                    {name: ModalKindEnum.logout, component: <AskToLogoutModal />}
+                    { name: ModalKindEnum.findassetsearch, component: <FindAssetModal /> },
+                    { name: ModalKindEnum.logout, component: <AskToLogoutModal /> }
                 ]}
             />
             <Notification />
