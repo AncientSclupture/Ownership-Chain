@@ -186,9 +186,10 @@ export function MarketPlaceSearchAsset() {
       setModalKind(ModalKindEnum.findassetsearch);
     } catch (error) {
       setNotificationData({
-        title: "Error Happened",
-        description: "cannot find data you are searching for",
-        position: "bottom-right"
+        title: `Asset ${seacrhQuery} not found`,
+        description: "cannot find data you are searching for, insert proper name of asset",
+        position: "bottom-right",
+        duration: 3500
       });
     } finally {
       setIsLoad(false)

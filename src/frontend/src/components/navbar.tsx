@@ -2,10 +2,12 @@ import React from "react";
 import { NotificationContext } from "../context/NotificationContext";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom"
+import { ModalContext, ModalKindEnum } from "../context/ModalContext";
 
 export function NavigationBar() {
     const { setNotificationData } = React.useContext(NotificationContext);
     const { isAuthenticated, login } = React.useContext(AuthContext);
+    const { setModalKind } = React.useContext(ModalContext);
 
     let navigate = useNavigate();
 
@@ -26,6 +28,15 @@ export function NavigationBar() {
 
         navigate(slash)
     }
+
+    function handleConnectMe() {
+        if (!isAuthenticated) {
+            login()
+            return;
+        } else {
+            setModalKind(ModalKindEnum.logout);
+        }
+    };
 
     return (
         <div className="px-8 py-5 flex items-center justify-between background-dark text-white">
@@ -49,12 +60,11 @@ export function NavigationBar() {
                 >
                     Sell
                 </div>
-                {/* TODO: DNERIN kalo udah login munculin Logout dan Sebaliknya */}
                 <div
-                    onClick={login}
+                    onClick={() => handleConnectMe()}
                     className="bg-gray-700 p-2 md:px-3 rounded-md hover:bg-gray-400 cursor-pointer text-white"
                 >
-                    Connect My Self
+                    {isAuthenticated ? 'Connected' : 'Connect My Self'}
                 </div>
             </div>
         </div>

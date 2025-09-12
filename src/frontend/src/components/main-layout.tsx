@@ -5,6 +5,7 @@ import { Notification } from "./notification";
 import ModalWrapper from "./modal/modal-wrapper";
 import { ModalKindEnum } from "../context/ModalContext";
 import FindAssetModal from "./modal/modal-find-asset";
+import AskToLogoutModal from "./modal/modal-ask-logout";
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -15,7 +16,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
             <ModalWrapper
                 listcontent={[
-                    {name: ModalKindEnum.findassetsearch, component: <FindAssetModal />}
+                    {name: ModalKindEnum.findassetsearch, component: <FindAssetModal />},
+                    {name: ModalKindEnum.logout, component: <AskToLogoutModal />}
                 ]}
             />
             <Notification />

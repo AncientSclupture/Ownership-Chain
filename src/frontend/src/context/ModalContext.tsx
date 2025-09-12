@@ -2,15 +2,8 @@ import React, { createContext, useState } from "react";
 import { Asset } from "../types/rwa";
 
 export enum ModalKindEnum {
-    adddocument = "adddocument",
-    personalinfo = "personalinfo",
-    addruledetails = "addruledetails",
-    proposebuytoken = "proposebuytoken",
-    plagiarism = "plagiarism",
-    userscam = "userscam",
-    hashclarity = "hashclarity",
-    userfootprintflow = "userfootprintflow",
-    findassetsearch = "findassetsearch"
+    findassetsearch = "findassetsearch",
+    logout = "logout",
 }
 
 export type ModalContextType = {
