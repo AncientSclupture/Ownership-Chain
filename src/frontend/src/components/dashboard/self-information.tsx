@@ -104,37 +104,42 @@ export function SelfInformationDashboard() {
                     }
                 </div>
             </div>
-            <div className="p-4 border border-gray-200 rounded-md bg-white space-y-5">
-                <div className="space-y-4">
-                    <h1 className="text-blue-950 font-stretch-ultra-condensed text-[3vw] md:text-[1.5vw]">Overview</h1>
-                    <div className="flex items-start flex-col md:flex-row justify-between md:px-10 px-4 space-y-3 md:space-y-0">
-                        <div className="md:w-[25vw] w-full border border-gray-300 p-4 rounded-md">
-                            <h2>Ownership Information</h2>
-                            <div className="mt-3">
-                                <p>Total Counts <span className="font-semibold">{profileData?.ownership.total}</span></p>
-                                <p>Token <span className="font-semibold">{profileData?.ownership.token}</span></p>
+            {profileData &&
+                <div className="p-4 border border-gray-200 rounded-md bg-white space-y-5">
+                    <div className="space-y-4">
+                        <h1 className="text-blue-950 font-stretch-ultra-condensed text-[3vw] md:text-[1.5vw]">Overview</h1>
+                        <div className="flex items-start flex-col md:flex-row justify-between md:px-10 px-4 space-y-3 md:space-y-0">
+                            <div className="md:w-[25vw] w-full border border-gray-300 p-4 rounded-md">
+                                <h2>Ownership Information</h2>
+                                <div className="mt-3 space-y-1">
+                                    <p>{profileData?.ownership.total} Total Counts</p>
+                                    <p>{profileData?.ownership.token} Token</p>
+                                </div>
                             </div>
-                        </div>
-                        <div className="md:w-[25vw] w-full border border-gray-300 p-4 rounded-md">
-                            <h2>Transactions Information</h2>
-                            <div className="mt-3">
-                                <p>Total <span className="font-semibold">{profileData?.transaction.total}</span></p>
-                                <p>Buy <span className="font-semibold">{profileData?.transaction.buy}</span></p>
-                                <p>Dividend <span className="font-semibold">{profileData?.transaction.dividend}</span></p>
-                                <p>Sell <span className="font-semibold">{profileData?.transaction.sell}</span></p>
-                                <p>Transfer <span className="font-semibold">{profileData?.transaction.transfer}</span></p>
+
+                            <div className="md:w-[25vw] w-full border border-gray-300 p-4 rounded-md">
+                                <h2>Transactions Information</h2>
+                                <div className="mt-3 space-y-1">
+                                    <p>{profileData?.transaction.total} Total</p>
+                                    <p>{profileData?.transaction.buy} Buy</p>
+                                    <p>{profileData?.transaction.dividend} Dividend</p>
+                                    <p>{profileData?.transaction.sell} Sell</p>
+                                    <p>{profileData?.transaction.transfer} Transfer</p>
+                                </div>
                             </div>
-                        </div>
-                        <div className="md:w-[25vw] w-full border border-gray-300 p-4 rounded-md">
-                            <h2>Asset Information</h2>
-                            <div className="mt-3">
-                                <p>Total Counts <span className="font-semibold">{profileData?.asset.token}</span></p>
-                                <p>Token <span className="font-semibold">{profileData?.asset.token}</span></p>
+
+                            <div className="md:w-[25vw] w-full border border-gray-300 p-4 rounded-md">
+                                <h2>Asset Information</h2>
+                                <div className="mt-3 space-y-1">
+                                    <p>{profileData?.asset.total} Total Counts</p>
+                                    <p>{profileData?.asset.token} Token</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            }
+
         </div>
     )
 }

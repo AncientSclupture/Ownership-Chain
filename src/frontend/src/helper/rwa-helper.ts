@@ -55,6 +55,19 @@ export function getIdentityTypeText(identitytype: IdentityNumberType): string {
   return 'Unknown';
 }
 
+export function text2IdentityType(value: string): IdentityNumberType {
+  switch (value.toLowerCase()) {
+    case "identitynumber":
+      return { "IdentityNumber": null }
+    case "liscensenumber":
+      return { "LiscenseNumber": null }
+    case "pasport":
+      return { "Pasport": null }
+    default:
+      throw null;
+  }
+}
+
 export function getKYCSstatusText(kycstatus: KycStatus): string {
   if (!kycstatus) return "Unknown";
   if ('Rejected' in kycstatus) return 'Rejected';
@@ -69,7 +82,7 @@ export function isSameAssetType(a: AssetType, b: AssetType): boolean {
   return keyA === keyB;
 }
 
-export function formatMotokoTime(nanoseconds: bigint) : string {
+export function formatMotokoTime(nanoseconds: bigint): string {
   const ms = Number(nanoseconds / 1000000n);
   return new Date(ms).toLocaleString("en-EN", {
     day: "2-digit",
@@ -77,3 +90,21 @@ export function formatMotokoTime(nanoseconds: bigint) : string {
     year: "numeric",
   }).toString();
 }
+
+export async function exportKey(key: CryptoKey, type: "private" | "public"): Promise<string> {
+  const exported = await crypto.subtle.exportKey(type === "private" ? "pkcs8" : "spki", key);
+  const exportedAsString = String.fromCharCode(...new Uint8Array(exported));
+  const exportedAsBase64 = btoa(exportedAsString);
+  const pemHeader = type === "private" ? "PRIVATE KEY" : "PUBLIC KEY";
+  const pem = `-----BEGIN ${pemHeader}-----\n${exportedAsBase64.match(/.{1,64}/g)?.join("\n")}\n-----END ${pemHeader}-----`;
+  return pem;
+}
+
+export function downloadFile(filename: string, content: string) {
+  const blob = new Blob([content], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+}
+

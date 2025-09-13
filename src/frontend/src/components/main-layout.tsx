@@ -9,6 +9,7 @@ import AskToLogoutModal from "./modal/modal-ask-logout";
 import { AuthContext } from "../context/AuthContext";
 import ProtectedPage from "./protected-component";
 import { LoaderComponent } from "./LoaderComponent";
+import { RegistUserModal } from "./modal/modal-regist-user";
 
 export function MainLayout({ index = false, children }: { index?: boolean, children: React.ReactNode }) {
 
@@ -33,7 +34,9 @@ export function MainLayout({ index = false, children }: { index?: boolean, child
             <ModalWrapper
                 listcontent={[
                     { name: ModalKindEnum.findassetsearch, component: <FindAssetModal /> },
-                    { name: ModalKindEnum.logout, component: <AskToLogoutModal /> }
+                    { name: ModalKindEnum.logout, component: <AskToLogoutModal /> },
+                    { name: ModalKindEnum.registuser, component: <RegistUserModal /> },
+                    
                 ]}
             />
             <Notification />

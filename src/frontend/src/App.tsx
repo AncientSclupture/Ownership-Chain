@@ -8,6 +8,7 @@ import CourtingProblem from "./screens/CourtingProblem";
 import { AuthProvider } from "./context/AuthContext";
 import { ModalProvider } from "./context/ModalContext";
 import { PopUpProvider } from "./context/NotificationContext";
+import Simulation from "./screens/Simulation";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
               <Route path="/asset/:assetid" element={<Asset />} />
               <Route path="/report" element={<Courting />} />
               <Route path="/report/:reportid" element={<CourtingProblem />} />
+              <Route path="/simulation" element={<Simulation />} />
             </Routes>
           </Router>
         </ModalProvider>

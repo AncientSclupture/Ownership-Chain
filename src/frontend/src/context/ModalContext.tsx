@@ -1,5 +1,5 @@
 import React, { createContext, useState } from "react";
-import { Asset, IdentityNumberType } from "../types/rwa";
+import { Asset } from "../types/rwa";
 
 export enum ModalKindEnum {
     findassetsearch = "findassetsearch",
@@ -17,11 +17,6 @@ export type ModalContextType = {
         setter: (d: [Asset] | []) => void;
         reseter: () => void;
     };
-    createusermanagement: {
-        data: { fullName: string, lastName: string, phone: string, country: string, city: string, userIDNumber: string, userIdentity: IdentityNumberType, publicKey: string, } | null;
-        setter: (d: { fullName: string, lastName: string, phone: string, country: string, city: string, userIDNumber: string, userIdentity: IdentityNumberType, publicKey: string, } | null) => void;
-        reseter: () => void;
-    }
 }
 
 export const ModalContext = createContext<ModalContextType>({
@@ -34,20 +29,11 @@ export const ModalContext = createContext<ModalContextType>({
         setter: () => { },
         reseter: () => { }
     },
-    createusermanagement: {
-        data: null,
-        setter: () => { },
-        reseter: () => { }
-    }
 })
 
 export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [modalKind, setModalKind] = useState<ModalKindEnum | null>(null);
     const [findassetmanagementData, setFindassetmanagementData] = React.useState<[] | [Asset]>([]);
-    const [registUsermanagementData, setRegistmanagementUserData] = React.useState<
-        { fullName: string, lastName: string, phone: string, country: string, city: string, userIDNumber: string, userIdentity: IdentityNumberType, publicKey: string, }
-        | null
-    >(null);
     const [isDoneRegist, setIsDoneRegist] = React.useState<boolean | null>(null);
 
     function setModalShowUp(d: ModalKindEnum | null) {
@@ -57,10 +43,6 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const setterfindassetmanagement = (d: [Asset] | []) => {
         setFindassetmanagementData(d);
     };
-
-    const setterregistusermanagement = (d: { fullName: string, lastName: string, phone: string, country: string, city: string, userIDNumber: string, userIdentity: IdentityNumberType, publicKey: string, } | null) => {
-        setRegistmanagementUserData(d);
-    }
 
     const changeregiststatus = (d: boolean | null) => {
         setIsDoneRegist(d)
@@ -73,11 +55,6 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     data: findassetmanagementData,
                     reseter: () => setFindassetmanagementData([]),
                     setter: setterfindassetmanagement
-                },
-                createusermanagement: {
-                    data: registUsermanagementData,
-                    reseter: () => setRegistmanagementUserData(null),
-                    setter: setterregistusermanagement
                 },
                 modalKind,
                 setModalKind: setModalShowUp,
