@@ -1,4 +1,4 @@
-import { AssetStatus, AssetType } from "../types/rwa";
+import { AssetStatus, AssetType, IdentityNumberType, KycStatus } from "../types/rwa";
 
 export function ReduceCharacters(d: string, num: number = 20): string {
   if (d.length <= num) return d;
@@ -46,6 +46,23 @@ export function text2AssetStatus(status: string): AssetStatus {
       throw null;
   }
 }
+
+export function getIdentityTypeText(identitytype: IdentityNumberType): string {
+  if (!identitytype) return "Unknown";
+  if ('IdentityNumber' in identitytype) return 'Identity Number';
+  if ('LiscenseNumber' in identitytype) return 'Liscense Number';
+  if ('Pasport' in identitytype) return 'Pasport';
+  return 'Unknown';
+}
+
+export function getKYCSstatusText(kycstatus: KycStatus): string {
+  if (!kycstatus) return "Unknown";
+  if ('Rejected' in kycstatus) return 'Rejected';
+  if ('Verivied' in kycstatus) return 'Verivied';
+  if ('Pending' in kycstatus) return 'Pending';
+  return 'Unknown';
+}
+
 export function isSameAssetType(a: AssetType, b: AssetType): boolean {
   const keyA = Object.keys(a)[0];
   const keyB = Object.keys(b)[0];
