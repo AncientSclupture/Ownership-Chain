@@ -25,7 +25,7 @@ persistent actor {
   private transient let reportStorage = ReportsStorage.ReportStorageClass();
 
   // service
-  private transient let llm = LLMService.LLMServiceClass();
+  private transient let llm = LLMService.LLMServiceClass(assetStorage);
   private transient let assetservice = AssetService.AssetServiceClass(assetStorage, ownershipStorage, userStorage);
   private transient let proposalservice = ProposalService.ProposalService(assetStorage, ownershipStorage, userStorage, transactionStorage, buyproposalStorage, investorStorage);
   private transient let userservice = UserService.UserServiceClass(userStorage, assetStorage, ownershipStorage, transactionStorage);
@@ -35,6 +35,11 @@ persistent actor {
   public func askAI(question : Text) : async Text {
     await llm.getInfo(question);
   };
+
+  public func askAIAsset(question : Text, assetId : Text) : async Text {
+    await llm.getAssetInfo(question, assetId);
+  };
+  
 
   // user api
   public shared (msg) func registUser(
