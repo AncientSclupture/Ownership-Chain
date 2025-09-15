@@ -204,6 +204,30 @@ export const backendService = {
             console.log(error)
             throw (error)
         }
+    },
+
+    async getMyAssets(): Promise<Asset[]> {
+        try {
+            const res = await backend.getMyAssets();
+            if ((res as any).err) {
+                throw new Error((res as any).err);
+            }
+            return res;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async getMyOwnerships(): Promise<Ownership[]> {
+        try {
+            const res = await backend.getMyOwnerShip();
+            if ((res as any).err) {
+                throw new Error((res as any).err);
+            }
+            return res;
+        } catch (error) {
+            throw error;
+        }
     }
 
 };

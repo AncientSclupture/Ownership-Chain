@@ -26,7 +26,8 @@
       "specified_id": "rdmx6-jaaaa-aaaaa-aaadq-cai",
       "remote": {
         "id": {
-          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai",
+          "playground": "rdmx6-jaaaa-aaaaa-aaadq-cai"
         }
       },
       "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz"

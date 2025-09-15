@@ -10,6 +10,9 @@ import { AuthContext } from "../context/AuthContext";
 import ProtectedPage from "./protected-component";
 import { LoaderComponent } from "./LoaderComponent";
 import { RegistUserModal } from "./modal/modal-regist-user";
+import AddDocumentModal from "./modal/modal-add-document";
+import AddRuleDetailsModal from "./modal/modal-add-rule-details";
+import AddLocationDetailsModal from "./modal/modal-add-locaion";
 
 export function MainLayout({ index = false, children }: { index?: boolean, children: React.ReactNode }) {
 
@@ -36,7 +39,9 @@ export function MainLayout({ index = false, children }: { index?: boolean, child
                     { name: ModalKindEnum.findassetsearch, component: <FindAssetModal /> },
                     { name: ModalKindEnum.logout, component: <AskToLogoutModal /> },
                     { name: ModalKindEnum.registuser, component: <RegistUserModal /> },
-                    
+                    { name: ModalKindEnum.adddocument, component: <AddDocumentModal /> },
+                    { name: ModalKindEnum.addruledetails, component: <AddRuleDetailsModal /> },
+                    { name: ModalKindEnum.addlocationdetails, component: <AddLocationDetailsModal /> },
                 ]}
             />
             <Notification />

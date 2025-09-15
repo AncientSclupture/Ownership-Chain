@@ -5,6 +5,7 @@ export enum DashboardOption {
     assetownership = "assetownership",
     income = "income",
     reporting = "reporting",
+    createasset = "createasset",
 }
 
 export function NavigationDashboard(
@@ -48,6 +49,15 @@ export function NavigationDashboard(
                         }`}
                 >
                     Reporting
+                </div>
+                <div
+                    onClick={() => setDashboardOpt(DashboardOption.createasset)}
+                    className={`cursor-pointer p-1 border-b ${dashboardOpt === DashboardOption.createasset
+                        ? "border-black text-black"
+                        : "border-transparent hover:text-black hover:border-black" // tidak aktif → transparan, muncul saat hover
+                        }`}
+                >
+                    New Asset
                 </div>
             </div>
         </div>

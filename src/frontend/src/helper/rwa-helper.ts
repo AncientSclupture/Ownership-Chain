@@ -100,6 +100,22 @@ export async function exportKey(key: CryptoKey, type: "private" | "public"): Pro
   return pem;
 }
 
+async function importKey(pem: string, type: "private" | "public"): Promise<CryptoKey> {
+  const pemHeader = type === "private" ? "PRIVATE KEY" : "PUBLIC KEY";
+  const pemContents = pem.replace(`-----BEGIN ${pemHeader}-----`, "")
+    .replace(`-----END ${pemHeader}-----`, "")
+    .replace(/\s/g, "");
+  const binaryDer = Uint8Array.from(atob(pemContents), (c) => c.charCodeAt(0));
+
+  return crypto.subtle.importKey(
+    type === "private" ? "pkcs8" : "spki",
+    binaryDer,
+    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+    true,
+    type === "private" ? ["sign"] : ["verify"]
+  );
+}
+
 export function downloadFile(filename: string, content: string) {
   const blob = new Blob([content], { type: "text/plain" });
   const link = document.createElement("a");
@@ -107,4 +123,19 @@ export function downloadFile(filename: string, content: string) {
   link.download = filename;
   link.click();
 }
+
+export const signDocument = async (file: File, privatePemFile: File) => {
+  const privatePem = await privatePemFile.text();
+  const privateKey = await importKey(privatePem, "private");
+
+  const arrayBuffer = await file.arrayBuffer();
+  const signatureBuffer = await crypto.subtle.sign(
+    { name: "RSASSA-PKCS1-v1_5" },
+    privateKey,
+    arrayBuffer
+  );
+
+  const signatureBase64 = btoa(String.fromCharCode(...new Uint8Array(signatureBuffer)));
+  return signatureBase64;
+};
 
