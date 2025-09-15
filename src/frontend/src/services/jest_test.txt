@@ -1,0 +1,48 @@
+ PASS  frontend/src/services/backendService.test.ts
+  backendService Unit Tests
+    getMyprofileInfo
+      ✓ returns first user if available (3 ms)
+      ✓ returns null if empty (1 ms)
+    getAssets
+      ✓ returns asset list
+      ✓ returns null on error (25 ms)
+    getAssetById
+      ✓ returns first asset
+      ✓ returns null if not found
+    getAssetbyRange
+      ✓ returns range list (1 ms)
+      ✓ throws if backend error
+    getTotalAssetCount
+      ✓ returns total
+      ✓ throws if backend error (1 ms)
+    createAsset
+      ✓ returns result if ok (1 ms)
+      ✓ throws if error (3 ms)
+    registUser
+      ✓ returns success result
+      ✓ throws if backend error
+    getAssetDetails
+      ✓ returns asset details (1 ms)
+      ✓ throws if backend error
+    proposedToken
+      ✓ returns ok if success
+      ✓ throws if backend error
+    getPubKeyUser
+      ✓ returns pubkey
+      ✓ returns null if empty
+    getAssetDocumentHash
+      ✓ returns hash list (1 ms)
+    searchAsset
+      ✓ returns search results (1 ms)
+      ✓ throws if backend error (1 ms)
+
+-------------------|---------|----------|---------|---------|-----------------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s           
+-------------------|---------|----------|---------|---------|-----------------------------
+All files          |    88.4 |      100 |     100 |    88.4 |                             
+ backendService.ts |    88.4 |      100 |     100 |    88.4 | 14-15,58-59,183-184,193-194 
+-------------------|---------|----------|---------|---------|-----------------------------
+Test Suites: 1 passed, 1 total
+Tests:       23 passed, 23 total
+Snapshots:   0 total
+Time:        1.501 s
