@@ -1,4 +1,4 @@
-import { AssetStatus, AssetType, IdentityNumberType, KycStatus } from "../types/rwa";
+import { AssetStatus, AssetType, IdentityNumberType, KycStatus, ReportType } from "../types/rwa";
 
 export function ReduceCharacters(d: string, num: number = 20): string {
   if (d.length <= num) return d;
@@ -62,6 +62,21 @@ export function text2IdentityType(value: string): IdentityNumberType {
       return { "LiscenseNumber": null }
     case "pasport":
       return { "Pasport": null }
+    default:
+      throw null;
+  }
+}
+
+export function text2ReportType(value: string): ReportType {
+  switch (value.toLowerCase()) {
+    case "fraud":
+      return { "Fraud": null }
+    case "plagiarism":
+      return { "Plagiarism": null }
+    case "legality":
+      return { "Legality": null }
+    case "bankrupting":
+      return { "Bankrupting": null }
     default:
       throw null;
   }
@@ -138,3 +153,28 @@ export const signDocument = async (file: File, privatePemFile: File) => {
   return signatureBase64;
 };
 
+export async function hashFile(file: File): Promise<string> {
+  const arrayBuffer = await file.arrayBuffer();
+
+  const hashBuffer = await crypto.subtle.digest("SHA-256", arrayBuffer);
+
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+
+  return hashHex;
+}
+
+export const verifyDocument = async (file: File, publicPemFile: string, signatureBase64: string): Promise<boolean> => {
+  const publicKey = await importKey(publicPemFile, "public");
+
+  const arrayBuffer = await file.arrayBuffer();
+  const signatureBytes = Uint8Array.from(atob(signatureBase64), (c) => c.charCodeAt(0));
+
+  const valid = await crypto.subtle.verify(
+    { name: "RSASSA-PKCS1-v1_5" },
+    publicKey,
+    signatureBytes,
+    arrayBuffer
+  );
+  return valid;
+};

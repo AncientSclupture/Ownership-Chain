@@ -1,7 +1,7 @@
 import { backend } from "../../../declarations/backend";
 import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, Result, Rule, UserOverviewResult } from "../../../declarations/backend/backend.did";
-import { Ownership, Report, Transaction } from "../types/rwa";
-
+import { Ownership, Report, ReportType, Transaction, TypeReportEvidence } from "../types/rwa";
+import type { Principal } from "@dfinity/principal";
 
 export const backendService = {
 
@@ -242,6 +242,30 @@ export const backendService = {
     async getMyAssetReport(): Promise<Report[]> {
         try {
             const res = await backend.getMyAssetReport()
+            return res;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async getUserPublicKeybyPrincipal(user: Principal): Promise<[string] | []> {
+        try {
+            const res = await backend.getUserPublicKey(user);
+            return res;
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    async createReport(
+        content: string, 
+        description: string, 
+        targetid: string, 
+        evidence: [] | [TypeReportEvidence], 
+        reporttype: ReportType
+    ): Promise<Result> {
+        try {
+            const res = await backend.createReportAsset(content, description, targetid, evidence, reporttype);
             return res;
         } catch (error) {
             throw error;

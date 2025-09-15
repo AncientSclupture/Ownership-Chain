@@ -1,8 +1,9 @@
 import { Bot, CloudUpload, Copy, FileDigit, FileInput, FileScan } from "lucide-react"
 import React from "react";
-import { Asset } from "../../types/rwa";
+import { Asset, TypeReportEvidence } from "../../types/rwa";
 import { backendService } from "../../services/backendService";
 import { NotificationContext } from "../../context/NotificationContext";
+import { hashFile, ReduceCharacters, text2ReportType, verifyDocument } from "../../helper/rwa-helper";
 
 function DocumentAsset(
     { name, description, hash }: { name: string, description: string, hash: string }
@@ -33,7 +34,7 @@ function DocumentAsset(
                     >
                         <Copy size={20} />
                     </button>
-                    <code className="font-mono">{hash}</code>
+                    <code className="font-mono">{ReduceCharacters(hash)}</code>
                 </div>
             </div>
         </div>
@@ -53,15 +54,15 @@ export default function AssetReportFlow() {
     const { setNotificationData } = React.useContext(NotificationContext);
 
     const [file, setFile] = React.useState<File | null>(null);
+    const [fileHash, setFileHash] = React.useState("");
     const [description, setDescription] = React.useState("");
     const [name, setName] = React.useState("");
+    const [assetDocHash, setAssetDocHash] = React.useState("")
+    const [reportType, setReportType] = React.useState("Legality");
+    const [evidence, setEvidence] = React.useState<[TypeReportEvidence] | []>([])
 
     async function handleSetAsset() {
         setIsloading(true);
-        setShowVerification(true);
-        setShowExaminer(true);
-        setShowSubmission(true);
-        
         try {
             const res = await backendService.getAssetById(assetId);
             if (!res) {
@@ -73,12 +74,16 @@ export default function AssetReportFlow() {
                 throw Error("No asset Found")
             }
             setRetreivedAsset(res);
+
             setNotificationData({
                 title: "asset was found",
                 description: "",
                 position: "bottom-right"
             })
             setShowEvidence(true);
+            setShowVerification(false);
+            setShowExaminer(false);
+            setShowSubmission(false);
         } catch (error) {
             setNotificationData({
                 title: "something wrong happened",
@@ -106,6 +111,81 @@ export default function AssetReportFlow() {
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
     };
+
+    const handleHashDocument = async () => {
+        if (!file) {
+            setNotificationData({
+                title: "something wrong happened, your document is not setted",
+                description: "",
+                position: "bottom-right"
+            })
+            return;
+        };
+        const hashedFile = await hashFile(file);
+        setShowVerification(true);
+        setShowExaminer(false);
+        setShowSubmission(false);
+        setFileHash(hashedFile);
+    }
+
+    const handleVerifyHash = async () => {
+        const reporterPubKey = await backendService.getPubKeyUser();
+        if (!file) {
+            setNotificationData({
+                title: "something wrong happened, your document evidence is not setted",
+                description: "",
+                position: "bottom-right"
+            })
+            return;
+        }
+        if (!reporterPubKey) {
+            setNotificationData({
+                title: "something wrong happened, your public key is not detected",
+                description: "",
+                position: "bottom-right"
+            })
+            return;
+        }
+        if (description === "") {
+            setNotificationData({
+                title: "set the description first",
+                description: "",
+                position: "bottom-right"
+            })
+            return;
+        }
+        const valid = await verifyDocument(file, reporterPubKey, assetDocHash);
+        const ev : TypeReportEvidence = {
+            hashclarity: [assetDocHash],
+            footPrintFlow: []
+        };
+        setEvidence([ev]);
+        setNotificationData({
+            title: `${valid ? 'document asset signatured match with your public key' : 'document asset signatured donot match with your public key'}`,
+            description: "",
+            position: "bottom-right"
+        })
+        setShowExaminer(true);
+        setShowSubmission(true);
+    }
+
+    const handleSubmitReport = async () => {
+        try {
+            const res = await backendService.createReport(name, description, assetId, evidence, text2ReportType(reportType));
+            setNotificationData({
+                title: `report was created`,
+                description: `${res}`,
+                position: "bottom-right"
+            })
+            console.log(res)
+        } catch (error) {
+            setNotificationData({
+                title: `something wrong in report submission`,
+                description: "",
+                position: "bottom-right"
+            })
+        }
+    }
 
     return (
         <div className="space-y-8">
@@ -213,11 +293,12 @@ export default function AssetReportFlow() {
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="w-full border border-gray-300 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full border border-gray-300 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                 rows={3}
                                 placeholder="Describe the evidence and how it relates to plagiarism..."
                             />
                         </div>
+                        <button onClick={() => handleHashDocument()} className="p-2 rounded-md background-dark text-white">Hash Document</button>
                     </div>
                 </div>
             }
@@ -229,18 +310,20 @@ export default function AssetReportFlow() {
                     <div className="flex space-x-3 items-center">
                         <h1 className="text-xl">Document Hash Verification</h1>
                     </div>
-
                     <div className="p-4 space-y-4">
                         <div className="flex flex-col space-y-4 md:flex-row md:items-center md:space-x-4 md:space-y-0 md:w-full">
                             {/* Input original hash */}
                             <div className="w-full">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Original Document Hash
+                                    Your Document Hash
                                 </label>
                                 <input
                                     type="text"
                                     placeholder="Enter original hash..."
                                     className="w-full border border-gray-300 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    value={fileHash}
+                                    disabled
+                                    onChange={(e) => setFileHash(e.target.value)}
                                 />
                             </div>
 
@@ -253,8 +336,8 @@ export default function AssetReportFlow() {
                                     type="text"
                                     placeholder="Asset document hash..."
                                     className="w-full border border-gray-300 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    disabled
-                                    value="0x7f9c8e3b2a1d..." // contoh static value
+                                    onChange={(e) => setAssetDocHash(e.target.value)}
+                                    value={assetDocHash}
                                 />
                             </div>
                         </div>
@@ -262,6 +345,7 @@ export default function AssetReportFlow() {
                         <div>
                             <button
                                 type="button"
+                                onClick={() => handleVerifyHash()}
                                 className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 flex items-center space-x-2"
                             >
                                 <span>Verify Hashes</span>
@@ -336,7 +420,21 @@ export default function AssetReportFlow() {
                                 />
                             </div>
                         </div>
-                        <button className="p-3 rounded-md w-full text-white background-dark flex items-center space-x-2 justify-center">
+                        <label htmlFor="reporttype" className="text-gra">Reporting Type</label>
+                        <div className="flex items-center rounded-md border border-[#00081a] w-full">
+                            <select
+                                name="reporttype" id="reporttype"
+                                className="w-full p-2"
+                                value={reportType}
+                                onChange={(e) => setReportType(e.target.value)}
+                            >
+                                <option value="Plagiarism">Plagiarism</option>
+                                <option value="Legality">Legality</option>
+                                <option value="Bankrupting">Bankrupting</option>
+                                <option value="Fraud">Fraud</option>
+                            </select>
+                        </div>
+                        <button onClick={() => handleSubmitReport()} className="p-3 rounded-md w-full text-white background-dark flex items-center space-x-2 justify-center">
                             <FileInput />
                             <p>Generate Report</p>
                         </button>

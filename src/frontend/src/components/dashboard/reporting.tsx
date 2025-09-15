@@ -13,6 +13,7 @@ export function ReportingDashboard() {
             try {
                 setIsLoading(true);
                 const res = await backendService.getMyAssetReport();
+                console.log(res);
                 setReport(res)
             } catch (error) {
                 console.log(error)
