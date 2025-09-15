@@ -8,6 +8,7 @@ export enum ModalKindEnum {
     adddocument = "adddocument",
     addruledetails = "addruledetails",
     addlocationdetails = "addlocationdetails",
+    changeassetstatus = "changeassetstatus",
 }
 
 export type ModalContextType = {
@@ -37,7 +38,12 @@ export type ModalContextType = {
         setter: (d: string) => void;
         remover: (d: string) => void;
         reseter: () => void;
-    }
+    },
+    assetidmanagement: {
+        data: string,
+        setter: (id: string) => void,
+        reseter: () => void;
+    },
 }
 
 export const ModalContext = createContext<ModalContextType>({
@@ -67,7 +73,12 @@ export const ModalContext = createContext<ModalContextType>({
         setter: () => { },
         remover: () => { },
         reseter: () => { }
-    }
+    },
+    assetidmanagement: {
+        data: "",
+        setter: () => { },
+        reseter: () => { }
+    },
 })
 
 export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -77,6 +88,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [adddocumentmanagementData, setAdddocumentmanagementData] = React.useState<Array<DocumentHash> | []>([]);
     const [adddruledetailmanagementData, setAdddruledetailmanagementData] = React.useState<Array<string> | []>([]);
     const [locationdetailmanagementdata, setLocationdetailmanagementdata] = React.useState<Array<string> | []>([]);
+    const [assetidmanagementData, setChangestatusassetData] = React.useState<string>("")
 
     function setModalShowUp(d: ModalKindEnum | null) {
         setModalKind(d);
@@ -119,6 +131,10 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         );
     };
 
+    const setchangestatusassetdata = (id: string) => {
+        setChangestatusassetData(id);
+    }
+
     return (
         <ModalContext.Provider
             value={{
@@ -144,6 +160,11 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     setter: setlocationdetaildata,
                     remover: removelocationdetaildata,
                     reseter: () => setAdddruledetailmanagementData([]),
+                },
+                assetidmanagement: {
+                    data: assetidmanagementData,
+                    setter: setchangestatusassetdata,
+                    reseter: () => setChangestatusassetData(""),
                 },
                 modalKind,
                 setModalKind: setModalShowUp,

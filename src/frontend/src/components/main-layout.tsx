@@ -13,10 +13,11 @@ import { RegistUserModal } from "./modal/modal-regist-user";
 import AddDocumentModal from "./modal/modal-add-document";
 import AddRuleDetailsModal from "./modal/modal-add-rule-details";
 import AddLocationDetailsModal from "./modal/modal-add-locaion";
+import ChangeAssetStatusModal from "./modal/modal-change-asset-status";
 
 export function MainLayout({ index = false, children }: { index?: boolean, children: React.ReactNode }) {
 
-    const { isAuthenticated, isLoading } = React.useContext(AuthContext);
+    const { isAuthenticated, isLoading, actor, authClient } = React.useContext(AuthContext);
 
     if (isLoading) {
         return (
@@ -24,7 +25,7 @@ export function MainLayout({ index = false, children }: { index?: boolean, child
         );
     }
 
-    if (isAuthenticated === false && !index && !isLoading) {
+    if ((isAuthenticated === false && !actor && !authClient) && !index && !isLoading) {
         return <ProtectedPage />
     }
 
@@ -42,6 +43,7 @@ export function MainLayout({ index = false, children }: { index?: boolean, child
                     { name: ModalKindEnum.adddocument, component: <AddDocumentModal /> },
                     { name: ModalKindEnum.addruledetails, component: <AddRuleDetailsModal /> },
                     { name: ModalKindEnum.addlocationdetails, component: <AddLocationDetailsModal /> },
+                    { name: ModalKindEnum.changeassetstatus, component: <ChangeAssetStatusModal /> },
                 ]}
             />
             <Notification />

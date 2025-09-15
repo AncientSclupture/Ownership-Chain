@@ -4,7 +4,8 @@ import { NotificationContext } from "../../context/NotificationContext";
 import { LoaderComponent } from "../LoaderComponent";
 import { backendService } from "../../services/backendService";
 import { backend } from "../../../../declarations/backend";
-import { getAssetStatusText } from "../../helper/rwa-helper";
+import { formatMotokoTime, getAssetStatusText } from "../../helper/rwa-helper";
+import { ModalContext, ModalKindEnum } from "../../context/ModalContext";
 
 function OwnershipRow({ ownershipdata }: { ownershipdata: Ownership }) {
     return (
@@ -12,15 +13,15 @@ function OwnershipRow({ ownershipdata }: { ownershipdata: Ownership }) {
             <div>{ownershipdata.id}</div>
             <div>{ownershipdata.purchasePrice}</div>
             <div>{ownershipdata.tokenOwned}</div>
-            <div>{ownershipdata.maturityDate}</div>
+            <div>{ownershipdata.maturityDate === BigInt(0) ? 'no expired date' : formatMotokoTime(ownershipdata.maturityDate)}</div>
             <div className="flex gap-2 flex-col md:flex-row">
                 <button
-                    className="px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600 text-sm"
+                    className="px-3 py-1 rounded bg-gray-500 text-white hover:bg-gray-600 text-sm"
                 >
                     Sell
                 </button>
                 <button
-                    className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-sm"
+                    className="px-3 py-1 rounded bg-gray-500 text-white hover:bg-gray-600 text-sm"
                 >
                     Transfer
                 </button>
@@ -56,6 +57,7 @@ function OwnershipTable({ ownershipdata }: { ownershipdata: Ownership[] }) {
 }
 
 function AssetRow({ assetdata }: { assetdata: Asset }) {
+    const { setModalKind, assetidmanagement } = React.useContext(ModalContext)
     return (
         <div className="grid grid-cols-5 gap-5 border-b border-gray-700 pb-2 px-4 items-center">
             <div>{assetdata.id}</div>
@@ -64,9 +66,18 @@ function AssetRow({ assetdata }: { assetdata: Asset }) {
             <div>{getAssetStatusText(assetdata.assetStatus)}</div>
             <div className="flex gap-2 flex-col md:flex-row">
                 <button
-                    className="px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600 text-sm"
+                    onClick={() => {
+                        assetidmanagement.setter(assetdata.id)
+                        setModalKind(ModalKindEnum.changeassetstatus)
+                    }}
+                    className="px-3 py-1 rounded bg-gray-500 text-white hover:bg-gray-600 text-sm"
                 >
-                    Close
+                    {getAssetStatusText(assetdata.assetStatus) !== 'Open For Sale' ? 'open' : 'close'}
+                </button>
+                <button
+                    className="px-3 py-1 rounded bg-gray-500 text-white hover:bg-gray-600 text-sm"
+                >
+                    dividend
                 </button>
             </div>
         </div>

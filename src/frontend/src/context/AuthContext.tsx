@@ -3,6 +3,7 @@ import { AuthClient } from "@dfinity/auth-client";
 import { HttpAgent, Actor } from "@dfinity/agent";
 import { idlFactory as backend_idl } from "../../../declarations/backend";
 import { canisterId as backend_id } from "../../../declarations/backend";
+import { setBackendActor, clearBackendActor } from "../services/backendService";
 
 type AuthContextType = {
     authClient: AuthClient | null;
@@ -49,23 +50,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const handleLoginSuccess = async (client: AuthClient) => {
         setIsAuthenticated(true);
         const identity = client.getIdentity();
+        const principalText = identity.getPrincipal().toString();
+        console.log("✅ Logged in principal:", principalText);
         setPrincipal(identity.getPrincipal().toString());
 
-        // Buat HttpAgent manual
         const agent = new HttpAgent({ identity });
 
-        // Hanya di development (localhost)
         if (process.env.DFX_NETWORK !== "ic") {
             await agent.fetchRootKey();
         }
 
-        // Buat actor manual
         const myActor = Actor.createActor(backend_idl, {
             agent,
             canisterId: backend_id,
         });
 
         setActor(myActor);
+
+        setBackendActor(myActor);
     };
 
     const login = async () => {
@@ -92,6 +94,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAuthenticated(false);
         setPrincipal(null);
         setActor(null);
+
+        clearBackendActor();
     };
 
     return (

@@ -72,7 +72,7 @@ function MarketPlace() {
     if (assetType.length === 0) {
       filtered = safeStoredData;
     } else {
-      filtered = safeStoredData.filter((asset) => 
+      filtered = safeStoredData.filter((asset) =>
         assetType.some((t) => isSameAssetType(t, asset.assetType))
       );
       console.log(filtered)

@@ -14,7 +14,6 @@ export function getAssetStatusText(status: AssetStatus | undefined): string {
   return 'Unknown';
 }
 
-
 export function text2AssetType(status: string): AssetType {
   switch (status.toLowerCase()) {
     case "artwork":
