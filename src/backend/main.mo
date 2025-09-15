@@ -29,7 +29,7 @@ persistent actor {
   private transient let assetservice = AssetService.AssetServiceClass(assetStorage, ownershipStorage, userStorage);
   private transient let proposalservice = ProposalService.ProposalService(assetStorage, ownershipStorage, userStorage, transactionStorage, buyproposalStorage, investorStorage);
   private transient let userservice = UserService.UserServiceClass(userStorage, assetStorage, ownershipStorage, transactionStorage);
-  private transient let reportservice = ReportService.ReportServiceClass(reportStorage, assetStorage);
+  private transient let reportservice = ReportService.ReportServiceClass(reportStorage, assetStorage, userStorage);
 
   // llm api
   public func askAI(question : Text) : async Text {
@@ -78,6 +78,13 @@ persistent actor {
     };
   };
 
+  public func getUserPublicKey(user : Principal) : async ?Text {
+    switch (userStorage.get(user)) {
+      case (null) { return null };
+      case (?user) { return ?user.publickey };
+    };
+  };
+
   // asset api
   public func getAllAssets() : async [DataType.Asset] {
     assetStorage.getAll();
@@ -95,7 +102,7 @@ persistent actor {
     assetStorage.getTotalCount();
   };
 
-  public func seacrhAsset(name: Text, assetType: ?DataType.AssetStatus): async ?DataType.Asset {
+  public func seacrhAsset(name : Text, assetType : ?DataType.AssetStatus) : async ?DataType.Asset {
     await assetservice.searchAssetByNameTypeStatus(name, assetType);
   };
 
@@ -184,5 +191,15 @@ persistent actor {
 
   public shared (msg) func getMyAssetReport() : async [DataType.Report] {
     await reportservice.getMyAssetReport(msg.caller);
+  };
+
+  public shared (msg) func createReportAsset(
+    content : Text,
+    description : Text,
+    targetid : Text,
+    evidence : ?DataType.TypeReportEvidence,
+    reporttype : DataType.ReportType,
+  ) : async Result.Result<Text, Text> {
+    await reportservice.createReport(msg.caller, content, description, targetid, evidence, reporttype);
   };
 };
