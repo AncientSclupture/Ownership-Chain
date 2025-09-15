@@ -3,7 +3,7 @@ import { AuthClient } from "@dfinity/auth-client";
 import { HttpAgent, Actor } from "@dfinity/agent";
 import { idlFactory as backend_idl } from "../../../declarations/backend";
 import { canisterId as backend_id } from "../../../declarations/backend";
-import { setBackendActor, clearBackendActor } from "../services/backendService";
+// import { setBackendActor, clearBackendActor } from "../services/backendService";
 
 type AuthContextType = {
     authClient: AuthClient | null;
@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setActor(myActor);
 
-        setBackendActor(myActor);
+        // setBackendActor(myActor);
     };
 
     const login = async () => {
@@ -95,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setPrincipal(null);
         setActor(null);
 
-        clearBackendActor();
+        // clearBackendActor();
     };
 
     return (
