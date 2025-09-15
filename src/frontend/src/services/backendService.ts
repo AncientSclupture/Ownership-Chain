@@ -1,14 +1,39 @@
 import { backend } from "../../../declarations/backend";
 import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, Result, Rule, UserOverviewResult } from "../../../declarations/backend/backend.did";
-import { Ownership, Transaction } from "../types/rwa";
+import { Ownership, Report, Transaction } from "../types/rwa";
 
+let currentActor: any = null;
+let isActorInitialized = false;
+
+export const setBackendActor = (actor: any) => {
+    currentActor = actor;
+    isActorInitialized = true;
+    console.log('✅ Backend service actor updated');
+};
+
+export const clearBackendActor = () => {
+    currentActor = null;
+    isActorInitialized = false;
+    console.log('Backend service actor cleared');
+};
+
+const getActor = () => {
+    if (currentActor && isActorInitialized) {
+        console.log('🔐 Using authenticated actor');
+        return currentActor;
+    }
+
+    console.log('Using anonymous actor (fallback)');
+    return backend;
+};
 
 export const backendService = {
 
     // done
     async getMyprofileInfo(): Promise<UserOverviewResult | null> {
         try {
-            const res = await backend.getMyProfiles();
+            const actor = getActor();
+            const res = await actor.getMyProfiles();
             return res.length === 0 ? null : res[0];
         } catch (error) {
             console.log(error)
@@ -19,7 +44,8 @@ export const backendService = {
     // done
     async getAssets(): Promise<Asset[] | null> {
         try {
-            const res = await backend.getAllAssets();
+            const actor = getActor();
+            const res = await actor.getAllAssets();
             return res;
         } catch (error) {
             console.error('Error fetching all assets:', error);
@@ -29,7 +55,8 @@ export const backendService = {
 
     async getAssetbyRange(start: bigint, end: bigint): Promise<Asset[] | null> {
         try {
-            const res = await backend.getAssetbyRange(start, end);
+            const actor = getActor();
+            const res = await actor.getAssetbyRange(start, end);
             return res;
         } catch (error) {
             throw (error)
@@ -38,7 +65,8 @@ export const backendService = {
 
     async getTotalAssetCount(): Promise<bigint> {
         try {
-            const res = await backend.getAssetTotalCount();
+            const actor = getActor();
+            const res = await actor.getAssetTotalCount();
             return res;
         } catch (error) {
             throw (error)
@@ -48,7 +76,8 @@ export const backendService = {
     // done
     async getAssetById(assetId: string): Promise<Asset | null> {
         try {
-            const res = await backend.getAssetById(assetId);
+            const actor = getActor();
+            const res = await actor.getAssetById(assetId);
             if (res.length > 0 && res[0]) {
                 return res[0];
             }
@@ -77,7 +106,8 @@ export const backendService = {
         rule: Rule,
     ): Promise<Result> {
         try {
-            const res = await backend.createAsset(
+            const actor = getActor();
+            const res = await actor.createAsset(
                 name,
                 description,
                 totalToken,
@@ -114,7 +144,10 @@ export const backendService = {
         publicKey: string,
     ): Promise<Result> {
         try {
-            const res = await backend.registUser(
+            const actor = getActor();
+            console.log('🔍 FRONTEND - Registering user with current actor');
+
+            const res = await actor.registUser(
                 fullName,
                 lastName,
                 phone,
@@ -143,7 +176,8 @@ export const backendService = {
         dividends: Array<Transaction>;
     }]> {
         try {
-            const res = await backend.getAssetFullDetails(assetId);
+            const actor = getActor();
+            const res = await actor.getAssetFullDetails(assetId);
 
             if ((res as any).err) {
                 throw new Error((res as any).err);
@@ -164,7 +198,8 @@ export const backendService = {
         pricePerToken: bigint
     ): Promise<Result> {
         try {
-            const res = await backend.proposedBuyToken(assetId, token, pricePerToken);
+            const actor = getActor();
+            const res = await actor.proposedBuyToken(assetId, token, pricePerToken);
             if ((res as any).err) {
                 throw new Error((res as any).err);
             }
@@ -177,16 +212,19 @@ export const backendService = {
     // done
     async getPubKeyUser(): Promise<string | null> {
         try {
-            const res = await backend.getUserPublicSignature();
+            const actor = getActor();
+            const res = await actor.getUserPublicSignature();
             return res[0] ?? null;
         } catch (error) {
             console.log("get pub key: ", error);
             throw error;
         }
     },
+
     async getAssetDocumentHash(assetid: string): Promise<[DocumentHash[]] | []> {
         try {
-            const res = await backend.getAssetSignature(assetid);
+            const actor = getActor();
+            const res = await actor.getAssetSignature(assetid);
             console.log(res);
             return res;
         } catch (error) {
@@ -197,12 +235,59 @@ export const backendService = {
 
     async searchAsset(query: string, assetType: [] | [AssetStatus]): Promise<[] | [Asset]> {
         try {
-            const res = await backend.seacrhAsset(query, assetType);
+            const actor = getActor();
+            const res = await actor.seacrhAsset(query, assetType);
             console.log(query, assetType, res);
             return res;
         } catch (error) {
             console.log(error)
             throw (error)
+        }
+    },
+
+    async getMyAssets(): Promise<Asset[]> {
+        try {
+            const actor = getActor();
+            const res = await actor.getMyAssets();
+            if ((res as any).err) {
+                throw new Error((res as any).err);
+            }
+            return res;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async getMyOwnerships(): Promise<Ownership[]> {
+        try {
+            const actor = getActor();
+            const res = await actor.getMyOwnerShip();
+            if ((res as any).err) {
+                throw new Error((res as any).err);
+            }
+            return res;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async changeAssetStatus(assetid: string, assetstatus: AssetStatus): Promise<Result> {
+        try {
+            const actor = getActor();
+            const res = await actor.changeAssetStatus(assetid, assetstatus);
+            return res;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async getMyAssetReport(): Promise<Report[]> {
+        try {
+            const actor = getActor();
+            const res = await actor.getMyAssetReport()
+            return res;
+        } catch (error) {
+            throw error;
         }
     }
 

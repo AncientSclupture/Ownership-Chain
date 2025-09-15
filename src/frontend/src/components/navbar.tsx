@@ -58,7 +58,7 @@ export function NavigationBar() {
                     onClick={() => handleDirect("/report")}
                     className="cursor-pointer hover:text-gray-200"
                 >
-                    Sell
+                    Court
                 </div>
                 <div
                     onClick={() => handleConnectMe()}

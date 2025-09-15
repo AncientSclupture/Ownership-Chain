@@ -16,7 +16,7 @@ export function FooterNavigation() {
                     <div>Marketplace</div>
                     <p className="text-gray-400 hover:text-white cursor-pointer">Browse Assets</p>
                     <p className="text-gray-400 hover:text-white cursor-pointer">Create</p>
-                    <p className="text-gray-400 hover:text-white cursor-pointer">Sell</p>
+                    <p className="text-gray-400 hover:text-white cursor-pointer">Court</p>
                 </div>
 
                 <div className="space-y-3">

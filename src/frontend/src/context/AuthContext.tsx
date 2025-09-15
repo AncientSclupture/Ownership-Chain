@@ -3,6 +3,7 @@ import { AuthClient } from "@dfinity/auth-client";
 import { HttpAgent, Actor } from "@dfinity/agent";
 import { idlFactory as backend_idl } from "../../../declarations/backend";
 import { canisterId as backend_id } from "../../../declarations/backend";
+import { setBackendActor, clearBackendActor } from "../services/backendService";
 
 type AuthContextType = {
     authClient: AuthClient | null;
@@ -11,6 +12,7 @@ type AuthContextType = {
     actor: any;
     login: () => Promise<void>;
     logout: () => Promise<void>;
+    isLoading: boolean;
 };
 
 export const AuthContext = createContext<AuthContextType>({
@@ -20,6 +22,7 @@ export const AuthContext = createContext<AuthContextType>({
     actor: null,
     login: async () => { },
     logout: async () => { },
+    isLoading: true,
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -27,9 +30,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [principal, setPrincipal] = useState<string | null>(null);
     const [actor, setActor] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         (async () => {
+            setIsLoading(true);
             const client = await AuthClient.create();
             setAuthClient(client);
 
@@ -37,29 +42,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 await handleLoginSuccess(client);
             }
 
+            setIsLoading(false);
+
         })();
     }, []);
 
     const handleLoginSuccess = async (client: AuthClient) => {
         setIsAuthenticated(true);
         const identity = client.getIdentity();
+        const principalText = identity.getPrincipal().toString();
+        console.log("✅ Logged in principal:", principalText);
         setPrincipal(identity.getPrincipal().toString());
 
-        // Buat HttpAgent manual
         const agent = new HttpAgent({ identity });
 
-        // Hanya di development (localhost)
         if (process.env.DFX_NETWORK !== "ic") {
             await agent.fetchRootKey();
         }
 
-        // Buat actor manual
         const myActor = Actor.createActor(backend_idl, {
             agent,
             canisterId: backend_id,
         });
 
         setActor(myActor);
+
+        setBackendActor(myActor);
     };
 
     const login = async () => {
@@ -86,6 +94,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAuthenticated(false);
         setPrincipal(null);
         setActor(null);
+
+        clearBackendActor();
     };
 
     return (
@@ -95,7 +105,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             principal,
             actor,
             login,
-            logout
+            logout,
+            isLoading
         }}>
             {children}
         </AuthContext.Provider>
