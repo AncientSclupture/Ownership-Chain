@@ -142,6 +142,16 @@ module {
         case (null) { return #err("asset not found") };
         case (?existingasset) {
           if (existingasset.creator == caller) {
+            switch (existingasset.assetStatus) {
+              case (#Active) {};
+              case (#Open) {};
+              case (#Pending) {
+                return #err("you cannot open your asset status while it's pending");
+              };
+              case (#Inactive) {
+                return #err("you cannot open your asset status while it's inactive");
+              };
+            };
             switch (status) {
               case (#Active) {
                 let updatedAsset : DataType.Asset = {

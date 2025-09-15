@@ -88,5 +88,4 @@ module {
     kyc_level : DataType.UserKyc;
     timeStamp : Int;
   };
-  
 };
