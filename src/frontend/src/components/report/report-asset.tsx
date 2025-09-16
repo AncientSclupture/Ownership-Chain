@@ -155,9 +155,10 @@ export default function AssetReportFlow() {
             return;
         }
         const valid = await verifyDocument(file, reporterPubKey, assetDocHash);
-        const ev : TypeReportEvidence = {
-            hashclarity: [assetDocHash],
-            footPrintFlow: []
+        const ev: TypeReportEvidence = {
+            hashclarity: valid ? [assetDocHash] : [],
+            footPrintFlow: [],
+            evidencecontent: [assetDocHash]
         };
         setEvidence([ev]);
         setNotificationData({

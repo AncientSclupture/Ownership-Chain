@@ -56,5 +56,16 @@ module ReportStorage {
         case null { false };
       };
     };
+
+    public func getReportbyid(id : Text) : [DataType.Report] {
+      switch (assetReportsStorage.get(id)) {
+        case (?map) { Iter.toArray(map.vals()) };
+        case null { [] };
+      };
+    };
+
+    public func getEntries() : Iter.Iter<(Text, TrieMap.TrieMap<Principal, DataType.Report>)> {
+      assetReportsStorage.entries();
+    };
   };
 };

@@ -196,6 +196,7 @@ module {
   public type TypeReportEvidence = {
     hashclarity: ?Text;
     footPrintFlow: ?Int;
+    evidencecontent: ?Text;
   };
 
   public type Report = {
@@ -229,6 +230,7 @@ module {
     id : Text;
     reportId : Text;
     reportActionType : ReportActionType;
+    clarification: ?Text;
 
     created : Int;
   };

@@ -9,6 +9,8 @@ export enum ModalKindEnum {
     addruledetails = "addruledetails",
     addlocationdetails = "addlocationdetails",
     changeassetstatus = "changeassetstatus",
+    verifyhashclarity = "verifyhashclarity",
+    verifyevidenceclarity = "verifyevidenceclarity",
 }
 
 export type ModalContextType = {

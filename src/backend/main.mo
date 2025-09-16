@@ -13,6 +13,7 @@ import UserService "services/userService";
 import DataType "data/dataType";
 import ReportService "services/reportService";
 import ReportsStorage "storage/ReportsStorage";
+import ReportActionsStrorage "storage/ReportActionsStrorage";
 
 persistent actor {
   // storage
@@ -23,13 +24,14 @@ persistent actor {
   private transient let buyproposalStorage = BuyProposalsStorage.BuyProposalStorageClass();
   private transient let investorStorage = InvestorProposalsStorage.InvestorProposalStorageClass();
   private transient let reportStorage = ReportsStorage.ReportStorageClass();
+  private transient let reportactionStorage = ReportActionsStrorage.ReportActionStorageClass();
 
   // service
   private transient let llm = LLMService.LLMServiceClass();
   private transient let assetservice = AssetService.AssetServiceClass(assetStorage, ownershipStorage, userStorage);
   private transient let proposalservice = ProposalService.ProposalService(assetStorage, ownershipStorage, userStorage, transactionStorage, buyproposalStorage, investorStorage);
   private transient let userservice = UserService.UserServiceClass(userStorage, assetStorage, ownershipStorage, transactionStorage);
-  private transient let reportservice = ReportService.ReportServiceClass(reportStorage, assetStorage, userStorage);
+  private transient let reportservice = ReportService.ReportServiceClass(reportStorage, assetStorage, userStorage, reportactionStorage);
 
   // llm api
   public func askAI(question : Text) : async Text {
@@ -202,4 +204,14 @@ persistent actor {
   ) : async Result.Result<Text, Text> {
     await reportservice.createReport(msg.caller, content, description, targetid, evidence, reporttype);
   };
+
+  public shared func getReportById(id : Text) : async [DataType.Report] {
+    reportStorage.getReportbyid(id);
+  };
+
+  // action report api
+  public shared (msg) func actionReport(id : Text, clarification : Text, signaturedhash : ?Text, submissionsignaturedhash : ?Text) : async Result.Result<Text, Text> {
+    await reportservice.solveReport(msg.caller, id, clarification, signaturedhash, submissionsignaturedhash);
+  };
+
 };

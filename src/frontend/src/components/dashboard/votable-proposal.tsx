@@ -1,0 +1,7 @@
+export function Votable() {
+    return (
+        <div className="p-4 border border-gray-200 rounded-md bg-white">
+            Votable
+        </div>
+    )
+}

@@ -258,10 +258,10 @@ export const backendService = {
     },
 
     async createReport(
-        content: string, 
-        description: string, 
-        targetid: string, 
-        evidence: [] | [TypeReportEvidence], 
+        content: string,
+        description: string,
+        targetid: string,
+        evidence: [] | [TypeReportEvidence],
         reporttype: ReportType
     ): Promise<Result> {
         try {
@@ -269,6 +269,29 @@ export const backendService = {
             return res;
         } catch (error) {
             throw error;
+        }
+    },
+
+    async getReportById(id: string): Promise<Report[]> {
+        try {
+            const res = await backend.getReportById(id);
+            return res;
+        } catch (error) {
+            throw (error)
+        }
+    },
+
+    async solveReport(
+        id: string,
+        clarification: string,
+        signaturedhash: [] | [string],
+        submissionsignaturedhash: [] | [string]
+    ): Promise<Result> {
+        try {
+            const res = await backend.actionReport(id, clarification, signaturedhash, submissionsignaturedhash)
+            return res;
+        } catch (error) {
+            throw (error);
         }
     }
 

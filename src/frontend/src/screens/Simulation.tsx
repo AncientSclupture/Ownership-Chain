@@ -58,6 +58,8 @@ function Simulation() {
 
     downloadFile("private.pem", privatePem);
     downloadFile("public.pem", publicPem);
+    downloadFile("private.txt", privatePem);
+    downloadFile("public.txt", publicPem);
     alert("Private & Public key berhasil di-generate dan di-download!");
   };
 

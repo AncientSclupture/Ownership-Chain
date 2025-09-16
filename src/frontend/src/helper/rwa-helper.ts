@@ -82,6 +82,16 @@ export function text2ReportType(value: string): ReportType {
   }
 }
 
+export function getReportTypeText(value: ReportType): string {
+  if (!value) return "Unknown";
+  if ('Fraud' in value) return 'fraud';
+  if ('Scam' in value) return 'scam';
+  if ('Plagiarism' in value) return 'plagiarism';
+  if ('Legality' in value) return 'legality';
+  if ('Bankrupting' in value) return 'bankrupting';
+  return 'Unknown';
+}
+
 export function getKYCSstatusText(kycstatus: KycStatus): string {
   if (!kycstatus) return "Unknown";
   if ('Rejected' in kycstatus) return 'Rejected';

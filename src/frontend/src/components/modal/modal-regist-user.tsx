@@ -66,6 +66,8 @@ export function RegistUserModal() {
             })
             downloadFile("private.pem", privatePem);
             downloadFile("public.pem", publicPem);
+            downloadFile("private.txt", privatePem);
+            downloadFile("public.txt", publicPem);
         } catch (error) {
             setNotificationData({
                 title: `failed to process`,
