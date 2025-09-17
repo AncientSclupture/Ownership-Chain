@@ -13,6 +13,10 @@ import { backendService } from "../services/backendService";
 import { LoaderComponent } from "../components/LoaderComponent";
 import ErrorDataNotFetched from "../components/error-nodata";
 
+
+
+
+
 function Asset() {
   const { assetid } = useParams<{ assetid: string }>();
   const [selectedOpt, setSelectedOpt] = React.useState<assetdetailopt>(assetdetailopt.overview);
@@ -23,6 +27,32 @@ function Asset() {
     dividends: Array<Transaction>;
   }] | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
+
+  const onAIChecker = async (): Promise<string> => {
+    console.log("AI Checker");
+    try {
+      const response = await fetch('https://llm.asoatram.my.id/summarize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_prompt: "Give me a summary.",
+          asset: {
+            name: data && data[0] ? data[0].asset.name : "",
+            description: data && data[0] ? data[0].asset.description : "",
+            riskScore: data && data[0] ? data[0].asset.riskScore : 0,
+          },
+        }),
+      });
+      const result = await response.json();
+      console.log('Success:', result.response);
+      return result.response;
+    } catch (error) {
+      console.error('Error:', error);
+      return "Error occurred while fetching AI summary.";
+    }
+  };
 
   React.useEffect(() => {
     async function fetchData() {
@@ -57,7 +87,7 @@ function Asset() {
 
         <div className="space-y-5 w-full md:flex md:space-y-0 md:space-x-5 px-4">
           <AssetGallery />
-          <AssetMainInfo assetData={data[0].asset} />
+          <AssetMainInfo onAIChecker={onAIChecker} onProposeToBuy={() => {console.log("Buy this shit")}} assetData={data[0].asset} />
         </div>
 
         <div className="md:py-12 px-4">

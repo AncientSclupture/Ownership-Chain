@@ -246,6 +246,7 @@ export const backendService = {
         } catch (error) {
             throw error;
         }
-    }
+    },
+
 
 };

@@ -1,6 +1,15 @@
 import { Bot, ShoppingCart } from "lucide-react";
 import { Asset } from "../../types/rwa";
 import { getAssetStatusText } from "../../helper/rwa-helper";
+import { useState } from "react";
+
+
+export interface AssetMainInfoProps {
+    assetData: Asset;
+    onProposeToBuy?: () => void;
+    onAIChecker?: () => Promise<string>;
+}
+
 
 export function AssetNavigation({ assetname }: { assetname: string }) {
     return (
@@ -33,8 +42,11 @@ export function AssetGallery() {
 }
 
 export function AssetMainInfo(
-    { assetData }: { assetData: Asset }
+    {assetData ,onProposeToBuy, onAIChecker}: AssetMainInfoProps
 ) {
+    const [summary, setSummary] = useState("");
+
+
     return (
         <div className="w-full rounded-md border border-gray-300 p-5">
             <h1 className="text-4xl pb-2">{assetData.name}</h1>
@@ -54,15 +66,27 @@ export function AssetMainInfo(
                 </div>
             </div>
             <div className="py-5 space-y-3">
-                <button className="flex items-center space-x-3 text-white background-dark p-2 w-full justify-center">
+                <button onClick={onProposeToBuy} className="flex items-center space-x-3 hover:bg-gray-800 hover:cursor-pointer text-white bg-black p-2 w-full justify-center">
                     <ShoppingCart />
                     <p>Proposed to Buy</p>
                 </button>
-                <button className="flex items-center space-x-3 p-2 w-full justify-center border border-gray-300">
+                <button onClick={async () => {
+                    if (onAIChecker) {
+                        const result = await onAIChecker();
+                        if (typeof result === "string") {
+                            setSummary(result);
+                        } else {
+                            console.error("onAIChecker did not return a string");
+                        }
+                    }
+                }} className="flex hover:bg-gray-200 hover:cursor-pointer items-center space-x-3 p-2 w-full justify-center border border-gray-300">
                     <Bot color="gray" />
                     <p className="text-gray-700">AI Examiner</p>
                 </button>
             </div>
+            <p>
+                {summary}
+            </p>
         </div>
     );
 }
