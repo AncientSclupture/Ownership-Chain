@@ -46,5 +46,10 @@ module BuyProposalStorage {
         case null { false };
       };
     };
+
+    public func getEntries() : Iter.Iter<(Text, DataType.BuyProposal)> {
+      buyProposalsStorage.entries();
+    }
+
   };
 };

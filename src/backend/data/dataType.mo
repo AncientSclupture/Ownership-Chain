@@ -58,7 +58,7 @@ module {
     needDownPayment : Bool;
     minDownPaymentPercentage : Float;
     downPaymentCashback : Float;
-    downPaymentMaturityTime: Nat;
+    downPaymentMaturityTime : Nat;
 
     paymentMaturityTime : Int;
     ownerShipMaturityTime : Int;
@@ -66,9 +66,9 @@ module {
   };
 
   public type LocationType = {
-    lat: Float;
-    long: Float;
-    details: [Text];
+    lat : Float;
+    long : Float;
+    details : [Text];
   };
 
   public type Asset = {
@@ -138,7 +138,7 @@ module {
     totalPrice : Nat;
     transactionType : TransactionType;
     transactionStatus : TransactionStatus;
-    details: ?Text;
+    details : ?Text;
 
     timestamp : Int;
   };
@@ -169,7 +169,7 @@ module {
     phone : Text;
     country : Text;
     city : Text;
-    publickey: Text;
+    publickey : Text;
 
     userIDNumber : Text;
     userIdentity : IdentityNumberType;
@@ -194,23 +194,23 @@ module {
   };
 
   public type TypeReportEvidence = {
-    hashclarity: ?Text;
-    footPrintFlow: ?Int;
-    evidencecontent: ?Text;
+    hashclarity : ?Text;
+    footPrintFlow : ?Int;
+    evidencecontent : ?Text;
   };
 
   public type Report = {
-    id: Text;
+    id : Text;
     complainer : Principal;
     targetid : Text;
     reportType : ReportType;
-    content: Text;
-    description: Text;
+    content : Text;
+    description : Text;
     // reputation is based on assets risk score or user kyc riskscore
     reputation : Nat;
     isDone : Int;
     isDoneTimeStamp : Int;
-    evidence: ?TypeReportEvidence;
+    evidence : ?TypeReportEvidence;
 
     created : Int;
   };
@@ -230,7 +230,7 @@ module {
     id : Text;
     reportId : Text;
     reportActionType : ReportActionType;
-    clarification: ?Text;
+    clarification : ?Text;
 
     created : Int;
   };
@@ -244,33 +244,45 @@ module {
   };
 
   public type MyVotablePoroposalResult = {
-    proposalId: Text;
+    proposalId : Text;
     assetId : Text;
-    asstName: Text;
-    buyer: Principal;
+    asstName : Text;
+    buyer : Principal;
     tokenAmount : Nat;
-    pricePerToken: Nat;
+    pricePerToken : Nat;
     approvalResult : Float;
-    myVotePercentage: Float;
+    myVotePercentage : Float;
   };
 
   public type UserOverviewResult = {
-    userIdentity: User;
-    transaction: {
-      total: Int;
-      buy: Int;
-      sell: Int;
-      transfer: Int;
-      dividend: Int;
+    userIdentity : User;
+    transaction : {
+      total : Int;
+      buy : Int;
+      sell : Int;
+      transfer : Int;
+      dividend : Int;
     };
-    ownership: {
-      total: Int;
-      token: Int;
+    ownership : {
+      total : Int;
+      token : Int;
     };
-    asset: {
-      total: Int;
-      token: Int;
-    }
+    asset : {
+      total : Int;
+      token : Int;
+    };
+  };
+
+  public type ProposalResult = {
+    id : Text;
+    assetId : Text;
+    amount : Nat;
+    pricePerToken : Nat;
+    totalPrice : Nat;
+    createdAt : Int;
+    downPaymentStatus : Bool;
+    downPaymentTimeStamp : Int;
+    voterPercentage: Float;
   };
 
 };

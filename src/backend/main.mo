@@ -183,6 +183,16 @@ persistent actor {
     await proposalservice.finishTheInvitation(investorProposalId, price, msg.caller);
   };
 
+  public func getProposalbyAssetId(
+    assetId : Text
+  ) : async ?[DataType.ProposalResult] {
+    await proposalservice.getProposalbyAssetId(assetId);
+  };
+
+  public shared (msg) func getMyProposal() : async ?[DataType.ProposalResult] {
+    await proposalservice.getMyProposal(msg.caller);
+  };
+
   // report api
   public func getAssetSignature(assetId : Text) : async ?[DataType.DocumentHash] {
     switch (assetStorage.get(assetId)) {

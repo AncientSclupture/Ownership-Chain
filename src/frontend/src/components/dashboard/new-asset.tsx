@@ -409,7 +409,7 @@ export function NewAsset() {
                 </div>
                 <div className="space-y-4">
                     <MapsLocation lat={city.lat} long={city.lng} />
-                    <div>
+                    <div className="space-y-1">
                         <div className="flex items-center space-x-2 my-5">
                             <button onClick={() => setModalKind(ModalKindEnum.addlocationdetails)} className="p-2 rounded-md bg-gray-300 cursor-pointer"><Plus size={20} /></button>
                             <p>Add new location details</p>

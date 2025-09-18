@@ -1,6 +1,7 @@
 import { backend } from "../../../declarations/backend";
 import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, Result, Rule, UserOverviewResult } from "../../../declarations/backend/backend.did";
-import { Ownership, Report, ReportType, Transaction, TypeReportEvidence } from "../types/rwa";
+import { unwrapResult } from "../helper/rwa-helper";
+import { Ownership, ProposalResult, Report, ReportType, Transaction, TypeReportEvidence } from "../types/rwa";
 import type { Principal } from "@dfinity/principal";
 
 export const backendService = {
@@ -75,7 +76,7 @@ export const backendService = {
         assetType: AssetType,
         assetStatus: AssetStatus,
         rule: Rule,
-    ): Promise<Result> {
+    ): Promise<string> {
         try {
             const res = await backend.createAsset(
                 name,
@@ -96,7 +97,7 @@ export const backendService = {
                 throw new Error((res as any).err);
             }
 
-            return res;
+            return unwrapResult(res);
         } catch (error) {
             throw error;
         }
@@ -162,13 +163,10 @@ export const backendService = {
         assetId: string,
         token: bigint,
         pricePerToken: bigint
-    ): Promise<Result> {
+    ): Promise<string> {
         try {
             const res = await backend.proposedBuyToken(assetId, token, pricePerToken);
-            if ((res as any).err) {
-                throw new Error((res as any).err);
-            }
-            return res;
+            return unwrapResult(res);
         } catch (error) {
             throw error;
         }
@@ -230,10 +228,10 @@ export const backendService = {
         }
     },
 
-    async changeAssetStatus(assetid: string, assetstatus: AssetStatus): Promise<Result> {
+    async changeAssetStatus(assetid: string, assetstatus: AssetStatus): Promise<string> {
         try {
             const res = await backend.changeAssetStatus(assetid, assetstatus);
-            return res;
+            return unwrapResult(res);
         } catch (error) {
             throw error;
         }
@@ -263,10 +261,10 @@ export const backendService = {
         targetid: string,
         evidence: [] | [TypeReportEvidence],
         reporttype: ReportType
-    ): Promise<Result> {
+    ): Promise<string> {
         try {
             const res = await backend.createReportAsset(content, description, targetid, evidence, reporttype);
-            return res;
+            return unwrapResult(res);
         } catch (error) {
             throw error;
         }
@@ -286,10 +284,55 @@ export const backendService = {
         clarification: string,
         signaturedhash: [] | [string],
         submissionsignaturedhash: [] | [string]
-    ): Promise<Result> {
+    ): Promise<string> {
         try {
             const res = await backend.actionReport(id, clarification, signaturedhash, submissionsignaturedhash)
+            return unwrapResult(res);
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    async getProposalById(assetid: string): Promise<[ProposalResult[]] | []> {
+        try {
+            const res = await backend.getProposalbyAssetId(assetid);
             return res;
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    async getMyProposal(): Promise<[ProposalResult[]] | []> {
+        try {
+            const res = await backend.getMyProposal();
+            return res;
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    async proceedDp(price: bigint, buyProposalId: string): Promise<string> {
+        try {
+            const res = await backend.proceedDownPayment(price, buyProposalId);
+            return unwrapResult(res);
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    async finishedPayment(price: bigint, buyProposalId: string): Promise<string> {
+        try {
+            const res = await backend.finishedPayment(buyProposalId, price);
+            return unwrapResult(res);
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    async approveBuyProposal(proposalId: string): Promise<string> {
+        try {
+            const res = await backend.approveBuyProposal(proposalId);
+            return unwrapResult(res);
         } catch (error) {
             throw (error);
         }

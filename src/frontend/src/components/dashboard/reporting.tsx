@@ -3,7 +3,6 @@ import { backendService } from "../../services/backendService";
 import { Report, Asset } from "../../types/rwa";
 import { LoaderComponent } from "../LoaderComponent";
 import { formatMotokoTime, getReportTypeText, ReduceCharacters } from "../../helper/rwa-helper";
-import ProtectedPage from "../protected-component";
 import { Signature } from "lucide-react";
 
 function ReportComponent({ report }: { report: Report }) {
@@ -126,14 +125,10 @@ export function ReportingDashboard() {
         return <LoaderComponent fullScreen={true} />
     }
 
-    if (!report === false && !asset) {
-        return <ProtectedPage />
-    }
-
     return (
         <div className="p-4 border border-gray-200 rounded-md bg-white">
             <h1 className="text-xl text-gray-600">Reporting Dashboard</h1>
-            {report.length !== 0 ? (
+            {report.length !== 0 && !asset ? (
                 <div className="space-y-5 my-5">
                     {report.map((r, idx) =>
                         <ReportComponent report={r} key={idx} />
@@ -141,7 +136,7 @@ export function ReportingDashboard() {
                 </div>
             ) : (
                 <>
-                    <div className="w-full flex justify-center items-center md:h-[12vw] bg-gray-200">no report data</div>
+                    <div className="my-5 w-full flex justify-center items-center md:h-[12vw] bg-gray-200">no report data</div>
                 </>
             )}
         </div>

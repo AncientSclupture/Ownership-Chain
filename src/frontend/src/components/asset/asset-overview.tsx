@@ -30,7 +30,7 @@ function RuleComponent({ rule }: { rule: Rule }) {
     const sellSharingText = rule.sellSharing ? `This asset is allowing you to sell the ownership, with maximum price ${rule.sellSharingPrice} ICP`
         : `This asset is not allowing the holder to sell their ownership asset token, instead you can transfer to the creator or event to the other ownership asset holder.`;
 
-    const needDonePayemntText = rule.needDownPayment ? `This asset need done payment first to propose buy token ownership, with done payment is ${rule.minDownPaymentPercentage}% of the total payment. `
+    const needDonePayemntText = rule.needDownPayment ? `This asset need done payment first to propose buy token ownership, with done payment is ${rule.minDownPaymentPercentage * 100}% of the total payment. `
         : ``;
 
     const donePaymentMaturityTime = `This Done payment mustbe done with in ${rule.downPaymentMaturityTime} days.`

@@ -11,6 +11,7 @@ import Principal "mo:base/Principal";
 import Float "mo:base/Float";
 import Int "mo:base/Int";
 import Nat "mo:base/Nat";
+import Iter "mo:base/Iter";
 import DataType "../data/dataType";
 import InputType "../data/inputType";
 import Helper "../utils/helper";
@@ -29,7 +30,7 @@ module {
       assetId : Text,
       amount : Nat,
       pricePerToken : Nat,
-      caller: Principal
+      caller : Principal,
     ) : async Result.Result<Text, Text> {
 
       // user validation
@@ -151,7 +152,7 @@ module {
     public func proceedDownPayment(
       price : Nat,
       buyProposalId : Text,
-      caller: Principal
+      caller : Principal,
     ) : async Result.Result<Text, Text> {
 
       // user validation
@@ -277,7 +278,7 @@ module {
     public func finishedPayment(
       proposalId : Text,
       price : Int,
-      caller: Principal
+      caller : Principal,
     ) : async Result.Result<Text, Text> {
 
       // user validation
@@ -403,7 +404,7 @@ module {
 
     public func approveBuyProposal(
       buyProposalId : Text,
-      caller: Principal
+      caller : Principal,
     ) : async Result.Result<Text, Text> {
 
       // user validation
@@ -472,7 +473,7 @@ module {
       incomingInvestor : Principal,
       amount : Nat,
       pricePerToken : Nat,
-      caller: Principal
+      caller : Principal,
     ) : async Result.Result<Text, Text> {
 
       // user validation
@@ -561,7 +562,7 @@ module {
 
     public func approveInvestorProposal(
       investorProposalId : Text,
-      caller: Principal
+      caller : Principal,
     ) : async Result.Result<Text, Text> {
 
       switch (userstorage.get(caller)) {
@@ -623,7 +624,7 @@ module {
     public func finishTheInvitation(
       investorProposalId : Text,
       price : Nat,
-      caller: Principal
+      caller : Principal,
     ) : async Result.Result<Text, Text> {
 
       // user validation
@@ -722,6 +723,102 @@ module {
         case (null) {
           return #err("Invitation is not found.");
         };
+      };
+    };
+
+    public func getMyProposal(caller : Principal) : async ?[DataType.ProposalResult] {
+      let buyProposalEntries = buyproposal.getEntries();
+
+      let filtered = Iter.filter<(Text, DataType.BuyProposal)>(
+        buyProposalEntries,
+        func((key, proposal) : (Text, DataType.BuyProposal)) : Bool {
+          proposal.buyer == caller;
+        },
+      );
+
+      let mapped = Iter.map<(Text, DataType.BuyProposal), DataType.ProposalResult>(
+        filtered,
+        func((key, proposal) : (Text, DataType.BuyProposal)) : DataType.ProposalResult {
+          // hitung voterPercentage
+          let approvalVals = proposal.approvals.vals();
+          var total : Float = 0;
+          var count : Nat = 0;
+          for (val in approvalVals) {
+            total += val;
+            count += 1;
+          };
+          let voterPercentage = if (count > 0) { total } else {
+            0.0;
+          };
+
+          {
+            id = proposal.id;
+            assetId = proposal.assetId;
+            amount = proposal.amount;
+            pricePerToken = proposal.pricePerToken;
+            totalPrice = proposal.totalPrice;
+            createdAt = proposal.createdAt;
+            downPaymentStatus = proposal.downPaymentStatus;
+            downPaymentTimeStamp = proposal.downPaymentTimeStamp;
+            voterPercentage = voterPercentage;
+          };
+        },
+      );
+
+      let result = Iter.toArray(mapped);
+
+      if (result.size() > 0) {
+        ?result;
+      } else {
+        null;
+      };
+    };
+
+    public func getProposalbyAssetId(assetId : Text) : async ?[DataType.ProposalResult] {
+      let buyProposalEntries = buyproposal.getEntries();
+
+      let filtered = Iter.filter<(Text, DataType.BuyProposal)>(
+        buyProposalEntries,
+        func((key, proposal) : (Text, DataType.BuyProposal)) : Bool {
+          proposal.assetId == assetId;
+        },
+      );
+
+      let mapped = Iter.map<(Text, DataType.BuyProposal), DataType.ProposalResult>(
+        filtered,
+        func((key, proposal) : (Text, DataType.BuyProposal)) : DataType.ProposalResult {
+          // hitung voterPercentage
+          let approvalVals = proposal.approvals.vals();
+          var total : Float = 0;
+          var count : Nat = 0;
+          for (val in approvalVals) {
+            total += val;
+            count += 1;
+          };
+          let voterPercentage = if (count > 0) { total } else {
+            0.0;
+          };
+
+          {
+            id = proposal.id;
+            assetId = proposal.assetId;
+            amount = proposal.amount;
+            pricePerToken = proposal.pricePerToken;
+            totalPrice = proposal.totalPrice;
+            createdAt = proposal.createdAt;
+            downPaymentStatus = proposal.downPaymentStatus;
+            downPaymentTimeStamp = proposal.downPaymentTimeStamp;
+            voterPercentage = voterPercentage;
+          };
+        },
+      );
+
+      let result = Iter.toArray(mapped);
+
+      if (result.size() > 0) {
+        ?result;
+      } else {
+        null;
       };
     };
 

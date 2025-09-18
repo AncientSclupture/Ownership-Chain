@@ -11,6 +11,9 @@ export enum ModalKindEnum {
     changeassetstatus = "changeassetstatus",
     verifyhashclarity = "verifyhashclarity",
     verifyevidenceclarity = "verifyevidenceclarity",
+    proposedbuytoken = "proposedbuytoken",
+    proceeddp = "proceeddp",
+    finishedpayment = "finishedpayment",
 }
 
 export type ModalContextType = {

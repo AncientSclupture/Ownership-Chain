@@ -1,4 +1,4 @@
-import { AssetStatus, AssetType, IdentityNumberType, KycStatus, ReportType } from "../types/rwa";
+import { AssetStatus, AssetType, IdentityNumberType, KycStatus, ReportType, Result } from "../types/rwa";
 
 export function ReduceCharacters(d: string, num: number = 20): string {
   if (d.length <= num) return d;
@@ -114,6 +114,15 @@ export function formatMotokoTime(nanoseconds: bigint): string {
     year: "numeric",
   }).toString();
 }
+
+export function unwrapResult(result: Result): string {
+  if ("ok" in result) {
+    return result.ok;
+  }
+  throw new Error(result.err);
+}
+
+
 
 export async function exportKey(key: CryptoKey, type: "private" | "public"): Promise<string> {
   const exported = await crypto.subtle.exportKey(type === "private" ? "pkcs8" : "spki", key);

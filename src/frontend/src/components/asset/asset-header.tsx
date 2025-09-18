@@ -1,6 +1,8 @@
 import { Bot, ShoppingCart } from "lucide-react";
 import { Asset } from "../../types/rwa";
 import { getAssetStatusText } from "../../helper/rwa-helper";
+import React from "react";
+import { ModalContext, ModalKindEnum } from "../../context/ModalContext";
 
 export function AssetNavigation({ assetname }: { assetname: string }) {
     return (
@@ -35,6 +37,7 @@ export function AssetGallery() {
 export function AssetMainInfo(
     { assetData }: { assetData: Asset }
 ) {
+    const { setModalKind } = React.useContext(ModalContext);
     return (
         <div className="w-full rounded-md border border-gray-300 p-5">
             <h1 className="text-4xl pb-2">{assetData.name}</h1>
@@ -54,7 +57,10 @@ export function AssetMainInfo(
                 </div>
             </div>
             <div className="py-5 space-y-3">
-                <button className="flex items-center space-x-3 text-white background-dark p-2 w-full justify-center">
+                <button
+                    onClick={() => setModalKind(ModalKindEnum.proposedbuytoken)}
+                    className="flex items-center space-x-3 text-white background-dark p-2 w-full justify-center"
+                >
                     <ShoppingCart />
                     <p>Proposed to Buy</p>
                 </button>

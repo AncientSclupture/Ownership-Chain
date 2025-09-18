@@ -15,13 +15,13 @@ export function FooterNavigation() {
                 <div className="space-y-3">
                     <div>Marketplace</div>
                     <p className="text-gray-400 hover:text-white cursor-pointer">Browse Assets</p>
-                    <p className="text-gray-400 hover:text-white cursor-pointer">Create</p>
+                    <p className="text-gray-400 hover:text-white cursor-pointer">My Asset</p>
                     <p className="text-gray-400 hover:text-white cursor-pointer">Court</p>
                 </div>
 
                 <div className="space-y-3">
                     <div>Support</div>
-                    <p className="text-gray-400 hover:text-white cursor-pointer">Report And Courting</p>
+                    <p className="text-gray-400 hover:text-white cursor-pointer">About Platform</p>
                     <p className="text-gray-400 hover:text-white cursor-pointer">Contact</p>
                     <p className="text-gray-400 hover:text-white cursor-pointer">FAQ</p>
                 </div>

@@ -1,5 +1,5 @@
 import React from "react"
-import { Asset, Ownership } from "../../types/rwa";
+import { Asset, Ownership, ProposalResult } from "../../types/rwa";
 import { NotificationContext } from "../../context/NotificationContext";
 import { LoaderComponent } from "../LoaderComponent";
 import { backendService } from "../../services/backendService";
@@ -7,24 +7,105 @@ import { backend } from "../../../../declarations/backend";
 import { formatMotokoTime, getAssetStatusText } from "../../helper/rwa-helper";
 import { ModalContext, ModalKindEnum } from "../../context/ModalContext";
 
-function OwnershipRow({ ownershipdata }: { ownershipdata: Ownership }) {
+function VoteableProposalComponent({ proposal }: { proposal: ProposalResult }) {
+    const [isLoading, setIsLoading] = React.useState(false);
+    const { setNotificationData } = React.useContext(NotificationContext);
+
+    async function handleApproveProposal() {
+        setIsLoading(true);
+        try {
+            const res = await backendService.approveBuyProposal(proposal.id);
+            setNotificationData({ title: "success to vote proposal", description: `${res}`, position: 'bottom-right' })
+        } catch (error) {
+            setNotificationData({ title: "failed to vote proposal", description: `${error}`, position: 'bottom-right' })
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    if (isLoading) return <LoaderComponent fullScreen={true} text="processing voting proposal" />
+
+
     return (
-        <div className="grid grid-cols-5 gap-5 border-b border-gray-700 pb-2 px-4 items-center">
-            <div>{ownershipdata.id}</div>
-            <div>{ownershipdata.purchasePrice}</div>
-            <div>{ownershipdata.tokenOwned}</div>
-            <div>{ownershipdata.maturityDate === BigInt(0) ? 'no expired date' : formatMotokoTime(ownershipdata.maturityDate)}</div>
-            <div className="flex gap-2 flex-col md:flex-row">
-                <button
-                    className="px-3 py-1 rounded bg-gray-500 text-white hover:bg-gray-600 text-sm"
-                >
-                    Sell
-                </button>
-                <button
-                    className="px-3 py-1 rounded bg-gray-500 text-white hover:bg-gray-600 text-sm"
-                >
-                    Transfer
-                </button>
+        <div className="space-y-2 border p-2 rounded-md">
+            <div className="flex justify-between items-center">
+                <p>{proposal.id}</p>
+                <p>{(proposal.voterPercentage * 100).toFixed(2)}%</p>
+            </div>
+            <div className="flex text-sm space-x-1">
+                <p>Proposed token <span className="font-semibold">{proposal.amount}</span></p>
+                <p>At price per token <span className="font-semibold">{proposal.pricePerToken}</span></p>
+                <p>Total price is <span className="font-semibold">{proposal.totalPrice}</span></p>
+            </div>
+            <button onClick={() => handleApproveProposal()} className="background-dark p-1 text-white text-sm rounded-md cursor-pointer">approve</button>
+        </div>
+    )
+}
+
+function OwnershipRow({ ownershipdata }: { ownershipdata: Ownership }) {
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [isOpenVoteble, setIsOpenVoteable] = React.useState(false);
+    const [votableproposal, setVoteableproposal] = React.useState<[ProposalResult[]] | []>([])
+
+    async function handleOpen() {
+        if (votableproposal.length === 0) {
+            setIsLoading(true);
+            try {
+                const res = await backendService.getProposalById(ownershipdata.id);
+                setVoteableproposal(res);
+                setIsOpenVoteable(true);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setIsLoading(false);
+            }
+        } else {
+            setIsOpenVoteable(!isOpenVoteble);
+        }
+    }
+
+
+    console.log(votableproposal);
+
+    if (isLoading) return <LoaderComponent fullScreen={true} text="load votable proposal" />
+
+    return (
+        <div>
+            <div className="grid grid-cols-5 gap-5 border-b border-gray-700 pb-2 px-4 items-center cursor-pointer" onClick={() => handleOpen()}>
+                <div>{ownershipdata.id}</div>
+                <div>{ownershipdata.purchasePrice}</div>
+                <div>{ownershipdata.tokenOwned}</div>
+                <div>{ownershipdata.maturityDate === BigInt(0) ? 'no expired date' : formatMotokoTime(ownershipdata.maturityDate)}</div>
+                <div className="flex gap-2 flex-col md:flex-row">
+                    <button
+                        className="px-3 py-1 rounded bg-gray-500 text-white hover:bg-gray-600 text-sm"
+                    >
+                        Sell
+                    </button>
+                    <button
+                        className="px-3 py-1 rounded bg-gray-500 text-white hover:bg-gray-600 text-sm"
+                    >
+                        Transfer
+                    </button>
+                </div>
+            </div>
+            <div className={`${isOpenVoteble ? '' : 'hidden'} px-4 py-5 border border-gray-400 rounded-md my-5`}>
+                <div>
+                    <p>Voteable Proposal</p>
+                    <div className="my-2">
+                        {votableproposal.length === 0 || !votableproposal ? (
+                            <div>
+                                <p>No Data</p>
+                            </div>
+                        ) : (
+                            <div className="grid md:grid-cols-2 grid-cols-1 gap-3">
+                                {votableproposal[0].map((proposal, idx) =>
+                                    <VoteableProposalComponent key={idx} proposal={proposal} />
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );

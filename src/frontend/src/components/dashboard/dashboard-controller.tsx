@@ -6,7 +6,7 @@ export enum DashboardOption {
     income = "income",
     reporting = "reporting",
     createasset = "createasset",
-    voteable = "voteable",
+    proposal = "proposal",
 }
 
 export function NavigationDashboard(
@@ -61,13 +61,13 @@ export function NavigationDashboard(
                     New Asset
                 </div>
                 <div
-                    onClick={() => setDashboardOpt(DashboardOption.voteable)}
-                    className={`cursor-pointer p-1 border-b ${dashboardOpt === DashboardOption.voteable
+                    onClick={() => setDashboardOpt(DashboardOption.proposal)}
+                    className={`cursor-pointer p-1 border-b ${dashboardOpt === DashboardOption.proposal
                         ? "border-black text-black"
                         : "border-transparent hover:text-black hover:border-black" // tidak aktif → transparan, muncul saat hover
                         }`}
                 >
-                    Voteable
+                    Proposal
                 </div>
             </div>
         </div>

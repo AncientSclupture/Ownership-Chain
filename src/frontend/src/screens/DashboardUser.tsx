@@ -6,7 +6,7 @@ import { AssetAndOwnerDashboard } from "../components/dashboard/asset-and-owners
 import { IncomeDashboard } from "../components/dashboard/income";
 import { ReportingDashboard } from "../components/dashboard/reporting";
 import { NewAsset } from "../components/dashboard/new-asset";
-import { Votable } from "../components/dashboard/votable-proposal";
+import { Proposal } from "../components/dashboard/proposal";
 
 function DashboardUser() {
 
@@ -27,7 +27,7 @@ function DashboardUser() {
             { name: DashboardOption.income, component: <IncomeDashboard /> },
             { name: DashboardOption.reporting, component: <ReportingDashboard /> },
             { name: DashboardOption.createasset, component: <NewAsset /> },
-            { name: DashboardOption.voteable, component: <Votable /> },
+            { name: DashboardOption.proposal, component: <Proposal /> },
           ]}
         />
       </div>
