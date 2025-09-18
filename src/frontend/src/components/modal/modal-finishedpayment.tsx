@@ -23,7 +23,7 @@ export default function FinishedPaymentModal() {
             const res = await backendService.finishedPayment(price, assetidmanagement.data);
             setNotificationData({ title: "success to finished payment", description: `${res}`, position: "bottom-right" })
         } catch (error) {
-            setNotificationData({ title: "failed to finished payment", description: "", position: "bottom-right" })
+            setNotificationData({ title: "failed to finished payment", description: `${error}`, position: "bottom-right" })
             console.log(error);
         } finally {
             setIsLoading(false);

@@ -5,7 +5,6 @@ import { CityCountryInterface, countriesData, CountriesDataInterface } from "../
 import { downloadFile, exportKey, text2IdentityType } from "../../helper/rwa-helper";
 import { NotificationContext } from "../../context/NotificationContext";
 import { backendService } from "../../services/backendService";
-import { Result } from "../../types/rwa";
 
 export function RegistUserModal() {
     const [isLoading, setIsLoading] = React.useState(false);
@@ -61,7 +60,7 @@ export function RegistUserModal() {
             console.log(res);
             setNotificationData({
                 title: `successfully created user kyc`,
-                description: `Result ${res as Result}`,
+                description: `Result ${res}`,
                 position: "bottom-right"
             })
             downloadFile("private.pem", privatePem);

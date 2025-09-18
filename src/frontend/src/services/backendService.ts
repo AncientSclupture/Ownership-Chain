@@ -1,5 +1,5 @@
 import { backend } from "../../../declarations/backend";
-import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, Result, Rule, UserOverviewResult } from "../../../declarations/backend/backend.did";
+import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, Rule, UserOverviewResult } from "../../../declarations/backend/backend.did";
 import { unwrapResult } from "../helper/rwa-helper";
 import { Ownership, ProposalResult, Report, ReportType, Transaction, TypeReportEvidence } from "../types/rwa";
 import type { Principal } from "@dfinity/principal";
@@ -113,7 +113,7 @@ export const backendService = {
         userIDNumber: string,
         userIdentity: IdentityNumberType,
         publicKey: string,
-    ): Promise<Result> {
+    ): Promise<string> {
         try {
             const res = await backend.registUser(
                 fullName,
@@ -130,7 +130,7 @@ export const backendService = {
                 throw new Error((res as any).err);
             }
 
-            return res;
+            return unwrapResult(res);
         } catch (error) {
             throw error;
         }

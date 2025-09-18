@@ -175,6 +175,19 @@ module {
             return #err("You are not allowed to do downpayment for this proposal.");
           };
 
+          // is user have the asset ownership
+          switch (ownershipstorage.get(existProposal.assetId)) {
+            case (?ownership) {
+              switch (ownership.get(caller)) {
+                case (null) {};
+                case (_existOwnership) {
+                  return #err("you already have this ownership");
+                };
+              };
+            };
+            case (null) {};
+          };
+
           switch (assetstorage.get(existProposal.assetId)) {
             case (?proposeAsset) {
               let timeProposalCreated = existProposal.createdAt;
@@ -295,6 +308,19 @@ module {
 
       switch (buyproposal.get(proposalId)) {
         case (?existProposal) {
+
+          // is user have the asset ownership
+          switch (ownershipstorage.get(existProposal.assetId)) {
+            case (?ownership) {
+              switch (ownership.get(caller)) {
+                case (null) {};
+                case (_existOwnership) {
+                  return #err("you already have this ownership");
+                };
+              };
+            };
+            case (null) {};
+          };
 
           if (existProposal.downPaymentStatus == false) {
             return #err("Finished the downpayment first.");
@@ -424,6 +450,10 @@ module {
 
           if (existProposal.downPaymentStatus == false) {
             return #err("The downpayment is not done yet.");
+          };
+
+          if (existProposal.buyer == caller) {
+            return #err("Not allowed");
           };
 
           switch (ownershipstorage.get(existProposal.assetId)) {
@@ -732,7 +762,21 @@ module {
       let filtered = Iter.filter<(Text, DataType.BuyProposal)>(
         buyProposalEntries,
         func((key, proposal) : (Text, DataType.BuyProposal)) : Bool {
-          proposal.buyer == caller;
+          switch (ownershipstorage.get(proposal.assetId)) {
+            case (null) {
+              proposal.buyer == caller;
+            };
+            case (?owners) {
+              switch (owners.get(caller)) {
+                case (null) {
+                  proposal.buyer == caller;
+                };
+                case (?_) {
+                  false;
+                };
+              };
+            };
+          };
         },
       );
 
@@ -747,9 +791,7 @@ module {
             total += val;
             count += 1;
           };
-          let voterPercentage = if (count > 0) { total } else {
-            0.0;
-          };
+          let voterPercentage = if (count > 0) { total } else { 0.0 };
 
           {
             id = proposal.id;

@@ -31,7 +31,7 @@ export default function ProposedBuyModal() {
             console.log(res);
             setNotificationData({ title: "success to proposed token", description: `${res}`, position: "bottom-right" })
         } catch (error) {
-            setNotificationData({ title: "failed to proposed token", description: "", position: "bottom-right" })
+            setNotificationData({ title: "failed to proposed token", description: `${error}`, position: "bottom-right" })
             console.log(error);
         } finally {
             setIsLoading(false);
