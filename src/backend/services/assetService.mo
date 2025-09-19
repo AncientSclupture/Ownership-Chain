@@ -9,12 +9,14 @@ import Float "mo:base/Float";
 import TrieMap "mo:base/TrieMap";
 import Validation "../utils/validation";
 import InputType "../data/inputType";
+import TransactionStorage "../storage/TransactionStorage";
 
 module {
   public class AssetServiceClass(
     assetstorage : AssetStorage.AssetStorageClass,
     ownershipstorage : OwnershipsStorage.OwnershipStorageClass,
     userstorage : UserStorage.UserStorageClass,
+    transactionstorage : TransactionStorage.TransactionStorageClass,
   ) {
 
     public func createAsset(
@@ -251,7 +253,58 @@ module {
           };
         };
       };
-    }
+    };
+
+    public func distributeDividend(
+      assetid : Text,
+      amount : Nat,
+      caller : Principal,
+    ) : async Result.Result<Text, Text> {
+
+      switch (userstorage.get(caller)) {
+        case (null) { return #err("user is not regitered") };
+        case (?user) {
+          switch (user.kyc_level.status) {
+            case (#Pending) { return #err("your account is pending") };
+            case (#Rejected) { return #err("your account is rejected") };
+            case (#Verivied) {};
+          };
+        };
+      };
+
+      switch (assetstorage.get(assetid)) {
+        case (null) { return #err("user is not regitered") };
+        case (?asset) {
+          if (not (asset.creator == caller)) {
+            return #err("this is not your asset");
+          };
+          switch (ownershipstorage.get(assetid)) {
+            case null { return #err("no ownership left") };
+            case (?ownershipMap) {
+
+              for ((owner, ownership) in ownershipMap.entries()) {
+                let dividendAmount = (amount * ownership.tokenOwned) / asset.totalToken;
+                let insertedTransaction : InputType.TransactionInput = {
+                  assetId = asset.id;
+                  from = caller;
+                  to = owner;
+                  totalPurchasedToken = ownership.tokenOwned;
+                  pricePerToken = 0;
+                  totalPrice = dividendAmount;
+                  transactionType = #Dividend;
+                  transactionStatus = #Completed;
+                  details = ?"Dividend from asset creator";
+
+                  timestamp = Time.now();
+                };
+                let _transactionid = transactionstorage.create(insertedTransaction);
+              };
+              #ok("Success to distribute dividend");
+            };
+          };
+        };
+      };
+    };
 
   };
 };
