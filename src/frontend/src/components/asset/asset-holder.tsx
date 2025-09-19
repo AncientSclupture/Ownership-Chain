@@ -22,7 +22,7 @@ export default function DevidendHolderAsset(
     return (
         <div className="space-y-8">
             <div className="p-4 md:px-8 border border-gray-300 rounded-md">
-                <h1 className="text-xl text-gray-500 py-5">Dividend Holder Statistic</h1>
+                <h1 className="text-xl text-gray-500 py-5">Dividend Holder Statistic in (%)</h1>
                 <div className="w-full">
                     <CustomizableBarChart data={holderData} />
                 </div>

@@ -216,6 +216,15 @@ export const backendService = {
         }
     },
 
+    async distributeDividend(assetid: string, amount: bigint): Promise<string> {
+        try {
+            const res = await backend.distributeDividend(assetid, amount);
+            return unwrapResult(res);
+        } catch (error) {
+            throw error;
+        }
+    },
+
     async getMyOwnerships(): Promise<Ownership[]> {
         try {
             const res = await backend.getMyOwnerShip();

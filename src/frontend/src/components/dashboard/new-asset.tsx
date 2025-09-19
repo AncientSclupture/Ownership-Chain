@@ -9,8 +9,10 @@ import { MapsLocation } from "../map-component";
 import { NotificationContext } from "../../context/NotificationContext";
 import { backendService } from "../../services/backendService";
 import { LoaderComponent } from "../LoaderComponent";
+import { useNavigate } from "react-router-dom";
 
 export function NewAsset() {
+    let navigate = useNavigate();
 
     const { adddocumentmanagement, setModalKind, adddruledetailmanagement, locationdetailmanagement } = React.useContext(ModalContext)
     const { setNotificationData } = React.useContext(NotificationContext)
@@ -74,35 +76,36 @@ export function NewAsset() {
 
     async function handleCreateAsset() {
         setIsLoading(true);
-        const locationInfo: LocationType = {
-            lat: city.lat,
-            long: city.lng,
-            details: locationdetailmanagement.data
-        }
-
-        const ruleAsset: Rule = {
-            sellSharing: isSellOwnership,
-            sellSharingNeedVote: sellOwnershipNeedVote,
-            sellSharingPrice: sellSharingPrice,
-            needDownPayment: needDonePayment,
-            minDownPaymentPercentage: mindppercent / 100,
-            downPaymentCashback: dpcashback / 100,
-            downPaymentMaturityTime: dpmaturitytime,
-            details: adddruledetailmanagement.data,
-            paymentMaturityTime: BigInt(4),
-            ownerShipMaturityTime: ownershiptime
-        }
-        const res = await backendService.createAsset(
-            name, desc, totaltoken, providedtoken, minimaltoken, maximaltoken, tokenprice,
-            locationInfo, docData, text2AssetType(assettype), text2AssetStatus(assetstatus),
-            ruleAsset
-        )
-        setNotificationData({
-            title: "asset created",
-            description: `${res}`,
-            position: "bottom-right"
-        })
         try {
+            const locationInfo: LocationType = {
+                lat: city.lat,
+                long: city.lng,
+                details: locationdetailmanagement.data
+            }
+
+            const ruleAsset: Rule = {
+                sellSharing: isSellOwnership,
+                sellSharingNeedVote: sellOwnershipNeedVote,
+                sellSharingPrice: sellSharingPrice,
+                needDownPayment: needDonePayment,
+                minDownPaymentPercentage: mindppercent / 100,
+                downPaymentCashback: dpcashback / 100,
+                downPaymentMaturityTime: dpmaturitytime,
+                details: adddruledetailmanagement.data,
+                paymentMaturityTime: BigInt(4),
+                ownerShipMaturityTime: ownershiptime
+            }
+            const res = await backendService.createAsset(
+                name, desc, totaltoken, providedtoken, minimaltoken, maximaltoken, tokenprice,
+                locationInfo, docData, text2AssetType(assettype), text2AssetStatus(assetstatus),
+                ruleAsset
+            )
+            setNotificationData({
+                title: "asset created",
+                description: `${res}`,
+                position: "bottom-right"
+            })
+            navigate(`/dashboard`);
         } catch (error) {
             setNotificationData({
                 title: "failed to create asset",

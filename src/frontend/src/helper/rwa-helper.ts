@@ -115,6 +115,18 @@ export function formatMotokoTime(nanoseconds: bigint): string {
   }).toString();
 }
 
+export function formatMotokoTimeSpecific(nanoseconds: bigint): string {
+  const ms = Number(nanoseconds / 1000000n);
+  return new Date(ms).toLocaleString("en-GB", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).replace(",", "");
+}
+
 export function unwrapResult(result: Result): string {
   if ("ok" in result) {
     return result.ok;

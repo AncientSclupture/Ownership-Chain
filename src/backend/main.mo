@@ -32,7 +32,7 @@ persistent actor {
 
   // service
   private transient let llm = LLMService.LLMServiceClass();
-  private transient let assetservice = AssetService.AssetServiceClass(assetStorage, ownershipStorage, userStorage);
+  private transient let assetservice = AssetService.AssetServiceClass(assetStorage, ownershipStorage, userStorage, transactionStorage);
   private transient let proposalservice = ProposalService.ProposalService(assetStorage, ownershipStorage, userStorage, transactionStorage, buyproposalStorage, investorStorage);
   private transient let userservice = UserService.UserServiceClass(userStorage, assetStorage, ownershipStorage, transactionStorage);
   private transient let reportservice = ReportService.ReportServiceClass(reportStorage, assetStorage, userStorage, reportactionStorage);
@@ -135,6 +135,13 @@ persistent actor {
     status : DataType.AssetStatus,
   ) : async Result.Result<Text, Text> {
     await assetservice.changeAssetStatus(id, status, msg.caller);
+  };
+
+  public shared (msg) func distributeDividend(
+    assetid : Text,
+    amount : Nat,
+  ) : async Result.Result<Text, Text> {
+    await assetservice.distributeDividend(assetid, amount, msg.caller);
   };
 
   // proposal api

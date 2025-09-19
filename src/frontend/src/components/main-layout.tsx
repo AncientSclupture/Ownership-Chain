@@ -18,6 +18,7 @@ import ProposedBuyModal from "./modal/modal-proposed-buy";
 import ProceedDpProposalModal from "./modal/modal-proceddp";
 import FinishedPaymentModal from "./modal/modal-finishedpayment";
 import SupportAssetModal from "./modal/modal-addsupport";
+import DistributeDividendModal from "./modal/modal-distributedividend";
 
 export function MainLayout({ index = false, children }: { index?: boolean, children: React.ReactNode }) {
 
@@ -52,6 +53,7 @@ export function MainLayout({ index = false, children }: { index?: boolean, child
                     { name: ModalKindEnum.proceeddp, component: <ProceedDpProposalModal /> },
                     { name: ModalKindEnum.finishedpayment, component: <FinishedPaymentModal /> },
                     { name: ModalKindEnum.supportasset, component: <SupportAssetModal /> },
+                    { name: ModalKindEnum.distriutedividend, component: <DistributeDividendModal /> },
                 ]}
             />
             <Notification />

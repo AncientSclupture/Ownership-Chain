@@ -31,6 +31,7 @@ function Asset() {
         if (!assetid) {
           return
         }
+        console.log(assetid)
         const res = await backendService.getAssetDetails(assetid)
         setData(res)
       } catch (error) {

@@ -156,6 +156,10 @@ function AssetRow({ assetdata }: { assetdata: Asset }) {
                     {getAssetStatusText(assetdata.assetStatus) !== 'Open For Sale' ? 'open' : 'close'}
                 </button>
                 <button
+                    onClick={() => {
+                        assetidmanagement.setter(assetdata.id)
+                        setModalKind(ModalKindEnum.distriutedividend)
+                    }}
                     className="px-3 py-1 rounded bg-gray-500 text-white hover:bg-gray-600 text-sm"
                 >
                     dividend

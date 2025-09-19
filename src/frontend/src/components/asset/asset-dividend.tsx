@@ -1,4 +1,4 @@
-import { formatMotokoTime } from "../../helper/rwa-helper";
+import { formatMotokoTimeSpecific } from "../../helper/rwa-helper";
 import { Transaction } from "../../types/rwa";
 import { CustomizableLineChart } from "../chart-component";
 
@@ -10,10 +10,13 @@ interface dataDividendInterface {
 export default function TotalDevidendAsset(
     { dividendData }: { dividendData: Array<Transaction> }
 ) {
-    let dividendMapData: dataDividendInterface[] | undefined = dividendData.map((o) => ({
-        time: formatMotokoTime(o.timestamp),
-        price: Number(o.totalPrice),
-    }));
+    let dividendMapData: dataDividendInterface[] | undefined = dividendData
+        .sort((a, b) => Number(a.timestamp - b.timestamp))
+        .map((o) => ({
+            time: formatMotokoTimeSpecific(o.timestamp),
+            price: Number(o.totalPrice),
+        }));
+
 
     return (
         <div className="space-y-8">

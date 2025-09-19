@@ -125,7 +125,7 @@ module {
 
           for ((_, tx) in transactionsstorage.getEntries()) {
             transactionList := Array.append(transactionList, [tx]);
-            if (tx.transactionType == #Dividend) {
+            if (tx.transactionType == #Dividend and tx.assetId == assetId) {
               dividendList := Array.append(dividendList, [tx]);
             };
           };

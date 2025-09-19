@@ -15,6 +15,7 @@ export enum ModalKindEnum {
     proceeddp = "proceeddp",
     finishedpayment = "finishedpayment",
     supportasset = "supportasset",
+    distriutedividend = "distriutedividend",
 }
 
 export type ModalContextType = {
