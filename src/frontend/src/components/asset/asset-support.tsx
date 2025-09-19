@@ -4,7 +4,7 @@ import { backendService } from "../../services/backendService";
 import { useParams } from "react-router-dom";
 import { AssetGuarantee, AssetSponsorship } from "../../types/rwa";
 import { NotificationContext } from "../../context/NotificationContext";
-import { formatMotokoTime } from "../../helper/rwa-helper";
+import { formatMotokoTime, ReduceCharacters } from "../../helper/rwa-helper";
 
 export default function AssetSupport() {
     const { assetid } = useParams<{ assetid: string }>();
@@ -51,7 +51,7 @@ export default function AssetSupport() {
                                 className="flex justify-between items-center p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50"
                             >
                                 <div>
-                                    <p className="font-medium text-gray-800">{s.content}</p>
+                                    <p className="font-medium text-gray-800">{ReduceCharacters(s.content, 200)}</p>
                                     <p className="text-sm text-gray-500">Asset ID: {s.assetid}</p>
                                     <p className="text-xs text-gray-400">
                                         {formatMotokoTime(s.timestamp)}
@@ -82,7 +82,7 @@ export default function AssetSupport() {
                                 className="flex justify-between items-center p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50"
                             >
                                 <div>
-                                    <p className="font-medium text-gray-800">{g.content}</p>
+                                    <p className="font-medium text-gray-800">{ReduceCharacters(g.content, 200)}</p>
                                     <p className="text-sm text-gray-500">Asset ID: {g.assetid}</p>
                                     <p className="text-xs text-gray-400">
                                         {formatMotokoTime(g.timestamp)}
