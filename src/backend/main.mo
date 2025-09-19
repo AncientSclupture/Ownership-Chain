@@ -78,6 +78,10 @@ persistent actor {
     await userservice.getAssetFullDetails(assetId);
   };
 
+  public shared (msg) func getIncome(assetId: Text): async ?[DataType.Transaction]{
+    await userservice.getMyIncome(msg.caller, assetId);
+  };
+
   public shared (msg) func getUserPublicSignature() : async ?Text {
     switch (userStorage.get(msg.caller)) {
       case (null) { return null };

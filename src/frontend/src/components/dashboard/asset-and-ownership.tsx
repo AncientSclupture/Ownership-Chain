@@ -76,7 +76,7 @@ function OwnershipRow({ ownershipdata }: { ownershipdata: Ownership }) {
                 <div>{ownershipdata.purchasePrice}</div>
                 <div>{ownershipdata.tokenOwned}</div>
                 <div>{ownershipdata.maturityDate === BigInt(0) ? 'no expired date' : formatMotokoTime(ownershipdata.maturityDate)}</div>
-                <div className="flex gap-2 flex-col md:flex-row">
+                <div className="gap-2 flex-col md:flex-row hidden">
                     <button
                         className="px-3 py-1 rounded bg-gray-500 text-white hover:bg-gray-600 text-sm"
                     >
@@ -126,7 +126,7 @@ function OwnershipTable({ ownershipdata }: { ownershipdata: Ownership[] }) {
                         <div>Price</div>
                         <div>Token</div>
                         <div>Expiry Date</div>
-                        <div>Action</div>
+                        {/* <div>Action</div> */}
                     </div>
                     {ownershipdata.map((d, idx) =>
                         <OwnershipRow ownershipdata={d} key={idx} />
