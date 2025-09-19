@@ -34,28 +34,27 @@ module {
     ) : async Result.Result<Text, Text> {
 
       // debug only
-      switch (userstorage.get(caller)) {
-        case (null) {};
-        case (?user) {
-          switch (user.kyc_level.status) {
-            case (#Verivied) {};
-            case (#Pending) {};
-            case (#Rejected) {};
-          };
-        };
-      };
-
-      // user validation
       // switch (userstorage.get(caller)) {
-      //   case (null) { return #err("user is not regitered") };
+      //   case (null) {};
       //   case (?user) {
       //     switch (user.kyc_level.status) {
-      //       case (#Pending) { return #err("your account is pending") };
-      //       case (#Rejected) { return #err("your account is rejected") };
       //       case (#Verivied) {};
+      //       case (#Pending) {};
+      //       case (#Rejected) {};
       //     };
       //   };
       // };
+
+      switch (userstorage.get(caller)) {
+        case (null) { return #err("user is not regitered") };
+        case (?user) {
+          switch (user.kyc_level.status) {
+            case (#Pending) { return #err("your account is pending") };
+            case (#Rejected) { return #err("your account is rejected") };
+            case (#Verivied) {};
+          };
+        };
+      };
 
       // sanity asset input validation
       switch (

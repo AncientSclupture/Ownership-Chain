@@ -7,7 +7,7 @@ import OverviewAsset from "../components/asset/asset-overview";
 import TokenAsset from "../components/asset/token-asset";
 import DevidendHolderAsset from "../components/asset/asset-holder";
 import TotalDevidendAsset from "../components/asset/asset-dividend";
-import AccessInfoAsset from "../components/asset/asset-access-info";
+import AssetSupport from "../components/asset/asset-support";
 import { Asset as AssetData, Ownership, Transaction } from "../types/rwa";
 import { backendService } from "../services/backendService";
 import { LoaderComponent } from "../components/LoaderComponent";
@@ -69,7 +69,7 @@ function Asset() {
               { name: assetdetailopt.token, component: <TokenAsset assetData={data[0].asset} ownershipData={data[0].ownerships} /> },
               { name: assetdetailopt.devidendholder, component: <DevidendHolderAsset ownershipData={data[0].ownerships} /> },
               { name: assetdetailopt.totaldevidend, component: <TotalDevidendAsset dividendData={data[0].dividends} /> },
-              { name: assetdetailopt.accessinfo, component: <AccessInfoAsset assetData={data[0].asset} /> },
+              { name: assetdetailopt.support, component: <AssetSupport /> },
             ]}
           />
         </div>

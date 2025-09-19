@@ -1,6 +1,7 @@
 import LLMService "services/llmService";
 import Text "mo:base/Text";
 import Result "mo:base/Result";
+import Time "mo:base/Time";
 import UserStorage "storage/UserStorage";
 import TransactionStorage "storage/TransactionStorage";
 import OwnershipsStorage "storage/ownershipsStorage";
@@ -14,6 +15,8 @@ import DataType "data/dataType";
 import ReportService "services/reportService";
 import ReportsStorage "storage/ReportsStorage";
 import ReportActionsStrorage "storage/ReportActionsStrorage";
+import AssetsuportService "services/assetsuportService";
+import AssetSuportStorage "storage/AssetSuportStorage";
 
 persistent actor {
   // storage
@@ -25,6 +28,7 @@ persistent actor {
   private transient let investorStorage = InvestorProposalsStorage.InvestorProposalStorageClass();
   private transient let reportStorage = ReportsStorage.ReportStorageClass();
   private transient let reportactionStorage = ReportActionsStrorage.ReportActionStorageClass();
+  private transient let supportStorage = AssetSuportStorage.AssetSuportStorageClass();
 
   // service
   private transient let llm = LLMService.LLMServiceClass();
@@ -32,6 +36,7 @@ persistent actor {
   private transient let proposalservice = ProposalService.ProposalService(assetStorage, ownershipStorage, userStorage, transactionStorage, buyproposalStorage, investorStorage);
   private transient let userservice = UserService.UserServiceClass(userStorage, assetStorage, ownershipStorage, transactionStorage);
   private transient let reportservice = ReportService.ReportServiceClass(reportStorage, assetStorage, userStorage, reportactionStorage);
+  private transient let supportservice = AssetsuportService.AssetSuportServiceClass(supportStorage, userStorage);
 
   // llm api
   public func askAI(question : Text) : async Text {
@@ -219,9 +224,70 @@ persistent actor {
     reportStorage.getReportbyid(id);
   };
 
-  // action report api
   public shared (msg) func actionReport(id : Text, clarification : Text, signaturedhash : ?Text, submissionsignaturedhash : ?Text) : async Result.Result<Text, Text> {
     await reportservice.solveReport(msg.caller, id, clarification, signaturedhash, submissionsignaturedhash);
+  };
+
+  // asset support api
+  public shared (msg) func initializeNewAssetSponsor(
+    assetid : Text,
+    content : Text,
+    trustGuatantee : Nat,
+  ) : async Result.Result<Text, Text> {
+    let input : DataType.AssetSponsorship = {
+      assetid = assetid;
+      content = content;
+      trustGuatantee = trustGuatantee;
+      timestamp = Time.now();
+    };
+    await supportservice.initializeNewAssetSponsor(input, msg.caller);
+  };
+
+  public shared (msg) func addNewSponsor(
+    assetid : Text,
+    content : Text,
+    trustGuatantee : Nat,
+  ) : async Result.Result<Text, Text> {
+
+    let now = Time.now();
+
+    let input : DataType.AssetSponsorship = {
+      assetid = assetid;
+      content = content;
+      trustGuatantee = trustGuatantee;
+      timestamp = now;
+    };
+    await supportservice.addNewSponsor(assetid, input, msg.caller);
+  };
+
+  public shared (msg) func createAssetGuarantee(
+    assetid : Text,
+    content : Text,
+    amount : Nat,
+  ) : async Result.Result<Text, Text> {
+    let input : DataType.AssetGuarantee = {
+      assetid = assetid;
+      content = content;
+      amount = amount;
+      timestamp = Time.now();
+    };
+    await supportservice.createAssetGuarantee(input, msg.caller);
+  };
+
+  public func getAllSponsor() : async [DataType.AssetSponsorship] {
+    await supportservice.getAllSponsorships();
+  };
+
+  public func getAllAssetGuarantees() : async [DataType.AssetGuarantee] {
+    await supportservice.getAllAssetGuarantees();
+  };
+
+  public func getAssetGuarantee(assetid : Text) : async ?DataType.AssetGuarantee {
+    await supportservice.getAssetGuarantee(assetid);
+  };
+
+  public func getSponsorsByAssetId(assetid : Text) : async [DataType.AssetSponsorship] {
+    await supportservice.getSponsorsByAssetId(assetid);
   };
 
 };

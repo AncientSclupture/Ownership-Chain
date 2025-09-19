@@ -235,6 +235,20 @@ module {
     created : Int;
   };
 
+  public type AssetSponsorship = {
+    assetid: Text;
+    content: Text;
+    trustGuatantee: Nat;
+    timestamp: Int;
+  };
+
+  public type AssetGuarantee = {
+    assetid: Text;
+    content: Text;
+    amount: Nat;
+    timestamp: Int;
+  };
+
   // custom result type
   public type MyProposalResult = {
     assetId : Text;

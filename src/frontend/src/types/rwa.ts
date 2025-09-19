@@ -23,6 +23,18 @@ export interface Asset {
   'minTokenPurchased' : bigint,
   'riskScore' : number,
 }
+export interface AssetGuarantee {
+  'content' : string,
+  'assetid' : string,
+  'timestamp' : bigint,
+  'amount' : bigint,
+}
+export interface AssetSponsorship {
+  'content' : string,
+  'assetid' : string,
+  'trustGuatantee' : bigint,
+  'timestamp' : bigint,
+}
 export type AssetStatus = { 'Open' : null } |
   { 'Inactive' : null } |
   { 'Active' : null } |
@@ -160,6 +172,7 @@ export interface _SERVICE {
     [string, string, [] | [string], [] | [string]],
     Result
   >,
+  'addNewSponsor' : ActorMethod<[string, string, bigint, bigint], Result>,
   'approveBuyProposal' : ActorMethod<[string], Result>,
   'approveInvestorProposal' : ActorMethod<[string], Result>,
   'askAI' : ActorMethod<[string], string>,
@@ -181,6 +194,10 @@ export interface _SERVICE {
     ],
     Result
   >,
+  'createAssetGuarantee' : ActorMethod<
+    [string, string, bigint, bigint],
+    Result
+  >,
   'createIvestorProposal' : ActorMethod<
     [string, Principal, bigint, bigint],
     Result
@@ -191,7 +208,9 @@ export interface _SERVICE {
   >,
   'finishTheInvitation' : ActorMethod<[string, bigint], Result>,
   'finishedPayment' : ActorMethod<[string, bigint], Result>,
+  'getAllAssetGuarantees' : ActorMethod<[], Array<AssetGuarantee>>,
   'getAllAssets' : ActorMethod<[], Array<Asset>>,
+  'getAllSponsor' : ActorMethod<[], Array<AssetSponsorship>>,
   'getAssetById' : ActorMethod<[string], [] | [Asset]>,
   'getAssetFullDetails' : ActorMethod<
     [string],
@@ -204,6 +223,7 @@ export interface _SERVICE {
       }
     ]
   >,
+  'getAssetGuarantee' : ActorMethod<[string], [] | [AssetGuarantee]>,
   'getAssetSignature' : ActorMethod<[string], [] | [Array<DocumentHash>]>,
   'getAssetTotalCount' : ActorMethod<[], bigint>,
   'getAssetbyRange' : ActorMethod<[bigint, bigint], Array<Asset>>,
@@ -214,8 +234,13 @@ export interface _SERVICE {
   'getMyProposal' : ActorMethod<[], [] | [Array<ProposalResult>]>,
   'getProposalbyAssetId' : ActorMethod<[string], [] | [Array<ProposalResult>]>,
   'getReportById' : ActorMethod<[string], Array<Report>>,
+  'getSponsorsByAssetId' : ActorMethod<[string], Array<AssetSponsorship>>,
   'getUserPublicKey' : ActorMethod<[Principal], [] | [string]>,
   'getUserPublicSignature' : ActorMethod<[], [] | [string]>,
+  'initializeNewAssetSponsor' : ActorMethod<
+    [string, string, bigint, bigint],
+    Result
+  >,
   'proceedDownPayment' : ActorMethod<[bigint, string], Result>,
   'proposedBuyToken' : ActorMethod<[string, bigint, bigint], Result>,
   'registUser' : ActorMethod<

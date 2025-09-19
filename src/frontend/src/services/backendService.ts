@@ -1,7 +1,7 @@
 import { backend } from "../../../declarations/backend";
 import { Asset, AssetStatus, AssetType, DocumentHash, IdentityNumberType, LocationType, Rule, UserOverviewResult } from "../../../declarations/backend/backend.did";
 import { unwrapResult } from "../helper/rwa-helper";
-import { Ownership, ProposalResult, Report, ReportType, Transaction, TypeReportEvidence } from "../types/rwa";
+import { AssetGuarantee, AssetSponsorship, Ownership, ProposalResult, Report, ReportType, Transaction, TypeReportEvidence } from "../types/rwa";
 import type { Principal } from "@dfinity/principal";
 
 export const backendService = {
@@ -336,6 +336,82 @@ export const backendService = {
         } catch (error) {
             throw (error);
         }
-    }
+    },
+
+    async initializeNewAssetSponsor(
+        assetid: string,
+        content: string,
+        trustGuatantee: bigint,
+    ): Promise<string> {
+        try {
+            const res = await backend.initializeNewAssetSponsor(assetid, content, trustGuatantee);
+            return unwrapResult(res);
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    async addNewSponsor(
+        assetid: string,
+        content: string,
+        trustGuatantee: bigint,
+    ): Promise<string> {
+        try {
+            const res = await backend.addNewSponsor(assetid, content, trustGuatantee);
+            return unwrapResult(res);
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    async createAssetGuarantee(
+        assetid: string,
+        content: string,
+        amount: bigint,
+    ): Promise<string> {
+        try {
+            const res = await backend.createAssetGuarantee(assetid, content, amount);
+            return unwrapResult(res);
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    async getAllSponsor(): Promise<AssetSponsorship[]> {
+        try {
+            const res = await backend.getAllSponsor();
+            return res;
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    async getAllAssetGuarantees(): Promise<AssetGuarantee[]> {
+        try {
+            const res = await backend.getAllAssetGuarantees();
+            return res;
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    async getAssetGuarantee(assetId: string): Promise<[] | [AssetGuarantee]> {
+        try {
+            const res = await backend.getAssetGuarantee(assetId);
+            return res;
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    async getSponsorsByAssetId(assetId: string): Promise<AssetSponsorship[]> {
+        try {
+            const res = await backend.getSponsorsByAssetId(assetId);
+            return res;
+        } catch (error) {
+            throw (error);
+        }
+    },
+
 
 };

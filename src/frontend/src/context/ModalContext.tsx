@@ -14,6 +14,7 @@ export enum ModalKindEnum {
     proposedbuytoken = "proposedbuytoken",
     proceeddp = "proceeddp",
     finishedpayment = "finishedpayment",
+    supportasset = "supportasset",
 }
 
 export type ModalContextType = {

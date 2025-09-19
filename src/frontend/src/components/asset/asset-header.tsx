@@ -1,4 +1,4 @@
-import { Bot, ShoppingCart } from "lucide-react";
+import { Bot, Handshake, ShoppingCart } from "lucide-react";
 import { Asset } from "../../types/rwa";
 import { getAssetStatusText } from "../../helper/rwa-helper";
 import React from "react";
@@ -46,7 +46,7 @@ export function AssetMainInfo(
                 <p className="p-2 bg-gray-300 rounded-md">{getAssetStatusText(assetData.assetStatus)}</p>
                 <p className="text-xl">{assetData.pricePerToken} ICP</p>
             </div>
-            <div className="w-full flex items-center space-x-4 pt-8">
+            <div className="w-full flex items-center space-x-4 pt-4">
                 <div className="bg-gray-100 rounded-md flex flex-col items-center justify-center p-5 w-full">
                     <h1 className="text-2xl">{assetData.tokenLeft}</h1>
                     <p>Token Left</p>
@@ -56,7 +56,7 @@ export function AssetMainInfo(
                     <p>Total Token</p>
                 </div>
             </div>
-            <div className="py-5 space-y-3">
+            <div className="py-4 space-y-2">
                 <button
                     onClick={() => setModalKind(ModalKindEnum.proposedbuytoken)}
                     className="flex items-center space-x-3 text-white background-dark p-2 w-full justify-center"
@@ -67,6 +67,10 @@ export function AssetMainInfo(
                 <button className="flex items-center space-x-3 p-2 w-full justify-center border border-gray-300">
                     <Bot color="gray" />
                     <p className="text-gray-700">AI Examiner</p>
+                </button>
+                  <button onClick={() => setModalKind(ModalKindEnum.supportasset)} className="flex items-center space-x-3 p-2 w-full justify-center border border-gray-300">
+                    <Handshake color="gray" />
+                    <p className="text-gray-700">support asset</p>
                 </button>
             </div>
         </div>

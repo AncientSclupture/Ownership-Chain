@@ -17,6 +17,7 @@ import ChangeAssetStatusModal from "./modal/modal-change-asset-status";
 import ProposedBuyModal from "./modal/modal-proposed-buy";
 import ProceedDpProposalModal from "./modal/modal-proceddp";
 import FinishedPaymentModal from "./modal/modal-finishedpayment";
+import SupportAssetModal from "./modal/modal-addsupport";
 
 export function MainLayout({ index = false, children }: { index?: boolean, children: React.ReactNode }) {
 
@@ -50,6 +51,7 @@ export function MainLayout({ index = false, children }: { index?: boolean, child
                     { name: ModalKindEnum.proposedbuytoken, component: <ProposedBuyModal /> },
                     { name: ModalKindEnum.proceeddp, component: <ProceedDpProposalModal /> },
                     { name: ModalKindEnum.finishedpayment, component: <FinishedPaymentModal /> },
+                    { name: ModalKindEnum.supportasset, component: <SupportAssetModal /> },
                 ]}
             />
             <Notification />
