@@ -36,7 +36,7 @@ function App() {
               {/* authentication slash */}
               <Route path="/protected-dividend" element={<DividendScreen />} />
               <Route path="/protected-dashboard" element={<DashboardScreen />} />
-              <Route path="/protected-dashboard" element={<ProfileScreen />} />
+              <Route path="/protected-profile" element={<ProfileScreen />} />
             </Routes>
           </Router>
         </ModalProvider>

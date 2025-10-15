@@ -1,5 +1,9 @@
-export function TransactionScreen(){
-    return(
-        <div>TransactionScreen</div>
+import { MainLayout } from "../../components/main-layout"
+
+export function TransactionScreen() {
+    return (
+        <MainLayout needProtection={true}>
+            <div>TransactionScreen</div>
+        </MainLayout>
     );
 }

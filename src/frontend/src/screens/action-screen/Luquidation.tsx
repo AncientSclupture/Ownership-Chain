@@ -1,5 +1,10 @@
-export function LiquidationScreen(){
-    return(
-        <div>LiquidationScreen</div>
+import { MainLayout } from "../../components/main-layout"
+
+
+export function LiquidationScreen() {
+    return (
+        <MainLayout needProtection={true}>
+            <div>LiquidationScreen</div>
+        </MainLayout>
     );
 }
