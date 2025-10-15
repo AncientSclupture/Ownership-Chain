@@ -1,308 +1,418 @@
-import LLMService "services/llmService";
-import Text "mo:base/Text";
-import Result "mo:base/Result";
-import Time "mo:base/Time";
-import UserStorage "storage/UserStorage";
-import TransactionStorage "storage/TransactionStorage";
-import OwnershipsStorage "storage/ownershipsStorage";
-import BuyProposalsStorage "storage/BuyProposalsStorage";
-import InvestorProposalsStorage "storage/InvestorProposalsStorage";
-import AssetService "services/assetService";
 import AssetStorage "storage/AssetStorage";
-import ProposalService "services/proposalService";
-import UserService "services/userService";
+import AssetProposalStorage "storage/AssetProposalStorage";
+import ComplaintStorage "storage/ComplaintStorage";
+import OnwershipStorage "storage/OnwershipStorage";
+import TransactionStorage "storage/TransactionStorage";
+import TreasuryStorage "storage/TreasuryStorage";
 import DataType "data/dataType";
-import ReportService "services/reportService";
-import ReportsStorage "storage/ReportsStorage";
-import ReportActionsStrorage "storage/ReportActionsStrorage";
-import AssetsuportService "services/assetsuportService";
-import AssetSuportStorage "storage/AssetSuportStorage";
+import InputType "data/inputType";
+import Principal "mo:base/Principal";
+import Time "mo:base/Time";
+import Float "mo:base/Float";
 
 persistent actor {
-  // storage
   private transient let assetStorage = AssetStorage.AssetStorageClass();
-  private transient let userStorage = UserStorage.UserStorageClass();
+  private transient let assetproposalStorage = AssetProposalStorage.AssetProposalClass();
+  private transient let complaintStorage = ComplaintStorage.ComplaintStorageClass();
+  private transient let ownershipStorage = OnwershipStorage.OwnershipStorageClass();
   private transient let transactionStorage = TransactionStorage.TransactionStorageClass();
-  private transient let ownershipStorage = OwnershipsStorage.OwnershipStorageClass();
-  private transient let buyproposalStorage = BuyProposalsStorage.BuyProposalStorageClass();
-  private transient let investorStorage = InvestorProposalsStorage.InvestorProposalStorageClass();
-  private transient let reportStorage = ReportsStorage.ReportStorageClass();
-  private transient let reportactionStorage = ReportActionsStrorage.ReportActionStorageClass();
-  private transient let supportStorage = AssetSuportStorage.AssetSuportStorageClass();
+  private transient let treasuryStorage = TreasuryStorage.TreasuryStorageClass();
 
-  // service
-  private transient let llm = LLMService.LLMServiceClass();
-  private transient let assetservice = AssetService.AssetServiceClass(assetStorage, ownershipStorage, userStorage, transactionStorage);
-  private transient let proposalservice = ProposalService.ProposalService(assetStorage, ownershipStorage, userStorage, transactionStorage, buyproposalStorage, investorStorage);
-  private transient let userservice = UserService.UserServiceClass(userStorage, assetStorage, ownershipStorage, transactionStorage);
-  private transient let reportservice = ReportService.ReportServiceClass(reportStorage, assetStorage, userStorage, reportactionStorage);
-  private transient let supportservice = AssetsuportService.AssetSuportServiceClass(supportStorage, userStorage, transactionStorage, assetStorage, ownershipStorage);
+  // 1. User dapat membuat asset
+  public shared (msg) func createAsset(input : InputType.CreateAssetInputApi) : async Text {
+    let caller = msg.caller;
 
-  // llm api
-  public func askAI(question : Text) : async Text {
-    await llm.getInfo(question);
-  };
+    let asset : InputType.CreateAssetInput = {
+      creator = caller;
+      name = input.name;
+      description = input.description;
 
-  // user api
-  public shared (msg) func registUser(
-    fullName : Text,
-    lastName : Text,
-    phone : Text,
-    country : Text,
-    city : Text,
-    userIDNumber : Text,
-    userIdentity : DataType.IdentityNumberType,
-    publicsignature : Text,
-  ) : async Result.Result<Text, Text> {
-    await userservice.registUser(fullName, lastName, phone, country, city, userIDNumber, userIdentity, publicsignature, msg.caller);
-  };
+      totalToken = input.totalToken;
+      tokenLeft = input.tokenLeft;
+      pendingToken = 0;
+      minTokenPurchased = input.minTokenPurchased;
+      maxTokenPurchased = input.maxTokenPurchased;
+      pricePerToken = input.pricePerToken;
 
-  public shared (msg) func getMyAssets() : async [DataType.Asset] {
-    await userservice.getMyAssets(msg.caller);
-  };
+      locationInfo = input.locationInfo;
+      documentHash = input.documentHash;
 
-  public shared (msg) func getMyOwnerShip() : async [DataType.Ownership] {
-    await userservice.getMyOwnerShip(msg.caller);
-  };
+      assetType = input.assetType;
+      assetStatus = input.assetStatus;
+      rule = input.rule;
 
-  public shared (msg) func getMyProfiles() : async ?DataType.UserOverviewResult {
-    await userservice.getMyProfiles(msg.caller);
-  };
-
-  public func getAssetFullDetails(assetId : Text) : async ?{
-    asset : DataType.Asset;
-    ownerships : [DataType.Ownership];
-    transactions : [DataType.Transaction];
-    dividends : [DataType.Transaction];
-  } {
-    await userservice.getAssetFullDetails(assetId);
-  };
-
-  public shared (msg) func getIncome(assetId : Text) : async ?[DataType.Transaction] {
-    await userservice.getMyIncome(msg.caller, assetId);
-  };
-
-  public shared (msg) func getUserPublicSignature() : async ?Text {
-    switch (userStorage.get(msg.caller)) {
-      case (null) { return null };
-      case (?user) { return ?user.publickey };
+      ownershipMaturityTime = input.ownershipMaturityTime;
     };
-  };
 
-  public func getUserPublicKey(user : Principal) : async ?Text {
-    switch (userStorage.get(user)) {
-      case (null) { return null };
-      case (?user) { return ?user.publickey };
+    // Buat asset baru
+    let assetId = assetStorage.create(asset);
+
+    // Buat ownership untuk creator (initial holder)
+    let ownershipInput : InputType.CreateOwnershipInput = {
+      assetid = assetId;
+      owner = caller;
+      tokenhold = input.totalToken - input.tokenLeft;
+      openForSale = false;
+      buyingprice = 0;
+      upuntil = 0;
+      holdat = Time.now();
     };
+
+    let _ = ownershipStorage.addNewHolder(assetId, ownershipInput);
+
+    return "Asset created successfully with id: " # assetId;
   };
 
-  // asset api
-  public func getAllAssets() : async [DataType.Asset] {
-    assetStorage.getAll();
-  };
-
-  public func getAssetById(assetId : Text) : async ?DataType.Asset {
-    assetStorage.get(assetId);
-  };
-
-  public func getAssetbyRange(startIndex : Nat, endIndex : Nat) : async [DataType.Asset] {
-    assetStorage.getRange(startIndex, endIndex);
-  };
-
-  public func getAssetTotalCount() : async Nat {
-    assetStorage.getTotalCount();
-  };
-
-  public func seacrhAsset(name : Text, assetType : ?DataType.AssetStatus) : async ?DataType.Asset {
-    await assetservice.searchAssetByNameTypeStatus(name, assetType);
-  };
-
-  public shared (msg) func createAsset(
-    name : Text,
-    description : Text,
-    totalToken : Nat,
-    providedToken : Nat,
-    minTokenPurchased : Nat,
-    maxTokenPurchased : Nat,
+  // 2. User dapat melakukan proposed asset (untuk membeli token)
+  public shared (msg) func proposeAssetPurchase(
+    assetid : Text,
+    token : Nat,
     pricePerToken : Nat,
-    locationInfo : DataType.LocationType,
-    documentHash : [DataType.DocumentHash],
-    assetType : DataType.AssetType,
-    assetStatus : DataType.AssetStatus,
-    rule : DataType.Rule,
-  ) : async Result.Result<Text, Text> {
-    await assetservice.createAsset(name, description, totalToken, providedToken, minTokenPurchased, maxTokenPurchased, pricePerToken, locationInfo, documentHash, assetType, assetStatus, rule, msg.caller);
-  };
+  ) : async Text {
+    let caller = msg.caller;
 
-  public shared (msg) func changeAssetStatus(
-    id : Text,
-    status : DataType.AssetStatus,
-  ) : async Result.Result<Text, Text> {
-    await assetservice.changeAssetStatus(id, status, msg.caller);
-  };
+    // Validasi asset exist
+    switch (assetStorage.get(assetid)) {
+      case (null) { return "Asset not found" };
+      case (?asset) {
+        // Validasi token availability
+        if (asset.tokenLeft < token) {
+          return "Insufficient tokens available";
+        };
 
-  public shared (msg) func distributeDividend(
-    assetid : Text,
-    amount : Nat,
-  ) : async Result.Result<Text, Text> {
-    await assetservice.distributeDividend(assetid, amount, msg.caller);
-  };
+        // Validasi min/max token
+        if (token < asset.minTokenPurchased or token > asset.maxTokenPurchased) {
+          return "Token amount must be between " # debug_show (asset.minTokenPurchased) # " and " # debug_show (asset.maxTokenPurchased);
+        };
 
-  // proposal api
-  public shared (msg) func proposedBuyToken(
-    assetId : Text,
-    amount : Nat,
-    pricePerToken : Nat,
-  ) : async Result.Result<Text, Text> {
-    await proposalservice.proposedBuyToken(assetId, amount, pricePerToken, msg.caller);
-  };
+        // Hitung total DP (misalnya 20% dari total price)
+        let totalPrice = token * pricePerToken;
+        let dpAmount = totalPrice * 20 / 100;
 
-  public shared (msg) func proceedDownPayment(
-    price : Nat,
-    buyProposalId : Text,
-  ) : async Result.Result<Text, Text> {
-    await proposalservice.proceedDownPayment(price, buyProposalId, msg.caller);
-  };
+        // Simpan DP ke treasury
+        let treasuryInput : InputType.CreateTreasuryLedgerInput = {
+          assetid = assetid;
+          description = "Down payment for proposal purchase of " # debug_show (token) # " tokens";
+          treasuryledgerType = #Donepayment;
+          priceamount = dpAmount;
+          from = caller;
+        };
 
-  public shared (msg) func finishedPayment(
-    proposalId : Text,
-    price : Int,
-  ) : async Result.Result<Text, Text> {
-    await proposalservice.finishedPayment(proposalId, price, msg.caller);
-  };
+        let _ = treasuryStorage.addNewTreasury(treasuryInput);
 
-  public shared (msg) func approveBuyProposal(
-    buyProposalId : Text
-  ) : async Result.Result<Text, Text> {
-    await proposalservice.approveBuyProposal(buyProposalId, msg.caller);
-  };
+        // Buat proposal
+        let proposalInput : InputType.AssetProposalInput = {
+          from = caller;
+          assetid = assetid;
+          token = token;
+          pricePerToken = pricePerToken;
+        };
 
-  public shared (msg) func createIvestorProposal(
-    assetId : Text,
-    incomingInvestor : Principal,
-    amount : Nat,
-    pricePerToken : Nat,
-  ) : async Result.Result<Text, Text> {
-    await proposalservice.createIvestorProposal(assetId, incomingInvestor, amount, pricePerToken, msg.caller);
-  };
+        let (msg, success) = assetproposalStorage.initiateProposal(proposalInput);
 
-  public shared (msg) func approveInvestorProposal(
-    investorProposalId : Text
-  ) : async Result.Result<Text, Text> {
-    await proposalservice.approveInvestorProposal(investorProposalId, msg.caller);
-  };
-
-  public shared (msg) func finishTheInvitation(
-    investorProposalId : Text,
-    price : Nat,
-  ) : async Result.Result<Text, Text> {
-    await proposalservice.finishTheInvitation(investorProposalId, price, msg.caller);
-  };
-
-  public func getProposalbyAssetId(
-    assetId : Text
-  ) : async ?[DataType.ProposalResult] {
-    await proposalservice.getProposalbyAssetId(assetId);
-  };
-
-  public shared (msg) func getMyProposal() : async ?[DataType.ProposalResult] {
-    await proposalservice.getMyProposal(msg.caller);
-  };
-
-  // report api
-  public func getAssetSignature(assetId : Text) : async ?[DataType.DocumentHash] {
-    switch (assetStorage.get(assetId)) {
-      case (null) return null;
-      case (?asset) { return ?asset.documentHash };
+        if (success) {
+          return msg # " - DP of " # debug_show (dpAmount) # " stored in treasury";
+        } else {
+          return msg;
+        };
+      };
     };
   };
 
-  public shared (msg) func getMyAssetReport() : async [DataType.Report] {
-    await reportservice.getMyAssetReport(msg.caller);
-  };
-
-  public shared (msg) func createReportAsset(
-    content : Text,
-    description : Text,
-    targetid : Text,
-    evidence : ?DataType.TypeReportEvidence,
-    reporttype : DataType.ReportType,
-  ) : async Result.Result<Text, Text> {
-    await reportservice.createReport(msg.caller, content, description, targetid, evidence, reporttype);
-  };
-
-  public shared func getReportById(id : Text) : async [DataType.Report] {
-    reportStorage.getReportbyid(id);
-  };
-
-  public shared (msg) func actionReport(id : Text, clarification : Text, signaturedhash : ?Text, submissionsignaturedhash : ?Text) : async Result.Result<Text, Text> {
-    await reportservice.solveReport(msg.caller, id, clarification, signaturedhash, submissionsignaturedhash);
-  };
-
-  // asset support api
-  public shared (msg) func initializeNewAssetSponsor(
+  // 3. User dapat melakukan voting (untuk holder di asset yang sama)
+  public shared (msg) func voteProposal(
     assetid : Text,
-    content : Text,
-    trustGuatantee : Nat,
-  ) : async Result.Result<Text, Text> {
-    let input : DataType.AssetSponsorship = {
+    proposalid : Text,
+  ) : async Text {
+    let caller = msg.caller;
+
+    // Check apakah user adalah holder di asset ini
+    switch (ownershipStorage.checkPartOfHolder(assetid, caller)) {
+      case (null) { return "You must be a token holder to vote" };
+      case (?ownership) {
+        // Vote value berdasarkan jumlah token yang dimiliki
+        let voteValue = Float.fromInt(ownership.tokenhold);
+
+        let (msg, _success) = assetproposalStorage.voteProposal(assetid, proposalid, caller, voteValue);
+        return msg;
+      };
+    };
+  };
+
+  // 4. User dapat melakukan finished payment (setelah proposal disetujui)
+  public shared (msg) func finishPayment(
+    assetid : Text,
+    proposalid : Text,
+  ) : async Text {
+    let caller = msg.caller;
+
+    // Get proposal
+    switch (assetproposalStorage.getProposal(assetid, proposalid)) {
+      case (null) { return "Proposal not found" };
+      case (?proposal) {
+        // Validasi caller adalah pembuat proposal
+        if (proposal.from != caller) {
+          return "Only proposal creator can finish payment";
+        };
+
+        // Get asset untuk validasi
+        switch (assetStorage.get(assetid)) {
+          case (null) { return "Asset not found" };
+          case (?asset) {
+            let totalPrice = proposal.token * proposal.pricePerToken;
+            let dpAmount = totalPrice * 20 / 100;
+            let remainingPayment : Nat = if (totalPrice >= dpAmount) {
+              totalPrice - dpAmount;
+            } else { 0 };
+
+            // Buat transaksi untuk remaining payment
+            let txInput : InputType.TransactionInput = {
+              assetid = assetid;
+              to = asset.creator;
+              from = caller;
+              totalprice = remainingPayment;
+              transactionType = #Donepayment;
+              status = #Done;
+            };
+
+            let txMsg = transactionStorage.createTransaction(txInput);
+
+            // Transfer ownership ke buyer
+            let ownershipInput : InputType.CreateOwnershipInput = {
+              assetid = assetid;
+              owner = caller;
+              tokenhold = proposal.token;
+              openForSale = false;
+              buyingprice = proposal.pricePerToken;
+              upuntil = Time.now() + asset.ownershipMaturityTime;
+              holdat = Time.now();
+            };
+
+            let _ = ownershipStorage.addNewHolder(assetid, ownershipInput);
+
+            return "Payment completed successfully. " # txMsg;
+          };
+        };
+      };
+    };
+  };
+
+  // 5. User dapat mengambil DP cashback (jika proposal ditolak)
+  public shared (msg) func withdrawDPCashback(
+    assetid : Text,
+    tsid : Text,
+    amount: Nat,
+  ) : async Text {
+    let caller = msg.caller;
+
+    // Ambil DP dari treasury
+    let (treasuryMsg, success) = treasuryStorage.takeTreasury(assetid, tsid, amount); // amount 0 untuk query
+
+    if (not success) {
+      return treasuryMsg;
+    };
+
+    // Buat transaksi cashback
+    let txInput : InputType.TransactionInput = {
       assetid = assetid;
-      content = content;
-      trustGuatantee = trustGuatantee;
-      timestamp = Time.now();
+      to = caller;
+      from = caller;
+      totalprice = 0; // Seharusnya ambil dari treasury data
+      transactionType = #DonepaymentCashback;
+      status = #Done;
     };
-    await supportservice.initializeNewAssetSponsor(input, msg.caller);
+
+    let _ = transactionStorage.createTransaction(txInput);
+
+    return "DP cashback withdrawn successfully";
   };
 
-  public shared (msg) func addNewSponsor(
+  // 6. User bisa transfer ke sesama holder di asset yang sama
+  public shared (msg) func transferOwnership(
     assetid : Text,
-    content : Text,
-    trustGuatantee : Nat,
-  ) : async Result.Result<Text, Text> {
-
-    let now = Time.now();
-
-    let input : DataType.AssetSponsorship = {
-      assetid = assetid;
-      content = content;
-      trustGuatantee = trustGuatantee;
-      timestamp = now;
-    };
-    await supportservice.addNewSponsor(assetid, input, msg.caller);
-  };
-
-  public shared (msg) func createAssetGuarantee(
-    assetid : Text,
-    content : Text,
+    ownershipid : Text,
     amount : Nat,
-  ) : async Result.Result<Text, Text> {
-    let input : DataType.AssetGuarantee = {
-      assetid = assetid;
-      content = content;
-      amount = amount;
-      timestamp = Time.now();
+    to: Principal
+  ) : async Text {
+    let caller = msg.caller;
+
+    let result = ownershipStorage.changeOwnershipHolder(caller, to, assetid, ownershipid, amount);
+
+    if (result == "Succes") {
+      // Buat transaksi record
+      let txInput : InputType.TransactionInput = {
+        assetid = assetid;
+        to = caller; // akan diganti dengan actual buyer di storage
+        from = caller;
+        totalprice = amount;
+        transactionType = #Transfer;
+        status = #Done;
+      };
+
+      let _ = transactionStorage.createTransaction(txInput);
     };
-    await supportservice.createAssetGuarantee(input, msg.caller);
+
+    return result;
   };
 
-  public func getAllSponsor() : async [DataType.AssetSponsorship] {
-    await supportservice.getAllSponsorships();
+  // 7. User bisa mendapatkan Liquidation sharing (ketika asset bankrupt/fraud)
+  public shared (msg) func processLiquidation(
+    assetid : Text,
+    liquidationAmount : Nat,
+  ) : async Text {
+    let _caller = msg.caller;
+
+    // Hanya creator atau admin yang bisa trigger liquidation
+    switch (assetStorage.get(assetid)) {
+      case (null) { return "Asset not found" };
+      case (?asset) {
+        // Update asset status menjadi Inactive
+        let _ = assetStorage.editAssetStatus(assetid, #Inactive);
+
+        // Create treasury ledger untuk liquidation
+        let treasuryInput : InputType.CreateTreasuryLedgerInput = {
+          assetid = assetid;
+          description = "Liquidation fund distribution";
+          treasuryledgerType = #AssetSupport;
+          priceamount = liquidationAmount;
+          from = asset.creator;
+        };
+
+        let _ = treasuryStorage.addNewTreasury(treasuryInput);
+
+        // Note: Distribution ke holders harus dilakukan secara terpisah berdasarkan proporsi token
+
+        return "Liquidation process initiated for asset " # assetid;
+      };
+    };
   };
 
-  public func getAllAssetGuarantees() : async [DataType.AssetGuarantee] {
-    await supportservice.getAllAssetGuarantees();
+  // 8. User bisa melakukan pengaduan ke asset tertentu
+  public shared (msg) func fileComplaint(
+    assetid : Text,
+    reason : Text,
+    complaintType : DataType.ComplaintType,
+  ) : async Text {
+    let caller = msg.caller;
+
+    let input : InputType.ComplaintInput = {
+      reporter = caller;
+      reason = reason;
+      complaintType = complaintType;
+      assetid = assetid;
+      resolved = false;
+    };
+
+    return complaintStorage.createComplaint(input);
   };
 
-  public func getAssetGuarantee(assetid : Text) : async ?DataType.AssetGuarantee {
-    await supportservice.getAssetGuarantee(assetid);
+  // 9. User bisa support asset
+  public shared (msg) func supportAsset(
+    assetid : Text,
+    amount : Nat,
+  ) : async Text {
+    let caller = msg.caller;
+
+    // Validasi asset exist
+    switch (assetStorage.get(assetid)) {
+      case (null) { return "Asset not found" };
+      case (?asset) {
+        // Simpan support ke treasury
+        let treasuryInput : InputType.CreateTreasuryLedgerInput = {
+          assetid = assetid;
+          description = "Asset support from user";
+          treasuryledgerType = #AssetSupport;
+          priceamount = amount;
+          from = caller;
+        };
+
+        let _ = treasuryStorage.addNewTreasury(treasuryInput);
+
+        // Buat transaksi record
+        let txInput : InputType.TransactionInput = {
+          assetid = assetid;
+          to = asset.creator;
+          from = caller;
+          totalprice = amount;
+          transactionType = #Supportasset;
+          status = #Done;
+        };
+
+        let _ = transactionStorage.createTransaction(txInput);
+
+        return "Support sent successfully to asset " # assetid;
+      };
+    };
   };
 
-  public func getSponsorsByAssetId(assetid : Text) : async [DataType.AssetSponsorship] {
-    await supportservice.getSponsorsByAssetId(assetid);
+  // Query functions
+  public query func getAsset(assetid : Text) : async ?DataType.Asset {
+    return assetStorage.get(assetid);
   };
 
-  public shared (msg) func claimAssetSupport(assetid : Text) : async Result.Result<Text, Text> {
-    await supportservice.claimAssetSponsorSurpot(assetid, msg.caller);
+  public query func getAllAssets() : async [DataType.Asset] {
+    return assetStorage.getAll();
   };
 
+  public query func getMyOwnerships(user : Principal) : async [DataType.AssetOwnership] {
+    return ownershipStorage.getMyOwnership(user);
+  };
+
+  public query func getMyProposals(user : Principal) : async [DataType.AssetProposal] {
+    return assetproposalStorage.getMyProposal(user);
+  };
+
+  public query func getAssetProposals(assetid : Text) : async [DataType.AssetProposal] {
+    return assetproposalStorage.getAllProposalAsset(assetid);
+  };
+
+  public query func getAssetComplaints(assetid : Text) : async [DataType.Complaint] {
+    return complaintStorage.getComplaintByAssetid(assetid);
+  };
+
+  // Owner dapat menarik uang dari treasury setelah proposal disetujui
+  public shared (msg) func withdrawFromTreasury(
+    assetid : Text,
+    tsid : Text,
+    amount : Nat,
+  ) : async Text {
+    let caller = msg.caller;
+
+    // Validasi caller adalah owner asset
+    switch (assetStorage.get(assetid)) {
+      case (null) { return "Asset not found" };
+      case (?asset) {
+        if (asset.creator != caller) {
+          return "Only asset creator can withdraw from treasury";
+        };
+
+        let (msg, success) = treasuryStorage.takeTreasury(assetid, tsid, amount);
+
+        if (success) {
+          // Create transaction record
+          let txInput : InputType.TransactionInput = {
+            assetid = assetid;
+            to = caller;
+            from = caller;
+            totalprice = amount;
+            transactionType = #Liquidation;
+            status = #Done;
+          };
+
+          let _ = transactionStorage.createTransaction(txInput);
+        };
+
+        return msg;
+      };
+    };
+  };
+
+  // Resolve complaint (for admin/moderator)
+  public shared (_msg) func resolveComplaint(
+    assetid : Text,
+    complaintid : Text,
+  ) : async Text {
+    let (msg, _success) = complaintStorage.solveComplain(assetid, complaintid);
+    return msg;
+  };
 };

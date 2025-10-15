@@ -3,7 +3,6 @@ import { AuthClient } from "@dfinity/auth-client";
 import { HttpAgent, Actor } from "@dfinity/agent";
 import { idlFactory as backend_idl } from "../../../declarations/backend";
 import { canisterId as backend_id } from "../../../declarations/backend";
-// import { setBackendActor, clearBackendActor } from "../services/backendService";
 
 type AuthContextType = {
     authClient: AuthClient | null;
