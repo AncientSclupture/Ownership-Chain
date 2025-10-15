@@ -370,6 +370,14 @@ persistent actor {
     return complaintStorage.getComplaintByAssetid(assetid);
   };
 
+  public query func getAssetByRange(start: Nat, end: Nat) : async [DataType.Asset] {
+    return assetStorage.getRange(start, end);
+  };
+
+  public query func getTotalAsset(): async  Nat {
+    return assetStorage.getTotalCount();
+  };
+
   // Owner dapat menarik uang dari treasury setelah proposal disetujui
   public shared (msg) func withdrawFromTreasury(
     assetid : Text,

@@ -3,61 +3,110 @@ set -e
 
 CANISTER_NAME=backend
 
-dfx identity use findway_agent1
+echo "🚀 Memulai proses seeding data asset ke canister '$CANISTER_NAME'..."
+echo
 
-# regist user first
-dfx canister call $CANISTER_NAME registUser '(
-  "agent 1",
-  "agent 1 last name",
-  "098765431",
-  "Indonesia",
-  "Jakarta",
-  "319128312163",
-  variant { IdentityNumber },
-  "-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuQ6L/uABtw0uN6MjAGF6
-RdNYFhSL/aW5pNbIX80pYycnrun7NT48yHhKHSLjMgP8xedBsw40TjcvkLQboK8B
-iDtVrG/f8ewHkZEMHyKKNMFhw0+qKZOk/LKZ9czhzgt5fo33kgutn8uigAtnCL+Z
-MwItNDyUJT5XRTjV4pv96/aZoioyhhmUbFmZgdl81OUWwJSXWX8E1onK5JXRoxzV
-+6VbHkw20JiO0/s0B8YE/ZksQ0zG/v7rRWnnOg5bA421RZatUt67YzouPiO05tZB
-tInqycjYb1zXN2dXw2GMpctBsvy237ndtVl1I8P0thqtGrsCA8zEK5uduqKUkcg6
-SwIDAQAB
------END PUBLIC KEY-----"
-)'
+create_asset() {
+  local name=$1
+  local description=$2
+  local totalToken=$3
+  local tokenLeft=$4
+  local minTokenPurchased=$5
+  local maxTokenPurchased=$6
+  local pricePerToken=$7
+  local lat=$8
+  local long=$9
+  local details=${10}
+  local docname=${11}
+  local dochash=${12}
+  local docsig=${13}
+  local assetType=${14}      # Physical / Digital / Hybrid
+  local assetStatus=${15}    # Active / Pending / Inactive
+  local rulename=${16}
+  local rulecontent=${17}
+  local ownershipMaturityTime=${18}
 
+  echo "📦 Membuat asset: $name"
 
-dfx canister call $CANISTER_NAME createAsset '(
-  "Rumah Mewah Jakarta 1",
-  "Villa 2 lantai dengan kolam renang",
-  1000,
-  100,
-  1,
-  50,
-  1000000,
-  record {
-    lat = -6.200000;
-    long = 106.816666;
-    details = vec { "Jl. Sudirman No. 1"; "Jakarta" };
-  },
-  vec {
+  dfx canister call $CANISTER_NAME createAsset "(
     record {
-      name = "SHM Sertifikat";
-      description = "Sertifikat Hak Milik rumah";
-      hash = "JTUgK7NgftIKEgJMmKrcqG6+JYyOkP0voMbJjl45QcUdfaZaJbMvnw1o/oqO1eMRLZa29lbwXIt09Ey+yZAIsuXTxSOmaOeF2Po9y1HrzSnu9kReswrpuY8S8BNyr/yL3Utd/Y9swwUM1nkep2MaZ5jx5nKLZ2mY1Zu/WU5sgAGiTzpbCpPVaDfHbkMIesyYo2ZaxGLg5bAGXebKOOIU3k5bsJT7yWOwkcl3WYtVOhbEVz0z2+o3mq0UQSJsyduEAmQFfM+EFD6LDuO6Wd6/E47mcRby8X/je69Fndq5zynN5YHVbm4CGgjkjXCo0ZI8bMViXVH/LXuhFkXVGANIsw==";
+      name = \"$name\";
+      description = \"$description\";
+      totalToken = $totalToken;
+      tokenLeft = $tokenLeft;
+      minTokenPurchased = $minTokenPurchased;
+      maxTokenPurchased = $maxTokenPurchased;
+      pricePerToken = $pricePerToken;
+      locationInfo = opt record {
+        lat = $lat;
+        long = $long;
+        details = vec { \"$details\" };
+      };
+      documentHash = vec {
+        record { name = \"$docname\"; hash = \"$dochash\"; signature = \"$docsig\"; };
+      };
+      assetType = variant { $assetType };
+      assetStatus = variant { $assetStatus };
+      rule = vec {
+        record { name = \"$rulename\"; content = \"$rulecontent\"; };
+      };
+      ownershipMaturityTime = $ownershipMaturityTime;
     }
-  },
-  variant { Business },
-  variant { Open },
-  record {
-    sellSharing = true;
-    sellSharingNeedVote = true;
-    sellSharingPrice = 5000000;
-    needDownPayment = true;
-    minDownPaymentPercentage = 0.2;
-    downPaymentCashback = 0.2;
-    downPaymentMaturityTime = 30;
-    paymentMaturityTime = 365;
-    ownerShipMaturityTime = 730;
-    details = vec { "DP minimal 20%"; "Cashback 5%" };
-  }
-)'
+  )"
+
+  echo "✅ Asset '$name' berhasil dibuat."
+  echo
+}
+
+
+create_asset \
+  "Luxury Villa Bali" \
+  "Beachfront villa with private pool and ocean view" \
+  1000 700 1 100 10 \
+  -8.409518 115.188919 "Bali, Indonesia" \
+  "Sertifikat Kepemilikan" "QmHashVilla123" "SigVillaABC" \
+  "Physical" "Active" \
+  "No Subleasing" "Tidak boleh disewakan kembali tanpa izin." \
+  1000
+
+create_asset \
+  "Digital Art NFT" \
+  "Exclusive NFT art collection by local artist" \
+  500 400 1 50 2 \
+  0.0 0.0 "Online Gallery" \
+  "NFT Metadata" "QmHashArt123" "SigArtXYZ" \
+  "Digital" "Active" \
+  "Resale" "Boleh dijual kembali dengan royalti 10%." \
+  2000
+
+create_asset \
+  "Smart Farming System" \
+  "IoT-based precision agriculture platform" \
+  2000 1500 5 200 15 \
+  -7.006606 110.438127 "Semarang, Indonesia" \
+  "Technical Whitepaper" "QmHashFarm456" "SigFarmDEF" \
+  "Hybrid" "Pending" \
+  "Eco Compliance" "Harus mematuhi standar lingkungan hidup." \
+  1742688000000000000
+
+create_asset \
+  "Jakarta Office Tower" \
+  "Premium grade office space in central Jakarta" \
+  2500 2000 10 250 20 \
+  -6.208763 106.845599 "Jakarta, Indonesia" \
+  "IMB Document" "QmHashOffice999" "SigOfficeZZZ" \
+  "Physical" "Active" \
+  "Fire Safety" "Wajib memiliki sistem proteksi kebakaran aktif." \
+  0
+
+create_asset \
+  "AR Metaverse Land" \
+  "Virtual land parcel in AR metaverse project" \
+  10000 9500 50 1000 5 \
+  0.0 0.0 "Metaverse Realm #88" \
+  "Map Token" "QmHashMeta888" "SigMetaMMM" \
+  "Digital" "Inactive" \
+  "Usage" "Tidak boleh digunakan untuk promosi ilegal." \
+  0
+
+echo "🎉 Semua data asset berhasil dibuat!"

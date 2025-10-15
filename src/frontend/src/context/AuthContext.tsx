@@ -3,6 +3,7 @@ import { AuthClient } from "@dfinity/auth-client";
 import { HttpAgent, Actor } from "@dfinity/agent";
 import { idlFactory as backend_idl } from "../../../declarations/backend";
 import { canisterId as backend_id } from "../../../declarations/backend";
+import { setBackendActor, clearBackendActor } from "../services/backendService";
 
 type AuthContextType = {
     authClient: AuthClient | null;
@@ -53,20 +54,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log("✅ Logged in principal:", principalText);
         setPrincipal(identity.getPrincipal().toString());
 
-        const agent = new HttpAgent({ identity });
+        const canisterId = backend_id || process.env.CANISTER_ID_BACKEND || "23all-uiaaa-aaaac-qb3ma-cai";
 
-        if (process.env.DFX_NETWORK !== "ic") {
-            await agent.fetchRootKey();
+        if (!canisterId) {
+            console.error("❌ No canister ID found!");
+            return;
         }
 
-        const myActor = Actor.createActor(backend_idl, {
-            agent,
-            canisterId: backend_id,
+        console.log("🔗 Using canister ID:", canisterId);
+
+        const host = process.env.DFX_NETWORK === "ic" 
+            ? "https://icp-api.io" 
+            : "http://localhost:4943";
+
+        const agent = new HttpAgent({ 
+            identity,
+            host 
         });
 
-        setActor(myActor);
+        if (process.env.DFX_NETWORK !== "ic") {
+            try {
+                await agent.fetchRootKey();
+            } catch (error) {
+                console.warn("Failed to fetch root key:", error);
+            }
+        }
 
-        // setBackendActor(myActor);
+        try {
+            const myActor = Actor.createActor(backend_idl, {
+                agent,
+                canisterId,
+            });
+
+            setActor(myActor);
+            // Pass the actor directly to backendService
+            setBackendActor(myActor);
+            console.log("Actor created successfully");
+        } catch (error) {
+            console.error("Failed to create actor:", error);
+        }
     };
 
     const login = async () => {
@@ -94,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setPrincipal(null);
         setActor(null);
 
-        // clearBackendActor();
+        clearBackendActor();
     };
 
     return (

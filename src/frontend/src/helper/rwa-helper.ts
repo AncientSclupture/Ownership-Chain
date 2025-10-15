@@ -15,7 +15,7 @@ export function getAssetStatusText(status: AssetStatus | undefined): string {
 }
 
 export function text2AssetType(status: string): AssetType {
-  switch (status.toLowerCase()) {
+  switch (status) {
     case "Digital":
       return { "Digital": null }
     case "Physical":
@@ -43,10 +43,7 @@ export function text2AssetStatus(status: string): AssetStatus {
 export function getReportTypeText(value: ComplaintType): string {
   if (!value) return "Unknown";
   if ('Fraud' in value) return 'fraud';
-  if ('Scam' in value) return 'scam';
   if ('Plagiarism' in value) return 'plagiarism';
-  if ('Legality' in value) return 'legality';
-  if ('Bankrupting' in value) return 'bankrupting';
   return 'Unknown';
 }
 
