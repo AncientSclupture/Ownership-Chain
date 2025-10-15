@@ -53,19 +53,11 @@ dfx canister call $CANISTER_NAME createAsset '(
     sellSharingNeedVote = true;
     sellSharingPrice = 5000000;
     needDownPayment = true;
-    minDownPaymentPercentage = 20.0;
+    minDownPaymentPercentage = 0.2;
     downPaymentCashback = 0.2;
     downPaymentMaturityTime = 30;
     paymentMaturityTime = 365;
     ownerShipMaturityTime = 730;
     details = vec { "DP minimal 20%"; "Cashback 5%" };
   }
-)'
-
-dfx canister call $CANISTER_NAME createReportAsset '(
-  "hallo context",
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean cursus vestibulum risus, sed sodales est condimentum id. Aliquam et orci eget mauris ultrices iaculis.",
-  "asset_0",
-  record {evidencecontent: x1abc091213; hashclarity: null; footPrintFlow: null},
-  variant { Scam }
 )'

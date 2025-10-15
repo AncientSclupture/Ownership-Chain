@@ -57,12 +57,10 @@ function RuleComponent({ rule }: { rule: Rule }) {
                     <p>{donePaymentMaturityTime}</p>
                 </div>
             }
-            {rule.needDownPayment &&
-                <div className="flex items-center space-x-2">
-                    <div>{rule.needDownPayment ? <Check size={20} /> : <X size={20} />}</div>
-                    <p>{donePaymentCashback}</p>
-                </div>
-            }
+            <div className="flex items-center space-x-2">
+                <div>{rule.needDownPayment ? <Check size={20} /> : <X size={20} />}</div>
+                <p>{donePaymentCashback}</p>
+            </div>
             <div className="flex items-center space-x-2">
                 <div>{rule.needDownPayment ? <Check size={20} /> : <X size={20} />}</div>
                 <p>{maturityTime}</p>

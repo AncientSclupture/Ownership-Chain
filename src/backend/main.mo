@@ -36,7 +36,7 @@ persistent actor {
   private transient let proposalservice = ProposalService.ProposalService(assetStorage, ownershipStorage, userStorage, transactionStorage, buyproposalStorage, investorStorage);
   private transient let userservice = UserService.UserServiceClass(userStorage, assetStorage, ownershipStorage, transactionStorage);
   private transient let reportservice = ReportService.ReportServiceClass(reportStorage, assetStorage, userStorage, reportactionStorage);
-  private transient let supportservice = AssetsuportService.AssetSuportServiceClass(supportStorage, userStorage);
+  private transient let supportservice = AssetsuportService.AssetSuportServiceClass(supportStorage, userStorage, transactionStorage, assetStorage, ownershipStorage);
 
   // llm api
   public func askAI(question : Text) : async Text {
@@ -78,7 +78,7 @@ persistent actor {
     await userservice.getAssetFullDetails(assetId);
   };
 
-  public shared (msg) func getIncome(assetId: Text): async ?[DataType.Transaction]{
+  public shared (msg) func getIncome(assetId : Text) : async ?[DataType.Transaction] {
     await userservice.getMyIncome(msg.caller, assetId);
   };
 
@@ -299,6 +299,10 @@ persistent actor {
 
   public func getSponsorsByAssetId(assetid : Text) : async [DataType.AssetSponsorship] {
     await supportservice.getSponsorsByAssetId(assetid);
+  };
+
+  public shared (msg) func claimAssetSupport(assetid : Text) : async Result.Result<Text, Text> {
+    await supportservice.claimAssetSponsorSurpot(assetid, msg.caller);
   };
 
 };

@@ -175,7 +175,7 @@ module OwnershipStorage {
       ownershipsStorage.get(id);
     };
 
-    public func getEntries(): Iter.Iter<(Text, TrieMap.TrieMap<Principal, DataType.Ownership>)>{
+    public func getEntries() : Iter.Iter<(Text, TrieMap.TrieMap<Principal, DataType.Ownership>)> {
       ownershipsStorage.entries();
     };
 
@@ -190,6 +190,21 @@ module OwnershipStorage {
           true;
         };
         case null { false };
+      };
+    };
+
+    public func removeOwnership(assetId : Text, owner : Principal) : async Bool {
+      switch (ownershipsStorage.get(assetId)) {
+        case (?owners) {
+          let removed = owners.remove(owner);
+          switch (removed) {
+            case (?_) { return true };
+            case null { return false };
+          };
+        };
+        case null {
+          return false;
+        };
       };
     };
   };

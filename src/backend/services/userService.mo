@@ -140,26 +140,19 @@ module {
       };
     };
 
-    public func getMyIncome(caller : Principal, assetId : Text) : async ?[DataType.Transaction] {
-      let assetOpt = assetstorage.get(assetId);
+    public func getMyIncome(caller : Principal, _assetId : Text) : async ?[DataType.Transaction] {
 
-      switch (assetOpt) {
-        case null {
-          return null;
-        };
-        case (?asset) {
+      var dividendList : [DataType.Transaction] = [];
 
-          var dividendList : [DataType.Transaction] = [];
-
-          for ((_, tx) in transactionsstorage.getEntries()) {
-            if (tx.transactionType == #Dividend and tx.to == caller) {
-              dividendList := Array.append(dividendList, [tx]);
-            };
-          };
-
-          return ?dividendList;
+      for ((_, tx) in transactionsstorage.getEntries()) {
+        if (tx.transactionType == #Dividend and tx.to == caller) {
+          dividendList := Array.append(dividendList, [tx]);
         };
       };
+
+      return ?dividendList;
+
+
     };
 
     public func getMyProfiles(

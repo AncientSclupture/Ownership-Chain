@@ -422,5 +422,13 @@ export const backendService = {
         }
     },
 
+    async getIncome(assetId: string): Promise<[Transaction[]] | []> {
+        try {
+            const res = await backend.getIncome(assetId);
+            return res;
+        } catch (error) {
+            throw (error);
+        }
+    }
 
 };
