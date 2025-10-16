@@ -1,4 +1,4 @@
-import { AssetStatus, AssetType, ComplaintType, TresuryType } from "../types/rwa";
+import { AssetStatus, AssetType, ComplaintType, TransactionType, TresuryType } from "../types/rwa";
 import type { Principal } from '@dfinity/principal';
 
 export function ReduceCharacters(d: string, num: number = 20): string {
@@ -30,6 +30,18 @@ export function getTreasuryLedgerText(treasuryledger: TresuryType | undefined): 
   return 'Unknown';
 }
 
+export function getTransactionText(assettype: TransactionType | undefined): string {
+  if (!assettype) return "Unknown";
+  if ('Dividend' in assettype) return 'Dividend';
+  if ('Buy' in assettype) return 'Buy';
+  if ('Supportasset' in assettype) return 'Supportasset';
+  if ('Liquidation' in assettype) return 'Liquidation';
+  if ('Transfer' in assettype) return 'Transfer';
+  if ('Donepayment' in assettype) return 'Donepayment';
+  if ('DonepaymentCashback' in assettype) return 'DonepaymentCashback';
+  return 'Unknown';
+}
+
 export function text2AssetType(status: string): AssetType {
   switch (status) {
     case "Digital":
@@ -55,6 +67,7 @@ export function text2AssetStatus(status: string): AssetStatus {
       throw null;
   }
 }
+
 
 export function getReportTypeText(value: ComplaintType): string {
   if (!value) return "Unknown";

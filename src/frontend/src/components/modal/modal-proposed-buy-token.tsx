@@ -2,11 +2,13 @@ import React from "react";
 import { ModalContext } from "../../context/ModalContext";
 import { backendService } from "../../services/backendService";
 import { useParams } from "react-router-dom";
+import { NotificationContext } from "../../context/NotificationContext";
 
 export default function ModalProposedBuyToken() {
     const { id } = useParams<{ id: string }>();
 
     const { setModalKind } = React.useContext(ModalContext);
+    const { setNotificationData } = React.useContext(NotificationContext);
     const [token, setToken] = React.useState("");
     const [pricePerToken, setPricePerToken] = React.useState("");
     const [amount, setAmount] = React.useState("");
@@ -37,6 +39,12 @@ export default function ModalProposedBuyToken() {
             setResult(error instanceof Error ? error.message : String(error));
         } finally {
             setLoading(false);
+            setNotificationData({
+                title: result ? "Proposal Result" : "Error",
+                description: result || "An error occurred",
+                position: "bottom-right",
+                duration: 800,
+            })
         }
     };
 
@@ -72,9 +80,9 @@ export default function ModalProposedBuyToken() {
                 </div>
 
                 <div>
-                    <label className="block text-sm text-gray-700 mb-1">Amount</label>
+                    <label className="block text-sm text-gray-700 mb-1">Done Payment</label>
                     <input
-                        type="number"
+                        type="text"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                         placeholder="Enter amount"
@@ -89,7 +97,7 @@ export default function ModalProposedBuyToken() {
                 </p>
             )}
 
-            <div className="flex justify-center gap-4 mt-6">
+            <div className="flex justify-center gap-4 mt-6 w-full">
                 <button
                     onClick={handleCancel}
                     disabled={loading}
@@ -100,7 +108,7 @@ export default function ModalProposedBuyToken() {
                 <button
                     onClick={handlePropose}
                     disabled={loading}
-                    className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 transition text-white disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl background-dark transition text-white disabled:opacity-50"
                 >
                     {loading ? "Processing..." : "Propose"}
                 </button>

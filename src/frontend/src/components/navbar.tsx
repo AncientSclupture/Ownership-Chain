@@ -96,7 +96,7 @@ export function NavigationBar() {
                                 onClick={() => handleDirect("/action-luquidation")}
                                 className="px-4 py-2 hover:bg-gray-700 cursor-pointer"
                             >
-                                Liquidation
+                                Liquidation Resolve
                             </div>
                             <div
                                 onClick={() => handleDirect("/action-transaction")}
@@ -171,7 +171,7 @@ export function NavigationBar() {
                                     onClick={() => handleDirect("/action-luquidation")}
                                     className="hover:text-gray-300 cursor-pointer"
                                 >
-                                    Liquidation
+                                    Liquidation Resolve
                                 </div>
                                 <div
                                     onClick={() => handleDirect("/action-transaction")}

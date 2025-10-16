@@ -98,6 +98,7 @@ export type TransactionStatus = { 'Done' : null } |
   { 'Cancled' : null } |
   { 'Progress' : null };
 export type TransactionType = { 'Buy' : null } |
+  { 'Dividend' : null } |
   { 'Supportasset' : null } |
   { 'Liquidation' : null } |
   { 'Transfer' : null } |

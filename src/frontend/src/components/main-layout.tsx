@@ -10,9 +10,9 @@ import ModalLogout from "./modal/modal-logout";
 import ModalProposedBuyToken from "./modal/modal-proposed-buy-token";
 
 export function MainLayout({ needProtection = true, children }: { needProtection?: boolean, children: React.ReactNode }) {
-    const { isAuthenticated } = React.useContext(AuthContext);
+    const { isAuthenticated, userPrincipal } = React.useContext(AuthContext);
 
-    if (needProtection && !isAuthenticated) return <Forbidden />
+    if (needProtection && (!isAuthenticated || !userPrincipal)) return <Forbidden />
 
     return (
         <div className="flex flex-col w-full min-h-screen">

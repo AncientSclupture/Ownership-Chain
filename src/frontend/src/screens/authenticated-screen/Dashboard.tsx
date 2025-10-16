@@ -6,7 +6,6 @@ import { NotificationContext } from "../../context/NotificationContext";
 import { backendService } from "../../services/backendService";
 import { AuthContext } from "../../context/AuthContext";
 import { LoaderComponent } from "../../components/LoaderComponent";
-import Forbidden from "../../components/forbiden";
 import AssetTable from "../../components/dashboard/asset-table";
 import AssetSupport from "../../components/dashboard/asset-support";
 
@@ -14,7 +13,7 @@ export function DashboardScreen() {
   const [loadedData, setLoadedData] = React.useState<Asset[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const { setNotificationData } = React.useContext(NotificationContext);
-  const { isAuthenticated, userPrincipal } = React.useContext(AuthContext);
+  const { userPrincipal } = React.useContext(AuthContext);
 
   const [assetid, setassetid] = React.useState<string>("");
 
@@ -39,11 +38,8 @@ export function DashboardScreen() {
     init();
   }, []);
 
-  if (isLoading) return <LoaderComponent />;
-
-  if (!isAuthenticated || !userPrincipal) return <Forbidden />
-
-  console.log(loadedData);
+  
+  if (isLoading) return <LoaderComponent fullScreen={true} text="please wait..." />;
 
   return (
     <MainLayout needProtection={true}>

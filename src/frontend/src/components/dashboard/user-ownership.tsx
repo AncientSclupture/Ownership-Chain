@@ -4,8 +4,8 @@ import { AssetOwnership } from "../../types/rwa";
 import { formatMotokoTime } from "../../helper/rwa-helper";
 
 export default function UserOwnershipTable(
-    { ownerships, setassetid }:
-        { ownerships: AssetOwnership[], setassetid: React.Dispatch<React.SetStateAction<string>> }
+    { ownerships }:
+        { ownerships: AssetOwnership[]}
 ) {
     const [searchTerm, setSearchTerm] = React.useState("");
 
@@ -48,7 +48,7 @@ export default function UserOwnershipTable(
                         {displayedAssets.length > 0 ? (
                             displayedAssets.map((item, idx) => (
                                 <tr key={idx} className="hover:bg-gray-50 transition">
-                                    <td onClick={() => setassetid(item.id)}
+                                    <td
                                         className="px-4 py-3 text-gray-800 font-medium">
                                         {item.id}
                                     </td>

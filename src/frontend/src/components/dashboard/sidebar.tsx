@@ -3,8 +3,8 @@ import { NavLink } from "react-router-dom";
 
 const sidebarItems = [
   { label: "My Asset", icon: <Home size={18} />, path: "/protected-dashboard" },
-  { label: "Dividends", icon: <BarChart3 size={18} />, path: "/protected-dividend" },
-  { label: "Buy & Sell", icon: <Wallet size={18} />, path: "/protected-buyandsell" },
+  { label: "Transaction", icon: <BarChart3 size={18} />, path: "/protected-transaction" },
+  { label: "Transfer & Sell", icon: <Wallet size={18} />, path: "/protected-transferandsell" },
   { label: "Proposal", icon: <FileText size={18} />, path: "/protected-proposal" },
   { label: "Profile & Portfolio", icon: <User size={18} />, path: "/protected-profile" },
   { label: "Liquidation", icon: <AlertTriangle size={18} />, path: "/protected-liquidation" },

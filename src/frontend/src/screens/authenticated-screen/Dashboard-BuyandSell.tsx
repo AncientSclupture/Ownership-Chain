@@ -7,13 +7,13 @@ import { backendService } from "../../services/backendService";
 import { AuthContext } from "../../context/AuthContext";
 import { LoaderComponent } from "../../components/LoaderComponent";
 import Forbidden from "../../components/forbiden";
+import UserOwnershipTable from "../../components/dashboard/user-ownership";
 
 export function DashboardBuyandSellScreen() {
   const [loadedData, setLoadedData] = React.useState<AssetOwnership[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const { setNotificationData } = React.useContext(NotificationContext);
   const { isAuthenticated, userPrincipal } = React.useContext(AuthContext);
-
 
   React.useEffect(() => {
     async function init() {
@@ -29,6 +29,7 @@ export function DashboardBuyandSellScreen() {
           position: "bottom-right",
           duration: 800,
         });
+        console.error(error);
       } finally {
         setIsLoading(false);
       }
@@ -61,7 +62,7 @@ export function DashboardBuyandSellScreen() {
           </div>
 
           <div className="text-gray-700 space-y-2">
-            {/* <AssetTable assets={loadedData} setassetid={setassetid} /> */}
+            <UserOwnershipTable ownerships={loadedData} />
           </div>
         </div>
       </div>

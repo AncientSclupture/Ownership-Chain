@@ -1,5 +1,5 @@
 import { backend } from "../../../declarations/backend";
-import { Asset, AssetOwnership, AssetProposal, CreateAssetInputApi, TreasuryLedger } from "../types/rwa";
+import { Asset, AssetOwnership, AssetProposal, CreateAssetInputApi, Transaction, TreasuryLedger } from "../types/rwa";
 import type { Principal } from '@dfinity/principal';
 // import { idlFactory } from "../../../declarations/backend/backend.did.js";
 // import { Actor, HttpAgent } from "@dfinity/agent";
@@ -197,6 +197,17 @@ export const backendService = {
             // const actor = await getActor();
             // const res = await actor.getMyOwnerships(user);
             const res = await backend.getMyOwnerships(user);
+            return res;
+        } catch (error) {
+            return [];
+        }
+    },
+
+    async getAllTransactionsByAssetId(id: string): Promise<Transaction[]> {
+        try {
+            // const actor = await getActor();
+            // const res = await actor.getAllTransactionsByAssetId(user);
+            const res = await backend.getAllTransactionsByAssetId(id);
             return res;
         } catch (error) {
             return [];

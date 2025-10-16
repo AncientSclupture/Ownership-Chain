@@ -13,10 +13,10 @@ import { VotingScreen } from "./screens/action-screen/Voting";
 import { DashboardScreen } from "./screens/authenticated-screen/Dashboard";
 import { ProfileScreen } from "./screens/authenticated-screen/Profile";
 import { AssetDetailScreen } from "./screens/authenticated-screen/Asset-Details";
-import { DashboardDividendScreen } from "./screens/authenticated-screen/Dashboard-Dividend";
 import { DashboardProposalScreen } from "./screens/authenticated-screen/Dashboard-Proposal";
 import { DashboardBuyandSellScreen } from "./screens/authenticated-screen/Dashboard-BuyandSell";
 import { DashboardLiquidationScreen } from "./screens/authenticated-screen/Dashboard-Liquidation";
+import { DashboardTransactionScreen } from "./screens/authenticated-screen/Dashboard-Transaction";
 
 function App() {
   return (
@@ -41,9 +41,9 @@ function App() {
               <Route path="/protected-asset/:id" element={<AssetDetailScreen />} />
               
               <Route path="/protected-dashboard" element={<DashboardScreen />} />
-              <Route path="/protected-dividend" element={<DashboardDividendScreen />} />
+              <Route path="/protected-transaction" element={<DashboardTransactionScreen />} />
               <Route path="/protected-proposal" element={<DashboardProposalScreen />} />
-              <Route path="/protected-buyandsell" element={<DashboardBuyandSellScreen />} />
+              <Route path="/protected-transferandsell" element={<DashboardBuyandSellScreen />} />
               <Route path="/protected-liquidation" element={<DashboardLiquidationScreen />} />
               <Route path="/protected-profile" element={<ProfileScreen />} />
             </Routes>

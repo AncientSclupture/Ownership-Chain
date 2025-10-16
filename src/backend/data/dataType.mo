@@ -86,6 +86,7 @@ module {
     #DonepaymentCashback;
     #Supportasset;
     #Liquidation;
+    #Dividend;
   };
 
   public type Transaction = {
