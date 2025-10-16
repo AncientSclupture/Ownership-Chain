@@ -238,18 +238,44 @@ persistent actor {
   public shared (msg) func transferOwnership(
     assetid : Text,
     ownershipid : Text,
-    amount : Nat,
     to : Principal,
   ) : async Text {
     let caller = msg.caller;
 
-    let result = ownershipStorage.changeOwnershipHolder(caller, to, assetid, ownershipid, amount);
+    let result = ownershipStorage.changeOwnershipHolder(caller, to, assetid, ownershipid, 0, true);
 
     if (result == "Succes") {
       // Buat transaksi record
       let txInput : InputType.TransactionInput = {
         assetid = assetid;
         to = caller; // akan diganti dengan actual buyer di storage
+        from = caller;
+        totalprice = 0;
+        transactionType = #Transfer;
+        status = #Done;
+      };
+
+      let _ = transactionStorage.createTransaction(txInput);
+    };
+
+    return result;
+  };
+
+  public shared (msg) func buyOwnership(
+    assetid : Text,
+    ownershipid : Text,
+    amount : Nat,
+    from : Principal,
+  ) : async Text {
+    let caller = msg.caller;
+
+    let result = ownershipStorage.changeOwnershipHolder(from, caller, assetid, ownershipid, amount, true);
+
+    if (result == "Succes") {
+      // Buat transaksi record
+      let txInput : InputType.TransactionInput = {
+        assetid = assetid;
+        to = from;
         from = caller;
         totalprice = amount;
         transactionType = #Transfer;

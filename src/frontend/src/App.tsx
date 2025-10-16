@@ -17,39 +17,42 @@ import { DashboardProposalScreen } from "./screens/authenticated-screen/Dashboar
 import { DashboardBuyandSellScreen } from "./screens/authenticated-screen/Dashboard-BuyandSell";
 import { DashboardLiquidationScreen } from "./screens/authenticated-screen/Dashboard-Liquidation";
 import { DashboardTransactionScreen } from "./screens/authenticated-screen/Dashboard-Transaction";
+import { AssetOwnershipParsingDataProvider } from "./context/AssetOwnershipParsingContext";
 
 function App() {
   return (
     <AuthProvider>
-      <PopUpProvider>
-        <ModalProvider>
-          <Router>
-            <Routes>
-              {/* public slash */}
-              <Route path="/" element={<HomeScreen />} index />
-              <Route path="/courting" element={<CourtScreen />} />
-              <Route path="/treasury" element={<TreasuryScreen />} />
-              
-              {/* action slash [authenticated page] */}
-              <Route path="/action-create" element={<CreateAssetScreen />} />
-              <Route path="/action-luquidation" element={<LiquidationScreen />} />
-              <Route path="/action-transaction" element={<TransactionScreen />} />
-              <Route path="/action-voting" element={<VotingScreen />} />
-              
-              {/* authentication slash */}
-              <Route path="/market-place" element={<AssetMarketPlaceScreen />} />
-              <Route path="/protected-asset/:id" element={<AssetDetailScreen />} />
-              
-              <Route path="/protected-dashboard" element={<DashboardScreen />} />
-              <Route path="/protected-transaction" element={<DashboardTransactionScreen />} />
-              <Route path="/protected-proposal" element={<DashboardProposalScreen />} />
-              <Route path="/protected-transferandsell" element={<DashboardBuyandSellScreen />} />
-              <Route path="/protected-liquidation" element={<DashboardLiquidationScreen />} />
-              <Route path="/protected-profile" element={<ProfileScreen />} />
-            </Routes>
-          </Router>
-        </ModalProvider>
-      </PopUpProvider>
+      <AssetOwnershipParsingDataProvider>
+        <PopUpProvider>
+          <ModalProvider>
+            <Router>
+              <Routes>
+                {/* public slash */}
+                <Route path="/" element={<HomeScreen />} index />
+                <Route path="/courting" element={<CourtScreen />} />
+                <Route path="/treasury" element={<TreasuryScreen />} />
+
+                {/* action slash [authenticated page] */}
+                <Route path="/action-create" element={<CreateAssetScreen />} />
+                <Route path="/action-luquidation" element={<LiquidationScreen />} />
+                <Route path="/action-transaction" element={<TransactionScreen />} />
+                <Route path="/action-voting" element={<VotingScreen />} />
+
+                {/* authentication slash */}
+                <Route path="/market-place" element={<AssetMarketPlaceScreen />} />
+                <Route path="/protected-asset/:id" element={<AssetDetailScreen />} />
+
+                <Route path="/protected-dashboard" element={<DashboardScreen />} />
+                <Route path="/protected-transaction" element={<DashboardTransactionScreen />} />
+                <Route path="/protected-proposal" element={<DashboardProposalScreen />} />
+                <Route path="/protected-transferandsell" element={<DashboardBuyandSellScreen />} />
+                <Route path="/protected-liquidation" element={<DashboardLiquidationScreen />} />
+                <Route path="/protected-profile" element={<ProfileScreen />} />
+              </Routes>
+            </Router>
+          </ModalProvider>
+        </PopUpProvider>
+      </AssetOwnershipParsingDataProvider>
     </AuthProvider>
   );
 }

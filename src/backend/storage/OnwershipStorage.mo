@@ -40,7 +40,7 @@ module OwnershipStorage {
       return "Ownership added for asset " # assetId # " by ownership " # id;
     };
 
-    public func changeOwnershipHolder(from : Principal, to: Principal, assetid : Text, ownershipid : Text, amount : Nat) : Text {
+    public func changeOwnershipHolder(from : Principal, to : Principal, assetid : Text, ownershipid : Text, amount : Nat, allowZeroAmount : Bool,) : Text {
       switch (ownershipStorage.get(assetid)) {
         case (null) { return "Asset Not Found" };
         case (?innermap) {
@@ -50,17 +50,19 @@ module OwnershipStorage {
               if (owns.owner == to) {
                 return "You cannot transfer to yourself";
               };
-              if (owns.owner == from) {
-                return "You are not owned this ownership";
+              if (owns.owner != from) {
+                return "You are not the owner of this ownership";
               };
-              if (owns.openForSale == false) {
+              if (owns.openForSale == false and not allowZeroAmount) {
                 return "This ownership is not open for sale";
               };
               if (owns.upuntil < Time.now()) {
                 return "This ownership is expired";
               };
-              if (owns.buyingprice != amount) {
-                return "Unsufficient ammount";
+
+              // ✅ Allow transaction if allowZeroAmount = true
+              if (not allowZeroAmount and amount < owns.buyingprice) {
+                return "Insufficient amount";
               };
 
               switch (checkPartOfHolder(assetid, to)) {
@@ -71,12 +73,12 @@ module OwnershipStorage {
                     owner = to;
                     tokenhold = owns.tokenhold;
                     openForSale = false;
-                    buyingprice = owns.buyingprice; // price per token
+                    buyingprice = owns.buyingprice;
                     upuntil = owns.upuntil;
                     holdat = Time.now();
                   };
                   innermap.put(owns.id, newOwn);
-                  return "Succes";
+                  return "Success";
                 };
                 case (?currentOwnership) {
                   let newOwn : DataType.AssetOwnership = {
@@ -85,12 +87,12 @@ module OwnershipStorage {
                     owner = to;
                     tokenhold = currentOwnership.tokenhold + owns.tokenhold;
                     openForSale = currentOwnership.openForSale;
-                    buyingprice = currentOwnership.buyingprice + owns.buyingprice; // price per token
+                    buyingprice = currentOwnership.buyingprice + owns.buyingprice;
                     upuntil = owns.upuntil;
                     holdat = Time.now();
                   };
                   innermap.put(currentOwnership.id, newOwn);
-                  return "Succes";
+                  return "Success";
                 };
               };
             };
