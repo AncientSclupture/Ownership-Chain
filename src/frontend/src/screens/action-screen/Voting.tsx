@@ -5,12 +5,13 @@ import { backendService } from "../../services/backendService";
 import { AuthContext } from "../../context/AuthContext";
 import { LoaderComponent } from "../../components/LoaderComponent";
 import UserOwnershipTable from "../../components/dashboard/user-ownership";
+import { ProposalVotingCard } from "../../components/voting/proposal-voting-card";
 
 export function VotingScreen() {
     const [loadedOwnership, setLoadedOwnership] = React.useState<AssetOwnership[]>([]);
     const [displayedProposals, setDisplayedProposals] = React.useState<AssetProposal[]>([]);
 
-    const [assetid, setAssetid] = React.useState<string | null>(null);
+    const [assetid, setAssetid] = React.useState<string | null>("");
 
     const { userPrincipal } = React.useContext(AuthContext);
 
@@ -20,6 +21,7 @@ export function VotingScreen() {
         try {
             setLoading(true);
             const proposalsRes = await backendService.getAssetProposals(id);
+            console.log(proposalsRes)
             setDisplayedProposals(proposalsRes);
         } catch (error) {
             setDisplayedProposals([]);
@@ -50,14 +52,14 @@ export function VotingScreen() {
             getAssetProposal(assetid);
         }
         console.log(displayedProposals);
-    }, [assetid])
+    }, [])
 
-    if (loading) return <LoaderComponent />;
+    if (loading) return <LoaderComponent fullScreen={true} />;
 
     return (
         <MainLayout needProtection={true}>
-            <div className="p-10">
-                <div className="mb-10">
+            <div className="md:p-20 p-12">
+                <div>
                     <h1 className="text-3xl font-bold text-gray-900">
                         Asset Proposal Voting Center
                     </h1>
@@ -65,7 +67,35 @@ export function VotingScreen() {
                         Review active asset proposals and cast your vote to approve or reject them.
                     </p>
                 </div>
-                <UserOwnershipTable ownerships={loadedOwnership} setSelectedId={setAssetid} />
+                <div className="mt-10">
+                    <UserOwnershipTable ownerships={loadedOwnership} setSelectedId={setAssetid} />
+                </div>
+                <div className="mt-10 grid md:grid-cols-2 grid-cols-1 gap-4">
+                    {displayedProposals.length > 0 ? (
+                        displayedProposals.map((p) => (
+                            <ProposalVotingCard
+                                key={p.id}
+                                proposal={p}
+                            />
+                        ))
+                    ) : (
+                        <p className="text-gray-500 mt-4">
+                            No active proposals found for this asset.
+                        </p>
+                    )}
+                    {displayedProposals.length > 0 ? (
+                        displayedProposals.map((p) => (
+                            <ProposalVotingCard
+                                key={p.id}
+                                proposal={p}
+                            />
+                        ))
+                    ) : (
+                        <p className="text-gray-500 mt-4">
+                            No active proposals found for this asset.
+                        </p>
+                    )}
+                </div>
             </div>
         </MainLayout>
     );
