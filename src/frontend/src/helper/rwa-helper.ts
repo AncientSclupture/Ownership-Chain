@@ -1,4 +1,4 @@
-import { AssetStatus, AssetType, ComplaintType, TransactionType, TresuryType } from "../types/rwa";
+import { AssetStatus, AssetType, ComplaintType, TransactionStatus, TransactionType, TresuryType } from "../types/rwa";
 import type { Principal } from '@dfinity/principal';
 
 export function ReduceCharacters(d: string, num: number = 20): string {
@@ -39,6 +39,14 @@ export function getTransactionText(assettype: TransactionType | undefined): stri
   if ('Transfer' in assettype) return 'Transfer';
   if ('Donepayment' in assettype) return 'Donepayment';
   if ('DonepaymentCashback' in assettype) return 'DonepaymentCashback';
+  return 'Unknown';
+}
+
+export function getTransactionStatusText(transactionstatus: TransactionStatus | undefined): string {
+  if (!transactionstatus) return "Unknown";
+  if ('Done' in transactionstatus) return 'Done';
+  if ('Cancled' in transactionstatus) return 'Cancled';
+  if ('Progress' in transactionstatus) return 'Progress';
   return 'Unknown';
 }
 

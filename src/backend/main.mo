@@ -442,6 +442,14 @@ persistent actor {
     return treasuryStorage.getAllTreasuryByAssetId(assetid);
   };
 
+  public query func getOwnershipById(assetid : Text, ownershipid : Text) : async ?DataType.AssetOwnership {
+    return ownershipStorage.getOwnershipById(assetid, ownershipid);
+  };
+
+  public query func getTransactionByTransactionId(assetid : Text, transactionid : Text) : async ?DataType.Transaction {
+    return transactionStorage.getTransactionByTransactionId(assetid, transactionid);
+  };
+
   // Owner dapat menarik uang dari treasury setelah proposal disetujui
   public shared (msg) func withdrawFromTreasury(
     assetid : Text,

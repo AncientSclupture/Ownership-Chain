@@ -4,6 +4,7 @@ import { AssetDetailTabs, transactiondetailopt, TransactionWrapper } from "../..
 import { BuyTransaction } from "../../components/transaction/buy-transaction";
 import { TransferTransaction } from "../../components/transaction/transfer-transaction";
 import { TransactionHistory } from "../../components/transaction/transaction-history";
+import { CashbackTransaction } from "../../components/transaction/cahsback-transaction";
 
 export function TransactionScreen() {
     const [selected, setSelected] = React.useState<transactiondetailopt>(transactiondetailopt.buy);
@@ -12,6 +13,7 @@ export function TransactionScreen() {
         { name: transactiondetailopt.buy, component: <BuyTransaction /> },
         { name: transactiondetailopt.transfer, component: <TransferTransaction /> },
         { name: transactiondetailopt.history, component: <TransactionHistory /> },
+        { name: transactiondetailopt.cashback, component: <CashbackTransaction /> },
     ];
 
     return (

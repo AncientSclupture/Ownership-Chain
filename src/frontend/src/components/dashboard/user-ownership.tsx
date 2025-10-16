@@ -4,8 +4,8 @@ import { AssetOwnership } from "../../types/rwa";
 import { formatMotokoTime } from "../../helper/rwa-helper";
 
 export default function UserOwnershipTable(
-    { ownerships }:
-        { ownerships: AssetOwnership[]}
+    { ownerships, setSelectedId }:
+        { ownerships: AssetOwnership[]; setSelectedId?: (d: string) => void | null; }
 ) {
     const [searchTerm, setSearchTerm] = React.useState("");
 
@@ -32,6 +32,12 @@ export default function UserOwnershipTable(
                 />
             </div>
             {/* Table */}
+            {setSelectedId && (
+                <p className="text-sm text-gray-600 mb-2">
+                    Click on an <span className="font-semibold">ID</span> to select and preview the corresponding asset proposal,
+                    as you are an ownership holder of that asset.
+                </p>
+            )}
             <div className="overflow-x-auto rounded-xl shadow-md border border-gray-200">
                 <table className="min-w-full bg-white text-sm">
                     <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
@@ -49,7 +55,9 @@ export default function UserOwnershipTable(
                             displayedAssets.map((item, idx) => (
                                 <tr key={idx} className="hover:bg-gray-50 transition">
                                     <td
-                                        className="px-4 py-3 text-gray-800 font-medium">
+                                        onClick={() => setSelectedId?.(item.id)}
+                                        className={`px-4 py-3 text-gray-800 font-medium ${setSelectedId ? "cursor-pointer hover:text-blue-600 transition" : ""
+                                            }`} >
                                         {item.id}
                                     </td>
                                     <td className="px-4 py-3 text-gray-800">{item.assetid}</td>

@@ -142,5 +142,14 @@ module OwnershipStorage {
         };
       };
     };
+
+    public func getOwnershipById(assetid : Text, ownershipid : Text) : ?DataType.AssetOwnership {
+      switch (ownershipStorage.get(assetid)) {
+        case (null) { return null };
+        case (?innermap) {
+          return innermap.get(ownershipid);
+        };
+      };
+    };
   };
 };

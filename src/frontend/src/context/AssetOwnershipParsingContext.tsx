@@ -4,10 +4,12 @@ import React, { createContext, useState } from "react";
 export type AssetOwnershipParsingDatatype = {
     assetid: string | null;
     ownershipid: string | null;
+    transactionid: string | null;
     targetprincipal: Principal | null;
     price: bigint | null;
     setassetid: (d: string) => void;
     setownershipid: (d: string) => void;
+    settransactionid: (d: string) => void;
     settargetprincipal: (d: Principal | null) => void;
     setprice: (d: bigint) => void;
 }
@@ -16,11 +18,13 @@ export const AssetOwnershipParsingDataContext = createContext<AssetOwnershipPars
     assetid: null,
     ownershipid: null,
     targetprincipal: null,
+    transactionid: null,
     price: null,
     setassetid: () => {},
     setownershipid: () => {},
     settargetprincipal: () => {},
     setprice: () => {},
+    settransactionid: () => {},
 })
 
 export const AssetOwnershipParsingDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -28,6 +32,7 @@ export const AssetOwnershipParsingDataProvider: React.FC<{ children: React.React
     const [ownershipid, setOwnershipid] = useState<string | null>(null);
     const [targetprincipal, setTargetprincipal] = useState<Principal | null>(null);
     const [price, setPrice] = useState<bigint | null>(null);
+    const [transactionid, setTransactionId] = useState<string | null>(null);
 
     function setassetid(d: string) {
         setAssetid(d);
@@ -45,6 +50,10 @@ export const AssetOwnershipParsingDataProvider: React.FC<{ children: React.React
         setPrice(d);
     }
 
+    function settransactionid(d: string) {
+        setTransactionId(d);
+    }
+
     return (
         <AssetOwnershipParsingDataContext.Provider
             value={{
@@ -52,10 +61,12 @@ export const AssetOwnershipParsingDataProvider: React.FC<{ children: React.React
                 ownershipid,
                 targetprincipal,
                 price,
+                transactionid,
                 setassetid,
                 setownershipid,
                 settargetprincipal,
                 setprice,
+                settransactionid,
             }}
         >
             {children}

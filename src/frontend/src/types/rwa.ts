@@ -116,6 +116,7 @@ export interface TreasuryLedger {
 export type TresuryType = { 'AssetSupport' : null } |
   { 'Donepayment' : null };
 export interface _SERVICE {
+  'buyOwnership' : ActorMethod<[string, string, bigint, Principal], string>,
   'createAsset' : ActorMethod<[CreateAssetInputApi], string>,
   'fileComplaint' : ActorMethod<[string, string, ComplaintType], string>,
   'finishPayment' : ActorMethod<[string, string], string>,
@@ -130,8 +131,13 @@ export interface _SERVICE {
   'getAssetProposals' : ActorMethod<[string], Array<AssetProposal>>,
   'getMyOwnerships' : ActorMethod<[Principal], Array<AssetOwnership>>,
   'getMyProposals' : ActorMethod<[Principal], Array<AssetProposal>>,
+  'getOwnershipById' : ActorMethod<[string, string], [] | [AssetOwnership]>,
   'getPersonalAset' : ActorMethod<[Principal], Array<Asset>>,
   'getTotalAsset' : ActorMethod<[], bigint>,
+  'getTransactionByTransactionId' : ActorMethod<
+    [string, string],
+    [] | [Transaction]
+  >,
   'processLiquidation' : ActorMethod<[string, bigint], string>,
   'proposeAssetPurchase' : ActorMethod<
     [string, bigint, bigint, bigint],
@@ -139,10 +145,7 @@ export interface _SERVICE {
   >,
   'resolveComplaint' : ActorMethod<[string, string], string>,
   'supportAsset' : ActorMethod<[string, bigint], string>,
-  'transferOwnership' : ActorMethod<
-    [string, string, bigint, Principal],
-    string
-  >,
+  'transferOwnership' : ActorMethod<[string, string, Principal], string>,
   'voteProposal' : ActorMethod<[string, string], string>,
   'withdrawDPCashback' : ActorMethod<[string, string, bigint], string>,
   'withdrawFromTreasury' : ActorMethod<[string, string, bigint], string>,

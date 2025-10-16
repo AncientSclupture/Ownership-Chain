@@ -192,6 +192,17 @@ export const backendService = {
         }
     },
 
+    async getAssetProposals(assetid: string): Promise<AssetProposal[]> {
+        try {
+            // const actor = await getActor();
+            // const res = await actor.getAssetProposals(user);
+            const res = await backend.getAssetProposals(assetid);
+            return res;
+        } catch (error) {
+            return [];
+        }
+    },
+
     async getMyOwnerships(user: Principal): Promise<AssetOwnership[]> {
         try {
             // const actor = await getActor();
@@ -208,6 +219,28 @@ export const backendService = {
             // const actor = await getActor();
             // const res = await actor.getAllTransactionsByAssetId(user);
             const res = await backend.getAllTransactionsByAssetId(id);
+            return res;
+        } catch (error) {
+            return [];
+        }
+    },
+
+    async getOwnershipById(assetid : string, ownershipid : string) : Promise<[AssetOwnership] | []> {
+        try {
+            // const actor = await getActor();
+            // const res = await actor.getOwnershipById(assetid, ownershipid);
+            const res = await backend.getOwnershipById(assetid, ownershipid);
+            return res;
+        } catch (error) {
+            return [];
+        }
+    },
+
+    async getTransactionByTransactionId(assetid : string, transactionid : string) : Promise<[Transaction] | []> {
+        try {
+            // const actor = await getActor();
+            // const res = await actor.getTransactionByTransactionId(assetid, transactionid);
+            const res = await backend.getTransactionByTransactionId(assetid, transactionid);
             return res;
         } catch (error) {
             return [];

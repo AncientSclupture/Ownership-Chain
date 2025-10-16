@@ -44,5 +44,14 @@ module TransactionStorage {
         };
       };
     };
+
+    public func getTransactionByTransactionId(assetid : Text, transactionid : Text) : ?DataType.Transaction {
+      switch (transactionStorage.get(assetid)) {
+        case (null) { return null };
+        case (?innermap) {
+          return innermap.get(transactionid);
+        };
+      };
+    };
   };
 };
