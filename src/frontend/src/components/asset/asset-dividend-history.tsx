@@ -63,7 +63,7 @@ export function AssetDividend() {
         <div className="space-y-6">
             <div className="p-6 md:px-10 bg-white border border-gray-200 rounded-xl shadow-sm">
                 <h1 className="text-2xl md:text-3xl text-gray-800 font-bold mb-4">
-                    Asset <span className="text-[#00081a]">123</span> Dividend
+                    Asset Dividend
                 </h1>
                 <p className="mb-6 leading-relaxed">
                     This section provides a detailed breakdown of all current asset holders and
