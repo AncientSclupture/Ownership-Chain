@@ -2,7 +2,7 @@ import { MainLayout } from "../../components/main-layout"
 
 export function TreasuryScreen() {
     return (
-        <MainLayout needProtection={false}>
+        <MainLayout needProtection={true}>
             <div>TreasuryScreen</div>
         </MainLayout>
     );

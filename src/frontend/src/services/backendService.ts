@@ -16,7 +16,7 @@ import type { Principal } from '@dfinity/principal';
 //     try {
 //         console.log(`Initializing actor with canister ID: ${BACKEND_CANISTER_ID}`);
 //         console.log(`Using host: ${IC_HOST}`);
-        
+
 //         // Create HTTP Agent
 //         agent = new HttpAgent({
 //             host: IC_HOST,
@@ -37,7 +37,7 @@ import type { Principal } from '@dfinity/principal';
 //             agent,
 //             canisterId: BACKEND_CANISTER_ID,
 //         });
-        
+
 //         console.log("Actor created successfully:", actor);
 //         return actor;
 //     } catch (error) {
@@ -93,11 +93,11 @@ export const backendService = {
         }
     },
 
-    async proposeAssetPurchase(id: string, token: bigint, pricePerToken: bigint, amount:bigint): Promise<string | null> {
+    async proposeAssetPurchase(id: string, token: bigint, pricePerToken: bigint, amount: bigint): Promise<string | null> {
         try {
             // const actor = await getActor();
-            // const res = await actor.proposeAssetPurchase(insertedinput);
-            const res = await backend.proposeAssetPurchase(id, token, pricePerToken, amount );
+            // const res = await actor.proposeAssetPurchase(id, token, pricePerToken, amount);
+            const res = await backend.proposeAssetPurchase(id, token, pricePerToken, amount);
             return res;
         } catch (error) {
             return error instanceof Error ? error.message : String(error);
@@ -195,7 +195,7 @@ export const backendService = {
     async getAssetProposals(assetid: string): Promise<AssetProposal[]> {
         try {
             // const actor = await getActor();
-            // const res = await actor.getAssetProposals(user);
+            // const res = await actor.getAssetProposals(assetid);
             const res = await backend.getAssetProposals(assetid);
             return res;
         } catch (error) {
@@ -217,7 +217,7 @@ export const backendService = {
     async getAllTransactionsByAssetId(id: string): Promise<Transaction[]> {
         try {
             // const actor = await getActor();
-            // const res = await actor.getAllTransactionsByAssetId(user);
+            // const res = await actor.getAllTransactionsByAssetId(id);
             const res = await backend.getAllTransactionsByAssetId(id);
             return res;
         } catch (error) {
@@ -225,7 +225,7 @@ export const backendService = {
         }
     },
 
-    async getOwnershipById(assetid : string, ownershipid : string) : Promise<[AssetOwnership] | []> {
+    async getOwnershipById(assetid: string, ownershipid: string): Promise<[AssetOwnership] | []> {
         try {
             // const actor = await getActor();
             // const res = await actor.getOwnershipById(assetid, ownershipid);
@@ -236,11 +236,22 @@ export const backendService = {
         }
     },
 
-    async getTransactionByTransactionId(assetid : string, transactionid : string) : Promise<[Transaction] | []> {
+    async getTransactionByTransactionId(assetid: string, transactionid: string): Promise<[Transaction] | []> {
         try {
             // const actor = await getActor();
             // const res = await actor.getTransactionByTransactionId(assetid, transactionid);
             const res = await backend.getTransactionByTransactionId(assetid, transactionid);
+            return res;
+        } catch (error) {
+            return [];
+        }
+    },
+
+    async getAssetDividend(assetid: string): Promise<Transaction[]> {
+        try {
+            // const actor = await getActor();
+            // const res = await actor.getAssetDividend(assetid);
+            const res = await backend.getAssetDividend(assetid);
             return res;
         } catch (error) {
             return [];

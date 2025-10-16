@@ -450,6 +450,10 @@ persistent actor {
     return transactionStorage.getTransactionByTransactionId(assetid, transactionid);
   };
 
+  public query func getAssetDividend(assetid : Text) : async [DataType.Transaction]{
+    return transactionStorage.getTransactionByType(assetid, #Dividend);
+  };
+
   // Owner dapat menarik uang dari treasury setelah proposal disetujui
   public shared (msg) func withdrawFromTreasury(
     assetid : Text,

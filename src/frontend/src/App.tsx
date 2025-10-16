@@ -29,8 +29,6 @@ function App() {
               <Routes>
                 {/* public slash */}
                 <Route path="/" element={<HomeScreen />} index />
-                <Route path="/courting" element={<CourtScreen />} />
-                <Route path="/treasury" element={<TreasuryScreen />} />
 
                 {/* action slash [authenticated page] */}
                 <Route path="/action-create" element={<CreateAssetScreen />} />
@@ -41,6 +39,9 @@ function App() {
                 {/* authentication slash */}
                 <Route path="/market-place" element={<AssetMarketPlaceScreen />} />
                 <Route path="/protected-asset/:id" element={<AssetDetailScreen />} />
+
+                <Route path="/courting" element={<CourtScreen />} />
+                <Route path="/treasury" element={<TreasuryScreen />} />
 
                 <Route path="/protected-dashboard" element={<DashboardScreen />} />
                 <Route path="/protected-transaction" element={<DashboardTransactionScreen />} />

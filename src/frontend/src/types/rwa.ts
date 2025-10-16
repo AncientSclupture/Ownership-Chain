@@ -127,6 +127,7 @@ export interface _SERVICE {
   'getAsset' : ActorMethod<[string], [] | [Asset]>,
   'getAssetByRange' : ActorMethod<[bigint, bigint], Array<Asset>>,
   'getAssetComplaints' : ActorMethod<[string], Array<Complaint>>,
+  'getAssetDividend' : ActorMethod<[string], Array<Transaction>>,
   'getAssetOwnerships' : ActorMethod<[string], Array<AssetOwnership>>,
   'getAssetProposals' : ActorMethod<[string], Array<AssetProposal>>,
   'getMyOwnerships' : ActorMethod<[Principal], Array<AssetOwnership>>,

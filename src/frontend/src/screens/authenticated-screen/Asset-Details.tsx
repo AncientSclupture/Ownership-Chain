@@ -11,6 +11,7 @@ import { AssetContentWrapper, assetdetailopt, AssetDetailTabs } from "../../comp
 import AssetOverview from "../../components/asset/asset-overview";
 import AssetSupport from "../../components/asset/asset-support";
 import AssetOwnershipHolder from "../../components/asset/asset-ownership";
+import { AssetDividend } from "../../components/asset/asset-dividend-history";
 
 export function AssetDetailScreen() {
     const [loadedData, setLoadedData] = React.useState<[Asset] | []>([]);
@@ -76,6 +77,7 @@ export function AssetDetailScreen() {
                         listcontent={[
                             { name: assetdetailopt.overview, component: <AssetOverview data={loadedData[0]} /> },
                             { name: assetdetailopt.ownership, component: <AssetOwnershipHolder /> },
+                            { name: assetdetailopt.devidendhistory, component: <AssetDividend /> },
                             { name: assetdetailopt.support, component: <AssetSupport /> },
                         ]}
                     />

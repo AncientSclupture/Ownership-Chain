@@ -3,6 +3,7 @@ import Text "mo:base/Text";
 import Nat "mo:base/Nat";
 import Time "mo:base/Time";
 import Iter "mo:base/Iter";
+import Array "mo:base/Array";
 import DataType "../data/dataType";
 import InputType "../data/inputType";
 
@@ -50,6 +51,21 @@ module TransactionStorage {
         case (null) { return null };
         case (?innermap) {
           return innermap.get(transactionid);
+        };
+      };
+    };
+
+    public func getTransactionByType(assetid : Text, txnType : DataType.TransactionType) : [DataType.Transaction] {
+      switch (transactionStorage.get(assetid)) {
+        case (null) return [];
+        case (?transactionMap) {
+          var retData : [DataType.Transaction] = [];
+          for ((_, tx) in transactionMap.entries()) {
+            if (tx.transactionType == txnType) {
+              retData := Array.append(retData, [tx]);
+            };
+          };
+          return retData;
         };
       };
     };
