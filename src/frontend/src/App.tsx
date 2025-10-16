@@ -10,9 +10,13 @@ import { CreateAssetScreen } from "./screens/action-screen/CreateAsset";
 import { LiquidationScreen } from "./screens/action-screen/Luquidation";
 import { TransactionScreen } from "./screens/action-screen/Transaction";
 import { VotingScreen } from "./screens/action-screen/Voting";
-import { DividendScreen } from "./screens/authenticated-screen/Dividen";
 import { DashboardScreen } from "./screens/authenticated-screen/Dashboard";
 import { ProfileScreen } from "./screens/authenticated-screen/Profile";
+import { AssetDetailScreen } from "./screens/authenticated-screen/Asset-Details";
+import { DashboardDividendScreen } from "./screens/authenticated-screen/Dashboard-Dividend";
+import { DashboardProposalScreen } from "./screens/authenticated-screen/Dashboard-Proposal";
+import { DashboardBuyandSellScreen } from "./screens/authenticated-screen/Dashboard-BuyandSell";
+import { DashboardLiquidationScreen } from "./screens/authenticated-screen/Dashboard-Liquidation";
 
 function App() {
   return (
@@ -23,7 +27,6 @@ function App() {
             <Routes>
               {/* public slash */}
               <Route path="/" element={<HomeScreen />} index />
-              <Route path="/market-place" element={<AssetMarketPlaceScreen />} />
               <Route path="/courting" element={<CourtScreen />} />
               <Route path="/treasury" element={<TreasuryScreen />} />
               
@@ -34,8 +37,14 @@ function App() {
               <Route path="/action-voting" element={<VotingScreen />} />
               
               {/* authentication slash */}
-              <Route path="/protected-dividend" element={<DividendScreen />} />
+              <Route path="/market-place" element={<AssetMarketPlaceScreen />} />
+              <Route path="/protected-asset/:id" element={<AssetDetailScreen />} />
+              
               <Route path="/protected-dashboard" element={<DashboardScreen />} />
+              <Route path="/protected-dividend" element={<DashboardDividendScreen />} />
+              <Route path="/protected-proposal" element={<DashboardProposalScreen />} />
+              <Route path="/protected-buyandsell" element={<DashboardBuyandSellScreen />} />
+              <Route path="/protected-liquidation" element={<DashboardLiquidationScreen />} />
               <Route path="/protected-profile" element={<ProfileScreen />} />
             </Routes>
           </Router>

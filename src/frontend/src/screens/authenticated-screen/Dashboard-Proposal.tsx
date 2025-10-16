@@ -1,30 +1,28 @@
 import React from "react";
 import { Sidebar } from "../../components/dashboard/sidebar";
 import { MainLayout } from "../../components/main-layout";
-import { Asset } from "../../types/rwa";
-import { NotificationContext } from "../../context/NotificationContext";
-import { backendService } from "../../services/backendService";
 import { AuthContext } from "../../context/AuthContext";
+import { NotificationContext } from "../../context/NotificationContext";
+import { AssetProposal } from "../../types/rwa";
+import { backendService } from "../../services/backendService";
 import { LoaderComponent } from "../../components/LoaderComponent";
 import Forbidden from "../../components/forbiden";
-import AssetTable from "../../components/dashboard/asset-table";
-import AssetSupport from "../../components/dashboard/asset-support";
+import UserProposalTable from "../../components/dashboard/user-proposal";
 
-export function DashboardScreen() {
-  const [loadedData, setLoadedData] = React.useState<Asset[]>([]);
+export function DashboardProposalScreen() {
+  const [loadedData, setLoadedData] = React.useState<AssetProposal[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const { setNotificationData } = React.useContext(NotificationContext);
   const { isAuthenticated, userPrincipal } = React.useContext(AuthContext);
-
-  const [assetid, setassetid] = React.useState<string>("");
 
   React.useEffect(() => {
     async function init() {
       setIsLoading(true);
       try {
         if (!userPrincipal) throw new Error("User principal is null");
-        const personalData = await backendService.getPersonalAset(userPrincipal);
-        setLoadedData(personalData);
+        const data = await backendService.getMyProposals(userPrincipal);
+        setLoadedData(data);
+        console.log(data)
       } catch (error) {
         setNotificationData({
           title: "Failed to load data",
@@ -55,25 +53,20 @@ export function DashboardScreen() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-                My Assets
+                Asset Proposal
               </h1>
               <p className="text-sm text-gray-500 mt-1">
-                Overview of your digital assets, ownership, and performance metrics.
+                Overview of your asset purchase proposals and their statuses.
               </p>
             </div>
-
-            <button className="px-4 py-2 background-dark text-white text-sm font-medium rounded-xl shadow hover:bg-indigo-700 transition">
-              + Create New Asset
-            </button>
           </div>
 
           <div className="text-gray-700 space-y-2">
             <p className="text-base text-gray-600">
-              Here you can track all assets you've created or invested in.
-              Manage ownership, monitor token performance, and access detailed analytics.
+              Here you can track all assets proposal you've created.
+              If the progress shows 50% or more, you can proceed to purchase the asset.
             </p>
-            <AssetTable assets={loadedData} setassetid={setassetid} />
-            <AssetSupport assetid={assetid} />
+            <UserProposalTable proposals={loadedData} />
           </div>
         </div>
       </div>

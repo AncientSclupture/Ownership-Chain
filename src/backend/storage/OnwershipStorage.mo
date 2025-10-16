@@ -128,5 +128,17 @@ module OwnershipStorage {
       return Buffer.toArray(resultBuffer);
     };
 
+    public func getAllOwnershipByAssetId(assetid : Text) : [DataType.AssetOwnership] {
+      switch (ownershipStorage.get(assetid)) {
+        case (null) { return [] };
+        case (?innermap) {
+          var resultBuffer = Buffer.Buffer<DataType.AssetOwnership>(10);
+          for ((_, ownership) in innermap.entries()) {
+            resultBuffer.add(ownership);
+          };
+          return Buffer.toArray(resultBuffer);
+        };
+      };
+    };
   };
 };

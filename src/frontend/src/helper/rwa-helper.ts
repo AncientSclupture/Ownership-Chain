@@ -1,4 +1,5 @@
-import { AssetStatus, AssetType, ComplaintType } from "../types/rwa";
+import { AssetStatus, AssetType, ComplaintType, TresuryType } from "../types/rwa";
+import type { Principal } from '@dfinity/principal';
 
 export function ReduceCharacters(d: string, num: number = 20): string {
   if (d.length <= num) return d;
@@ -11,6 +12,21 @@ export function getAssetStatusText(status: AssetStatus | undefined): string {
   if ('Inactive' in status) return 'Inactive';
   if ('Active' in status) return 'Active';
   if ('Pending' in status) return 'Pending';
+  return 'Unknown';
+}
+
+export function getAssetTypeText(assettype: AssetType | undefined): string {
+  if (!assettype) return "Unknown";
+  if ('Digital' in assettype) return 'Digital';
+  if ('Physical' in assettype) return 'Physical';
+  if ('Hybrid' in assettype) return 'Hybrid';
+  return 'Unknown';
+}
+
+export function getTreasuryLedgerText(treasuryledger: TresuryType | undefined): string {
+  if (!treasuryledger) return "Unknown";
+  if ('AssetSupport' in treasuryledger) return 'AssetSupport';
+  if ('Donepayment' in treasuryledger) return 'Donepayment';
   return 'Unknown';
 }
 
@@ -72,6 +88,10 @@ export function formatMotokoTimeSpecific(nanoseconds: bigint): string {
     minute: "2-digit",
     hour12: false,
   }).replace(",", "");
+}
+
+export function calculateTotalVotes(votes: Array<[Principal, number]>): number {
+  return votes.reduce((total, [_, voteCount]) => total + voteCount, 0);
 }
 
 export async function exportKey(key: CryptoKey, type: "private" | "public"): Promise<string> {

@@ -4,10 +4,11 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ModalContext, ModalKindEnum } from "../context/ModalContext";
 import { ChevronDown, Menu, X } from "lucide-react";
+import { ReduceCharacters } from "../helper/rwa-helper";
 
 export function NavigationBar() {
     const { setNotificationData } = React.useContext(NotificationContext);
-    const { isAuthenticated, login } = React.useContext(AuthContext);
+    const { isAuthenticated, login, principal } = React.useContext(AuthContext);
     const { setModalKind } = React.useContext(ModalContext);
     const navigate = useNavigate();
 
@@ -116,9 +117,9 @@ export function NavigationBar() {
                 {/* Connect Button */}
                 <div
                     onClick={handleConnectMe}
-                    className="bg-gray-700 px-3 py-2 rounded-md hover:bg-gray-500 cursor-pointer text-white"
+                    className={`bg-gray-700 px-3 py-2 rounded-md hover:bg-gray-500 cursor-pointer text-white ${isAuthenticated ? 'text-sm' : ''}`}
                 >
-                    {isAuthenticated ? "Connected" : "Connect My Self"}
+                    {isAuthenticated && principal ? ReduceCharacters(principal, 5) : "Connect"}
                 </div>
             </div>
 
@@ -192,7 +193,7 @@ export function NavigationBar() {
                         onClick={handleConnectMe}
                         className="bg-gray-700 px-3 py-2 rounded-md hover:bg-gray-500 cursor-pointer text-center mt-2"
                     >
-                        {isAuthenticated ? "Connected" : "Connect My Self"}
+                        {isAuthenticated && principal ? ReduceCharacters(principal, 5) : "Connect"}
                     </div>
                 </div>
             )}

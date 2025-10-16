@@ -84,20 +84,58 @@ export interface LocationType {
   'long' : number,
   'details' : Array<string>,
 }
+export interface Transaction {
+  'id' : string,
+  'to' : Principal,
+  'status' : TransactionStatus,
+  'transactionType' : TransactionType,
+  'assetid' : string,
+  'totalprice' : bigint,
+  'from' : Principal,
+  'createdAt' : bigint,
+}
+export type TransactionStatus = { 'Done' : null } |
+  { 'Cancled' : null } |
+  { 'Progress' : null };
+export type TransactionType = { 'Buy' : null } |
+  { 'Supportasset' : null } |
+  { 'Liquidation' : null } |
+  { 'Transfer' : null } |
+  { 'Donepayment' : null } |
+  { 'DonepaymentCashback' : null };
+export interface TreasuryLedger {
+  'assetid' : string,
+  'from' : Principal,
+  'createdAt' : bigint,
+  'tsid' : string,
+  'description' : string,
+  'treasuryledgerType' : TresuryType,
+  'priceamount' : bigint,
+}
+export type TresuryType = { 'AssetSupport' : null } |
+  { 'Donepayment' : null };
 export interface _SERVICE {
   'createAsset' : ActorMethod<[CreateAssetInputApi], string>,
   'fileComplaint' : ActorMethod<[string, string, ComplaintType], string>,
   'finishPayment' : ActorMethod<[string, string], string>,
   'getAllAssets' : ActorMethod<[], Array<Asset>>,
+  'getAllTransactionsByAssetId' : ActorMethod<[string], Array<Transaction>>,
+  'getAllTreasury' : ActorMethod<[], Array<TreasuryLedger>>,
+  'getAllTreasuryByAssetId' : ActorMethod<[string], Array<TreasuryLedger>>,
   'getAsset' : ActorMethod<[string], [] | [Asset]>,
   'getAssetByRange' : ActorMethod<[bigint, bigint], Array<Asset>>,
   'getAssetComplaints' : ActorMethod<[string], Array<Complaint>>,
+  'getAssetOwnerships' : ActorMethod<[string], Array<AssetOwnership>>,
   'getAssetProposals' : ActorMethod<[string], Array<AssetProposal>>,
   'getMyOwnerships' : ActorMethod<[Principal], Array<AssetOwnership>>,
   'getMyProposals' : ActorMethod<[Principal], Array<AssetProposal>>,
+  'getPersonalAset' : ActorMethod<[Principal], Array<Asset>>,
   'getTotalAsset' : ActorMethod<[], bigint>,
   'processLiquidation' : ActorMethod<[string, bigint], string>,
-  'proposeAssetPurchase' : ActorMethod<[string, bigint, bigint], string>,
+  'proposeAssetPurchase' : ActorMethod<
+    [string, bigint, bigint, bigint],
+    string
+  >,
   'resolveComplaint' : ActorMethod<[string, string], string>,
   'supportAsset' : ActorMethod<[string, bigint], string>,
   'transferOwnership' : ActorMethod<

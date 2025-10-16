@@ -9,6 +9,7 @@ import InputType "data/inputType";
 import Principal "mo:base/Principal";
 import Time "mo:base/Time";
 import Float "mo:base/Float";
+import Buffer "mo:base/Buffer";
 
 persistent actor {
   private transient let assetStorage = AssetStorage.AssetStorageClass();
@@ -68,6 +69,7 @@ persistent actor {
     assetid : Text,
     token : Nat,
     pricePerToken : Nat,
+    amount : Nat,
   ) : async Text {
     let caller = msg.caller;
 
@@ -88,6 +90,11 @@ persistent actor {
         // Hitung total DP (misalnya 20% dari total price)
         let totalPrice = token * pricePerToken;
         let dpAmount = totalPrice * 20 / 100;
+
+        // Validasi DP amount
+        if (dpAmount > amount) {
+          return "Down payment amount is insufficient. Required: " # debug_show (dpAmount);
+        };
 
         // Simpan DP ke treasury
         let treasuryInput : InputType.CreateTreasuryLedgerInput = {
@@ -201,7 +208,7 @@ persistent actor {
   public shared (msg) func withdrawDPCashback(
     assetid : Text,
     tsid : Text,
-    amount: Nat,
+    amount : Nat,
   ) : async Text {
     let caller = msg.caller;
 
@@ -232,7 +239,7 @@ persistent actor {
     assetid : Text,
     ownershipid : Text,
     amount : Nat,
-    to: Principal
+    to : Principal,
   ) : async Text {
     let caller = msg.caller;
 
@@ -326,7 +333,11 @@ persistent actor {
           from = caller;
         };
 
-        let _ = treasuryStorage.addNewTreasury(treasuryInput);
+        let trsRes = treasuryStorage.addNewTreasury(treasuryInput);
+
+        if (trsRes != "Treasury added") {
+          return "Failed to add support to treasury";
+        };
 
         // Buat transaksi record
         let txInput : InputType.TransactionInput = {
@@ -350,12 +361,35 @@ persistent actor {
     return assetStorage.get(assetid);
   };
 
+  public query func getPersonalAset(user : Principal) : async [DataType.Asset] {
+    var result = Buffer.Buffer<DataType.Asset>(10);
+    for (entry in assetStorage.getEntries()) {
+      let (_id, asset) = entry;
+      if (asset.creator == user) {
+        result.add(asset);
+      };
+    };
+    Buffer.toArray(result);
+  };
+
   public query func getAllAssets() : async [DataType.Asset] {
     return assetStorage.getAll();
   };
 
   public query func getMyOwnerships(user : Principal) : async [DataType.AssetOwnership] {
     return ownershipStorage.getMyOwnership(user);
+  };
+
+  public query func getAssetOwnerships(assetid : Text) : async [DataType.AssetOwnership] {
+    return ownershipStorage.getAllOwnershipByAssetId(assetid);
+  };
+
+  public query func getAllTransactionsByAssetId(assetid : Text) : async [DataType.Transaction] {
+    return transactionStorage.getAllTransactionByAssetId(assetid);
+  };
+
+  public query func getAllTreasury() : async [DataType.TreasuryLedger] {
+    return treasuryStorage.getAllTreasury();
   };
 
   public query func getMyProposals(user : Principal) : async [DataType.AssetProposal] {
@@ -370,12 +404,16 @@ persistent actor {
     return complaintStorage.getComplaintByAssetid(assetid);
   };
 
-  public query func getAssetByRange(start: Nat, end: Nat) : async [DataType.Asset] {
+  public query func getAssetByRange(start : Nat, end : Nat) : async [DataType.Asset] {
     return assetStorage.getRange(start, end);
   };
 
-  public query func getTotalAsset(): async  Nat {
+  public query func getTotalAsset() : async Nat {
     return assetStorage.getTotalCount();
+  };
+
+  public query func getAllTreasuryByAssetId(assetid : Text) : async [DataType.TreasuryLedger] {
+    return treasuryStorage.getAllTreasuryByAssetId(assetid);
   };
 
   // Owner dapat menarik uang dari treasury setelah proposal disetujui

@@ -2,6 +2,7 @@ import HashMap "mo:base/HashMap";
 import Text "mo:base/Text";
 import Nat "mo:base/Nat";
 import Time "mo:base/Time";
+import Iter "mo:base/Iter";
 import DataType "../data/dataType";
 import InputType "../data/inputType";
 
@@ -33,6 +34,15 @@ module TransactionStorage {
       transactionStorage.put(insertedinput.assetid, innerMap);
       transactionCounter += 1;
       return ("Transaction successfully created with id: " # transactionId);
+    };
+
+    public func getAllTransactionByAssetId(assetid : Text) : [DataType.Transaction] {
+      switch (transactionStorage.get(assetid)) {
+        case (null) { return [] };
+        case (?innermap) {
+          return Iter.toArray(innermap.vals());
+        };
+      };
     };
   };
 };

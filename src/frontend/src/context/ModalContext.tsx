@@ -2,6 +2,7 @@ import React, { createContext, useState } from "react";
 
 export enum ModalKindEnum {
     logout = "logout",
+    proposedbuy = "proposedbuy",
 }
 
 export type ModalContextType = {

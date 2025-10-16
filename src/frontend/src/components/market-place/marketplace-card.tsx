@@ -24,7 +24,7 @@ export default function MarketPlaceAssetCard(
             return;
         };
 
-        navigate(`/asset/${id}`);
+        navigate(`/protected-asset/${id}`);
     };
 
     return (

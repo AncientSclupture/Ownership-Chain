@@ -3,7 +3,8 @@ import { AuthClient } from "@dfinity/auth-client";
 import { HttpAgent, Actor } from "@dfinity/agent";
 import { idlFactory as backend_idl } from "../../../declarations/backend";
 import { canisterId as backend_id } from "../../../declarations/backend";
-import { setBackendActor, clearBackendActor } from "../services/backendService";
+import type { Principal } from '@dfinity/principal';
+// import { setBackendActor, clearBackendActor } from "../services/backendService";
 
 type AuthContextType = {
     authClient: AuthClient | null;
@@ -13,6 +14,7 @@ type AuthContextType = {
     login: () => Promise<void>;
     logout: () => Promise<void>;
     isLoading: boolean;
+    userPrincipal: Principal | null;
 };
 
 export const AuthContext = createContext<AuthContextType>({
@@ -23,6 +25,7 @@ export const AuthContext = createContext<AuthContextType>({
     login: async () => { },
     logout: async () => { },
     isLoading: true,
+    userPrincipal: null
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -31,6 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [principal, setPrincipal] = useState<string | null>(null);
     const [actor, setActor] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [userPrincipal, setUserPrincipal] = useState<Principal | null>(null);
 
     useEffect(() => {
         (async () => {
@@ -53,46 +57,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const principalText = identity.getPrincipal().toString();
         console.log("✅ Logged in principal:", principalText);
         setPrincipal(identity.getPrincipal().toString());
+        setUserPrincipal(identity.getPrincipal());
 
-        const canisterId = backend_id || process.env.CANISTER_ID_BACKEND || "23all-uiaaa-aaaac-qb3ma-cai";
-
-        if (!canisterId) {
-            console.error("❌ No canister ID found!");
-            return;
-        }
-
-        console.log("🔗 Using canister ID:", canisterId);
-
-        const host = process.env.DFX_NETWORK === "ic" 
-            ? "https://icp-api.io" 
-            : "http://localhost:4943";
-
-        const agent = new HttpAgent({ 
-            identity,
-            host 
-        });
+        const agent = new HttpAgent({ identity });
 
         if (process.env.DFX_NETWORK !== "ic") {
-            try {
-                await agent.fetchRootKey();
-            } catch (error) {
-                console.warn("Failed to fetch root key:", error);
-            }
+            await agent.fetchRootKey();
         }
 
-        try {
-            const myActor = Actor.createActor(backend_idl, {
-                agent,
-                canisterId,
-            });
+        const myActor = Actor.createActor(backend_idl, {
+            agent,
+            canisterId: backend_id,
+        });
 
-            setActor(myActor);
-            // Pass the actor directly to backendService
-            setBackendActor(myActor);
-            console.log("Actor created successfully");
-        } catch (error) {
-            console.error("Failed to create actor:", error);
-        }
+        setActor(myActor);
+
+        // setBackendActor(myActor);
     };
 
     const login = async () => {
@@ -119,12 +99,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAuthenticated(false);
         setPrincipal(null);
         setActor(null);
+        setUserPrincipal(null);
 
-        clearBackendActor();
+        // clearBackendActor();
     };
 
     return (
         <AuthContext.Provider value={{
+            userPrincipal,
             authClient,
             isAuthenticated,
             principal,
