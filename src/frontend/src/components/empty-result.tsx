@@ -9,8 +9,8 @@ interface EmptyResultProps {
 }
 
 export function EmptyResult({
-  title = "Tidak ada hasil ditemukan",
-  description = "Coba periksa kembali kata kunci pencarianmu atau muat ulang halaman.",
+  title = "No results found",
+  description = "Please check your search keywords again or reload the page.",
   actionButton,
   fullScreen = false,
 }: EmptyResultProps) {

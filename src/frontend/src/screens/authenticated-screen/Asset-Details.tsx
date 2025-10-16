@@ -10,6 +10,7 @@ import { AssetGallery, AssetMainInfo, AssetNavigation } from "../../components/a
 import { AssetContentWrapper, assetdetailopt, AssetDetailTabs } from "../../components/asset/asset-content-handler";
 import AssetOverview from "../../components/asset/asset-overview";
 import AssetSupport from "../../components/asset/asset-support";
+import AssetOwnershipHolder from "../../components/asset/asset-ownership";
 
 export function AssetDetailScreen() {
     const [loadedData, setLoadedData] = React.useState<[Asset] | []>([]);
@@ -74,7 +75,7 @@ export function AssetDetailScreen() {
                         current={selectedOpt}
                         listcontent={[
                             { name: assetdetailopt.overview, component: <AssetOverview data={loadedData[0]} /> },
-                            // { name: assetdetailopt.ownership, component: <AssetSupport /> },
+                            { name: assetdetailopt.ownership, component: <AssetOwnershipHolder /> },
                             { name: assetdetailopt.support, component: <AssetSupport /> },
                         ]}
                     />

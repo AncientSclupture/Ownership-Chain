@@ -12,19 +12,11 @@ export function MarketPlaceSearchAsset() {
                 <div className="p-4 space-y-5 w-full md:flex md:items-center md:space-x-3 md:space-y-0">
                     <input
                         type="text" name="search" id="search"
-                        className="border border-gray-300 w-full rounded-md p-2 md:w-[70%]"
+                        className="border border-gray-300 w-full rounded-md p-2 md:w-full"
                         placeholder="cosmic girls"
                         value={seacrhQuery}
                         onChange={(e) => setSeacrhQuery(e.target.value)}
                     />
-                    <select
-                        name="status" id="status" className="w-full border border-gray-300 rounded-md p-2 md:w-[15%]"
-                    >
-                        <option value="all">All</option>
-                        <option value="active">Active</option>
-                        <option value="pending">Pending</option>
-                        <option value="inactive">In active</option>
-                    </select>
                     <button
                         className="background-dark p-2 rounded-md w-full flex items-center justify-center space-x-3 cursor-pointer md:w-[15%]"
                     >

@@ -8,6 +8,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { LoaderComponent } from "../../components/LoaderComponent";
 import AssetTable from "../../components/dashboard/asset-table";
 import AssetSupport from "../../components/dashboard/asset-support";
+import { useNavigate } from "react-router-dom";
 
 export function DashboardScreen() {
   const [loadedData, setLoadedData] = React.useState<Asset[]>([]);
@@ -16,6 +17,8 @@ export function DashboardScreen() {
   const { userPrincipal } = React.useContext(AuthContext);
 
   const [assetid, setassetid] = React.useState<string>("");
+
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     async function init() {
@@ -58,7 +61,7 @@ export function DashboardScreen() {
               </p>
             </div>
 
-            <button className="px-4 py-2 background-dark text-white text-sm font-medium rounded-xl shadow hover:bg-indigo-700 transition">
+            <button className="px-4 py-2 background-dark text-white text-sm font-medium rounded-xl shadow hover:bg-indigo-700 transition" onClick={() => navigate("/action-create")}>
               + Create New Asset
             </button>
           </div>

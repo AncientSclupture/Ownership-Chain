@@ -8,6 +8,7 @@ import { FooterNavigation } from "./footer";
 import { ModalKindEnum } from "../context/ModalContext";
 import ModalLogout from "./modal/modal-logout";
 import ModalProposedBuyToken from "./modal/modal-proposed-buy-token";
+import ModalAddAssetRule from "./modal/modal-addrule";
 
 export function MainLayout({ needProtection = true, children }: { needProtection?: boolean, children: React.ReactNode }) {
     const { isAuthenticated, userPrincipal } = React.useContext(AuthContext);
@@ -26,6 +27,7 @@ export function MainLayout({ needProtection = true, children }: { needProtection
                 listcontent={[
                     { name: ModalKindEnum.logout, component: <ModalLogout /> },
                     { name: ModalKindEnum.proposedbuy, component: <ModalProposedBuyToken /> },
+                    { name: ModalKindEnum.addrule, component: <ModalAddAssetRule /> },
                 ]}
             />
 
