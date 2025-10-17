@@ -96,7 +96,7 @@ export function HouseModel() {
   const { scene } = useGLTF(modelUrl);
 
 
-  return <primitive object={scene} scale={0.8} position={[-10, -19, -50]}  />;
+  return <primitive object={scene} scale={0.8} position={[-10, -19, -50]} />;
 }
 
 
@@ -118,13 +118,29 @@ export function HomeScreen() {
           </button>
         </div>
 
-        <div className="w-full md:w-1/2 aspect-[4/3] sm:aspect-[16/9] overflow-hidden flex justify-center items-center">
-          <Canvas camera={{ position: [2, 2, 4], fov: 45 }}>
-            <ambientLight intensity={0.8} />
-            <directionalLight position={[3, 5, 2]} intensity={1.2} />
+        <div className="w-full md:w-1/2 aspect-[4/3] sm:aspect-[16/9] overflow-hidden justify-center items-center hidden md:flex">
+          <Canvas camera={{ position: [4, 2, 4], fov: 45 }}>
+            {/* Lighting */}
+            <ambientLight intensity={0.6} />
+            <directionalLight position={[5, 8, 3]} intensity={1.3} castShadow />
+
+            {/* Model */}
             <HouseModel />
+
+            {/* Environment */}
             <Environment preset="city" />
-            <OrbitControls enableZoom={false} />
+
+            {/* Controls */}
+            <OrbitControls
+              enableZoom={true}
+              enablePan={false}
+              enableDamping={true}
+              dampingFactor={0.05}
+              minPolarAngle={Math.PI / 3}   // 60°
+              maxPolarAngle={Math.PI / 2.2} // 82°
+              minAzimuthAngle={-Math.PI / 2} // -90°
+              maxAzimuthAngle={Math.PI / 2}  // +90°
+            />
           </Canvas>
         </div>
       </section>
@@ -141,7 +157,7 @@ export function HomeScreen() {
       </section>
       {/* How It Work Section*/}
       <section className="text-center px-6 sm:px-10 py-16">
-        <HowItWorks/>
+        <HowItWorks />
       </section>
 
       <section className="bg-[#00081A] text-white py-20 px-6 text-center">
