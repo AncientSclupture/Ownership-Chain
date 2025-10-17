@@ -110,6 +110,12 @@ export function NavigationBar() {
                             >
                                 Voting
                             </div>
+                             <div
+                                onClick={() => handleDirect("/protected-complaint")}
+                                className="px-4 py-2 hover:bg-gray-700 cursor-pointer"
+                            >
+                                Complaint
+                            </div>
                         </div>
                     )}
                 </div>
@@ -184,6 +190,12 @@ export function NavigationBar() {
                                     className="hover:text-gray-300 cursor-pointer"
                                 >
                                     Voting
+                                </div>
+                                <div
+                                    onClick={() => handleDirect("/action-voting")}
+                                    className="hover:text-gray-300 cursor-pointer"
+                                >
+                                    Complaint
                                 </div>
                             </div>
                         )}

@@ -80,11 +80,6 @@ export const ProposalVotingCard: React.FC<ProposalVotingCardProps> = ({
         >
           Approve
         </button>
-        <button
-          className="px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-800 hover:bg-gray-200 transition-colors text-sm font-medium"
-        >
-          Reject
-        </button>
       </div>
     </div>
   );

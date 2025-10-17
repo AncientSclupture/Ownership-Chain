@@ -2,10 +2,73 @@ import React from "react";
 import { EmptyResult } from "../empty-result";
 import { AssetOwnership } from "../../types/rwa";
 import { formatMotokoTime } from "../../helper/rwa-helper";
+import { backendService } from "../../services/backendService";
+import { NotificationContext } from "../../context/NotificationContext";
+
+export function HandleOpenOwnership({
+    assetid,
+    ownershipid,
+    status,
+}: {
+    assetid: string;
+    ownershipid: string;
+    status: boolean;
+}) {
+    const [isloading, setIsloading] = React.useState(false);
+    const { setNotificationData } = React.useContext(NotificationContext);
+    const [issuccess, setIssuccess] = React.useState(status);
+
+    async function handleOpenData() {
+        if (issuccess) return; // kalau sudah open, hentikan eksekusi
+        try {
+            setIsloading(true);
+            const res = await backendService.openMyOwnership(assetid, ownershipid);
+            if (res[0] === false) throw new Error(res[1]);
+
+            setNotificationData({
+                title: "Success",
+                description: res[1],
+                position: "bottom-right",
+            });
+            setIssuccess(true);
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : String(error);
+            setNotificationData({
+                title: "Error while opening ownership for sale",
+                description: msg,
+                position: "bottom-right",
+            });
+        } finally {
+            setIsloading(false);
+        }
+    }
+
+    return (
+        <div
+            className={`py-2 rounded-md text-white text-center font-medium transition-colors ${issuccess
+                ? "bg-green-600"
+                : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
+                }`}
+        >
+            <button
+                onClick={handleOpenData}
+                disabled={isloading || issuccess}
+                className="w-full disabled:opacity-70"
+            >
+                {isloading
+                    ? "Loading..."
+                    : issuccess
+                        ? "Already Opened"
+                        : "Open for Sale"}
+            </button>
+        </div>
+    );
+}
+
 
 export default function UserOwnershipTable(
-    { ownerships, setSelectedId }:
-        { ownerships: AssetOwnership[]; setSelectedId?: (d: string) => void | null; }
+    { ownerships, setSelectedId, notshowopen }:
+        { ownerships: AssetOwnership[]; setSelectedId?: (d: string) => void | null; notshowopen?: boolean }
 ) {
     const [searchTerm, setSearchTerm] = React.useState("");
 
@@ -48,6 +111,8 @@ export default function UserOwnershipTable(
                             <th className="px-4 py-3 text-left">Token</th>
                             <th className="px-4 py-3 text-left">Time</th>
                             <th className="px-4 py-3 text-left">Expired At</th>
+                            {notshowopen && <th className="px-4 py-3 text-left"></th>}
+                            {!notshowopen && <th className="px-4 py-3 text-left">status</th>}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -69,6 +134,8 @@ export default function UserOwnershipTable(
                                     <td className="px-4 py-3 text-gray-800">{item.tokenhold}</td>
                                     <td className="px-4 py-3 text-gray-600">{formatMotokoTime(item.holdat)}</td>
                                     <td className="px-4 py-3 text-gray-800">{formatMotokoTime(item.upuntil)}</td>
+                                    {notshowopen && <td className="px-4 py-3 text-gray-800"><HandleOpenOwnership assetid={item.assetid} ownershipid={item.id} status={item.openForSale} /></td>}
+                                    {!notshowopen && <th className="px-4 py-3 text-left">{item.openForSale ? "Open" : "Not for asle"}</th>}
                                 </tr>
                             ))
                         ) : (

@@ -71,6 +71,7 @@ export function AssetMainInfo(
                     <p className="text-gray-700">AI Examiner</p>
                 </button>
                 <button
+                    onClick={() => setModalKind(ModalKindEnum.supportasset)}
                     className="flex items-center space-x-3 p-2 w-full justify-center border border-gray-300"
                 >
                     <Handshake color="gray" />

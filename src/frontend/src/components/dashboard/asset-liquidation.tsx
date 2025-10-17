@@ -3,10 +3,15 @@ import { EmptyResult } from "../empty-result";
 import { Asset } from "../../types/rwa";
 import { getAssetStatusText, getAssetTypeText } from "../../helper/rwa-helper";
 import { useNavigate } from "react-router-dom";
+import { NotificationContext } from "../../context/NotificationContext";
+import { LoaderComponent } from "../LoaderComponent";
+import { backendService } from "../../services/backendService";
 
 export default function AssetLiquidationCards({ assets }: { assets: Asset[] }) {
     const [searchTerm, setSearchTerm] = React.useState("");
     const [filteredAssets, setFilteredAssets] = React.useState<Asset[]>(assets);
+    const [isloading, setIsloading] = React.useState(false);
+    const { setNotificationData } = React.useContext(NotificationContext);
 
     const navigate = useNavigate();
 
@@ -17,9 +22,22 @@ export default function AssetLiquidationCards({ assets }: { assets: Asset[] }) {
         setFilteredAssets(data);
     }, [searchTerm, assets]);
 
-    const handleInactive = (assetId: string) => {
+    const handleInactive = async (assetId: string) => {
         console.log(`Asset ${assetId} will be set to inactive`);
+        try {
+            setIsloading(true);
+            const res = await backendService.inactiveAsset(assetId);
+            if (res[0] === false) throw new Error(res[1]);
+            setNotificationData({ title: "Success inactivate asset", description: res[1], position: "bottom-right" })
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : String(error);
+            setNotificationData({ title: "Error while inactivate asset", description: msg, position: "bottom-right" })
+        } finally {
+            setIsloading(false);
+        }
     };
+
+    if (isloading) return <LoaderComponent fullScreen={true} />
 
     return (
         <div className="w-full">
@@ -77,16 +95,18 @@ export default function AssetLiquidationCards({ assets }: { assets: Asset[] }) {
                             {/* Action Button */}
                             <div className="mt-4 flex justify-between">
                                 <button
+                                    disabled={isloading}
                                     onClick={() => navigate(`/protected-asset/${asset.id}`)}
                                     className="px-4 py-2 rounded-lg bg-gray-300 text-black text-sm font-medium transition"
                                 >
-                                    Details
+                                    {isloading ? "loading" : "Details"}
                                 </button>
                                 <button
+                                    disabled={isloading || getAssetStatusText(asset.assetStatus) === "Inactive"}
                                     onClick={() => handleInactive(asset.id)}
                                     className="px-4 py-2 rounded-lg bg-red-700 text-white text-sm font-medium transition"
                                 >
-                                    Inactive
+                                    {isloading ? "loading" : getAssetStatusText(asset.assetStatus) === "Inactive" ? "already inactive" : "Inactive"}
                                 </button>
                             </div>
                         </div>

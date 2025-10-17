@@ -5,6 +5,8 @@ export enum ModalKindEnum {
     logout = "logout",
     proposedbuy = "proposedbuy",
     addrule = "addrule",
+    createassetcomplaint = "createassetcomplaint",
+    supportasset = "supportasset",
 }
 
 export type ModalContextType = {

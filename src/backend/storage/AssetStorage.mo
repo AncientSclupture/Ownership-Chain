@@ -52,7 +52,7 @@ module AssetStorage {
       id;
     };
 
-    public func editAssetStatus(assetId : Text, newStatus : DataType.AssetStatus) : Text {
+    public func editAssetStatus(assetId : Text, newStatus : DataType.AssetStatus) : (Bool, Text) {
       switch (assetStorage.get(assetId)) {
         case (?asset) {
           let updated : DataType.Asset = {
@@ -82,10 +82,10 @@ module AssetStorage {
             updatedAt = Time.now();
           };
           assetStorage.put(assetId, updated);
-          return "Asset status updated for " # assetId;
+          return (true, "Asset status updated for " # assetId);
         };
         case (null) {
-          return "Asset not found: " # assetId;
+          return (false, "Asset not found: " # assetId);
         };
       };
     };

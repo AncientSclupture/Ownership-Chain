@@ -40,7 +40,7 @@ module OwnershipStorage {
       return "Ownership added for asset " # assetId # " by ownership " # id;
     };
 
-    public func changeOwnershipHolder(from : Principal, to : Principal, assetid : Text, ownershipid : Text, amount : Nat, allowZeroAmount : Bool,) : (Bool, Text) {
+    public func changeOwnershipHolder(from : Principal, to : Principal, assetid : Text, ownershipid : Text, amount : Nat, allowZeroAmount : Bool) : (Bool, Text) {
       switch (ownershipStorage.get(assetid)) {
         case (null) { return (false, "Asset Not Found") };
         case (?innermap) {
@@ -152,16 +152,16 @@ module OwnershipStorage {
       };
     };
 
-    public func isOwnershipForSale(assetid : Text, ownershipid : Text): Bool {
+    public func isOwnershipForSale(assetid : Text, ownershipid : Text) : Bool {
       switch (ownershipStorage.get(assetid)) {
         case (null) { return false };
         case (?innermap) {
-          switch(innermap.get(ownershipid)){
-            case (null) {return false};
-            case (?ownsership){
+          switch (innermap.get(ownershipid)) {
+            case (null) { return false };
+            case (?ownsership) {
               return ownsership.openForSale;
-            }
-          }
+            };
+          };
         };
       };
     };
@@ -177,6 +177,37 @@ module OwnershipStorage {
             };
           };
           return (false, 0);
+        };
+      };
+    };
+
+    public func openMyOwnership(assetid : Text, ownershipid : Text, user : Principal) : (Bool, Text) {
+      switch (ownershipStorage.get(assetid)) {
+        case (null) { return (false, "Asset id is not valid") };
+        case (?innermap) {
+          switch (innermap.get(ownershipid)) {
+            case (null) { return (false, "Ownership is not found") };
+            case (?own) {
+              if (own.owner != user) {
+                return (false, "You are not the owner");
+              };
+
+              let updated : DataType.AssetOwnership = {
+                id = own.id;
+                assetid = own.assetid;
+                owner = own.owner;
+                tokenhold = own.tokenhold;
+                openForSale = true;
+                buyingprice = own.buyingprice;
+                upuntil = own.upuntil;
+                holdat = own.holdat;
+              };
+
+              innermap.put(ownershipid, updated);
+
+              return (true, "Success");
+            };
+          };
         };
       };
     };

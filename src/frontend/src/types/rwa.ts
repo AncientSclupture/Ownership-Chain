@@ -147,7 +147,9 @@ export interface _SERVICE {
     [] | [Transaction]
   >,
   'getTreasuryByAssetId' : ActorMethod<[string, string], [] | [TreasuryLedger]>,
-  'processLiquidation' : ActorMethod<[string, bigint], [boolean, string]>,
+  'inactiveAsset' : ActorMethod<[string], [boolean, string]>,
+  'openMyOwnership' : ActorMethod<[string, string], [boolean, string]>,
+  'processLiquidation' : ActorMethod<[string], [boolean, string]>,
   'proposeAssetPurchase' : ActorMethod<
     [string, bigint, bigint, bigint],
     [boolean, string]

@@ -9,6 +9,8 @@ import { ModalKindEnum } from "../context/ModalContext";
 import ModalLogout from "./modal/modal-logout";
 import ModalProposedBuyToken from "./modal/modal-proposed-buy-token";
 import ModalAddAssetRule from "./modal/modal-addrule";
+import ModalCreateAssetComplaint from "./modal/modal-create-complaint";
+import ModalSupportAsset from "./modal/modal-suppoet-asset";
 
 export function MainLayout({ needProtection = true, children }: { needProtection?: boolean, children: React.ReactNode }) {
     const { isAuthenticated, userPrincipal } = React.useContext(AuthContext);
@@ -28,6 +30,8 @@ export function MainLayout({ needProtection = true, children }: { needProtection
                     { name: ModalKindEnum.logout, component: <ModalLogout /> },
                     { name: ModalKindEnum.proposedbuy, component: <ModalProposedBuyToken /> },
                     { name: ModalKindEnum.addrule, component: <ModalAddAssetRule /> },
+                    { name: ModalKindEnum.createassetcomplaint, component: <ModalCreateAssetComplaint /> },
+                    { name: ModalKindEnum.supportasset, component: <ModalSupportAsset /> },
                 ]}
             />
 

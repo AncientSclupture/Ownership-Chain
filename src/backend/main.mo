@@ -248,11 +248,11 @@ persistent actor {
     // validasi expiredtime dari proposal by default in 20 days
     let (validationStatus, isexpiredStatus) = assetproposalStorage.validateExpired(assetid, proposalid, 20);
 
-    if (validationStatus == false){
+    if (validationStatus == false) {
       return (false, "Proposal fetching is not valid");
     };
 
-    if (isexpiredStatus == false){
+    if (isexpiredStatus == false) {
       return (false, "Proposal fetching is not expired yet");
     };
 
@@ -288,7 +288,7 @@ persistent actor {
 
     let (status, resultmsg) = ownershipStorage.changeOwnershipHolder(caller, to, assetid, ownershipid, 0, true);
 
-    if (status == false){
+    if (status == false) {
       return (status, resultmsg);
     };
 
@@ -319,7 +319,7 @@ persistent actor {
 
     let isForOpen = ownershipStorage.isOwnershipForSale(assetid, ownershipid);
 
-    if (isForOpen == false){
+    if (isForOpen == false) {
       return (false, "Ownership is not for sale");
     };
 
@@ -348,7 +348,7 @@ persistent actor {
 
   // 7. User bisa mendapatkan Liquidation sharing (ketika asset bankrupt/fraud)
   public shared (msg) func processLiquidation(
-    assetid : Text,
+    assetid : Text
   ) : async (Bool, Text) {
     let caller = msg.caller;
 
@@ -357,13 +357,13 @@ persistent actor {
       case (null) { return (false, "Asset not found") };
       case (?asset) {
         // Update asset status menjadi Inactive
-        if (asset.assetStatus != #Inactive){
+        if (asset.assetStatus != #Inactive) {
           return (false, "Asset is Still alive");
         };
 
         let (ownershipStatus, tokenHold) = ownershipStorage.getTokenHolder(assetid, caller);
 
-        if (ownershipStatus == false){
+        if (ownershipStatus == false) {
           return (false, "You are not the sharing holder");
         };
 
@@ -386,7 +386,6 @@ persistent actor {
 
         let _ = treasuryStorage.addNewTreasury(treasuryInput);
 
-
         return (true, "Liquidation process initiated for asset " # assetid);
       };
     };
@@ -400,6 +399,12 @@ persistent actor {
   ) : async (Bool, Text) {
     let caller = msg.caller;
 
+    let (chengeassetStatus, changeassetMsg) = assetStorage.editAssetStatus(assetid, #Pending);
+
+    if (chengeassetStatus == false) {
+      return (false, changeassetMsg);
+    };
+
     let input : InputType.ComplaintInput = {
       reporter = caller;
       reason = reason;
@@ -409,6 +414,19 @@ persistent actor {
     };
 
     return (true, complaintStorage.createComplaint(input));
+  };
+
+  public shared (msg) func inactiveAsset(assetid : Text) : async (Bool, Text) {
+    let caller = msg.caller;
+    switch (assetStorage.get(assetid)) {
+      case (null) { return (false, "Asset not found") };
+      case (?asset) {
+        if (asset.creator != caller) {
+          return (false, "You are not the asset creator");
+        };
+      };
+    };
+    return assetStorage.editAssetStatus(assetid, #Inactive);
   };
 
   // 9. User bisa support asset
@@ -452,6 +470,11 @@ persistent actor {
         return (true, "Support sent successfully to asset " # assetid);
       };
     };
+  };
+
+  public shared (msg) func openMyOwnership(assetid : Text, ownershipid : Text) : async (Bool, Text) {
+    let caller = msg.caller;
+    return ownershipStorage.openMyOwnership(assetid, ownershipid, caller);
   };
 
   // Query functions

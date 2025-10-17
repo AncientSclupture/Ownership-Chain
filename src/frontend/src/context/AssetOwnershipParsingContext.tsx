@@ -7,7 +7,7 @@ export type AssetOwnershipParsingDatatype = {
     transactionid: string | null;
     targetprincipal: Principal | null;
     price: bigint | null;
-    setassetid: (d: string) => void;
+    setassetid: (d: string | null) => void;
     setownershipid: (d: string) => void;
     settransactionid: (d: string) => void;
     settargetprincipal: (d: Principal | null) => void;
@@ -34,7 +34,7 @@ export const AssetOwnershipParsingDataProvider: React.FC<{ children: React.React
     const [price, setPrice] = useState<bigint | null>(null);
     const [transactionid, setTransactionId] = useState<string | null>(null);
 
-    function setassetid(d: string) {
+    function setassetid(d: string | null) {
         setAssetid(d);
     }
 

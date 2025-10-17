@@ -148,7 +148,7 @@ export const backendService = {
         }
     },
 
-     async getTreasuryByAssetId(assetid: string, treasuryid: string): Promise<[TreasuryLedger] | []> {
+    async getTreasuryByAssetId(assetid: string, treasuryid: string): Promise<[TreasuryLedger] | []> {
         try {
             const actor = await getActor();
             const res = await actor.getTreasuryByAssetId(assetid, treasuryid);
@@ -347,4 +347,24 @@ export const backendService = {
             return error instanceof Error ? [false, error.message] : [false, String(error)];
         }
     },
+
+    async inactiveAsset(assetid: string): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.inactiveAsset(assetid);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    },
+
+    async openMyOwnership(assetid: string, ownershipid: string,): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.openMyOwnership(assetid, ownershipid);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    }
 };

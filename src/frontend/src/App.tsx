@@ -4,8 +4,6 @@ import { PopUpProvider } from "./context/NotificationContext";
 import { AuthProvider } from "./context/AuthContext";
 import { HomeScreen } from "./screens/public-screen/Home";
 import { AssetMarketPlaceScreen } from "./screens/public-screen/Asset-Marketplace";
-import { CourtScreen } from "./screens/public-screen/Court";
-import { TreasuryScreen } from "./screens/public-screen/Treasury";
 import { CreateAssetScreen } from "./screens/action-screen/CreateAsset";
 import { LiquidationScreen } from "./screens/action-screen/Luquidation";
 import { TransactionScreen } from "./screens/action-screen/Transaction";
@@ -18,6 +16,7 @@ import { DashboardBuyandSellScreen } from "./screens/authenticated-screen/Dashbo
 import { DashboardLiquidationScreen } from "./screens/authenticated-screen/Dashboard-Liquidation";
 import { DashboardTransactionScreen } from "./screens/authenticated-screen/Dashboard-Transaction";
 import { AssetOwnershipParsingDataProvider } from "./context/AssetOwnershipParsingContext";
+import ComplaintAssetScreen from "./screens/authenticated-screen/Complaint-Asset";
 
 function App() {
   return (
@@ -35,13 +34,11 @@ function App() {
                 <Route path="/action-luquidation" element={<LiquidationScreen />} />
                 <Route path="/action-transaction" element={<TransactionScreen />} />
                 <Route path="/action-voting" element={<VotingScreen />} />
+                <Route path="/protected-complaint" element={<ComplaintAssetScreen />} />
 
                 {/* authentication slash */}
                 <Route path="/market-place" element={<AssetMarketPlaceScreen />} />
                 <Route path="/protected-asset/:id" element={<AssetDetailScreen />} />
-
-                <Route path="/courting" element={<CourtScreen />} />
-                <Route path="/treasury" element={<TreasuryScreen />} />
 
                 <Route path="/protected-dashboard" element={<DashboardScreen />} />
                 <Route path="/protected-transaction" element={<DashboardTransactionScreen />} />

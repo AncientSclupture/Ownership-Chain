@@ -63,6 +63,17 @@ export function text2AssetType(status: string): AssetType {
   }
 }
 
+export function text2ComplaintType(complaintype: string): ComplaintType {
+  switch (complaintype) {
+    case "Fraud":
+      return { "Fraud": null }
+    case "Plagiarism":
+      return { "Plagiarism": null }
+    default:
+      throw new Error(`Invalid asset status: ${complaintype}`);
+  }
+}
+
 export function text2AssetStatus(status: string): AssetStatus {
   switch (status.toLowerCase()) {
     case "inactive":
