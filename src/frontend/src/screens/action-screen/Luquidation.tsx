@@ -30,7 +30,6 @@ export function LiquidationScreen() {
 
     const handleLiquidate = async () => {
         setIsProcessing(true);
-        // 🔸 Simulasi proses pencairan dana
         setTimeout(() => {
             alert(`Funds from ${assetData?.name} have been successfully liquidated!`);
             setAssetData(null);

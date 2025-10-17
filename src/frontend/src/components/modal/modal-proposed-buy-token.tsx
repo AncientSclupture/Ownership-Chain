@@ -35,16 +35,22 @@ export default function ModalProposedBuyToken() {
             );
             setResult(res);
             setModalKind(null);
-        } catch (error) {
-            setResult(error instanceof Error ? [false, error.message] : [false, String(error)]);
-        } finally {
-            setLoading(false);
             setNotificationData({
-                title: result[0] ? "Proposal Result" : "Error",
-                description: result[1] || "An error occurred",
+                title: "Success",
+                description: result[1],
                 position: "bottom-right",
                 duration: 800,
             })
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : String(error);
+            setNotificationData({
+                title: "Failed",
+                description: msg,
+                position: "bottom-right",
+                duration: 800,
+            })
+        } finally {
+            setLoading(false);
         }
     };
 

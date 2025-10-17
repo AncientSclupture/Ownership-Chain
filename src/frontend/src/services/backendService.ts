@@ -148,6 +148,16 @@ export const backendService = {
         }
     },
 
+     async getTreasuryByAssetId(assetid: string, treasuryid: string): Promise<[TreasuryLedger] | []> {
+        try {
+            const actor = await getActor();
+            const res = await actor.getTreasuryByAssetId(assetid, treasuryid);
+            return res;
+        } catch (error) {
+            return [];
+        }
+    },
+
     async getPersonalAset(user: Principal): Promise<Asset[]> {
         try {
             const actor = await getActor();
@@ -172,6 +182,16 @@ export const backendService = {
         try {
             const actor = await getActor();
             const res = await actor.getAssetProposals(assetid);
+            return res;
+        } catch (error) {
+            return [];
+        }
+    },
+
+    async getProposal(assetid: string, proposalid: string): Promise<[] | [AssetProposal]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.getProposal(assetid, proposalid);
             return res;
         } catch (error) {
             return [];
@@ -268,10 +288,10 @@ export const backendService = {
         }
     },
 
-    async withdrawDPCashback(assetid: string, tsid: string, amount: bigint): Promise<[boolean, string]> {
+    async withdrawDPCashback(assetid: string, tsid: string, proposalid: string, amount: bigint): Promise<[boolean, string]> {
         try {
             const actor = await getActor();
-            const res = await actor.withdrawDPCashback(assetid, tsid, amount);
+            const res = await actor.withdrawDPCashback(assetid, tsid, proposalid, amount);
             return res;
         } catch (error) {
             return error instanceof Error ? [false, error.message] : [false, String(error)];

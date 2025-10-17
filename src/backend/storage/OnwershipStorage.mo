@@ -40,29 +40,29 @@ module OwnershipStorage {
       return "Ownership added for asset " # assetId # " by ownership " # id;
     };
 
-    public func changeOwnershipHolder(from : Principal, to : Principal, assetid : Text, ownershipid : Text, amount : Nat, allowZeroAmount : Bool,) : Text {
+    public func changeOwnershipHolder(from : Principal, to : Principal, assetid : Text, ownershipid : Text, amount : Nat, allowZeroAmount : Bool,) : (Bool, Text) {
       switch (ownershipStorage.get(assetid)) {
-        case (null) { return "Asset Not Found" };
+        case (null) { return (false, "Asset Not Found") };
         case (?innermap) {
           switch (innermap.get(ownershipid)) {
-            case (null) { return "Ownership not found" };
+            case (null) { return (false, "Ownership not found") };
             case (?owns) {
               if (owns.owner == to) {
-                return "You cannot transfer to yourself";
+                return (false, "You cannot transfer to yourself");
               };
               if (owns.owner != from) {
-                return "You are not the owner of this ownership";
+                return (false, "You are not the owner of this ownership");
               };
               if (owns.openForSale == false and not allowZeroAmount) {
-                return "This ownership is not open for sale";
+                return (false, "This ownership is not open for sale");
               };
-              if (owns.upuntil < Time.now()) {
-                return "This ownership is expired";
+              if (owns.upuntil < Time.now() and owns.upuntil != 0) {
+                return (false, "This ownership is expired");
               };
 
               // ✅ Allow transaction if allowZeroAmount = true
               if (not allowZeroAmount and amount < owns.buyingprice) {
-                return "Insufficient amount";
+                return (false, "Insufficient amount");
               };
 
               switch (checkPartOfHolder(assetid, to)) {
@@ -78,7 +78,7 @@ module OwnershipStorage {
                     holdat = Time.now();
                   };
                   innermap.put(owns.id, newOwn);
-                  return "Success";
+                  return (true, "Success");
                 };
                 case (?currentOwnership) {
                   let newOwn : DataType.AssetOwnership = {
@@ -92,7 +92,7 @@ module OwnershipStorage {
                     holdat = Time.now();
                   };
                   innermap.put(currentOwnership.id, newOwn);
-                  return "Success";
+                  return (true, "Success");
                 };
               };
             };
@@ -148,6 +148,35 @@ module OwnershipStorage {
         case (null) { return null };
         case (?innermap) {
           return innermap.get(ownershipid);
+        };
+      };
+    };
+
+    public func isOwnershipForSale(assetid : Text, ownershipid : Text): Bool {
+      switch (ownershipStorage.get(assetid)) {
+        case (null) { return false };
+        case (?innermap) {
+          switch(innermap.get(ownershipid)){
+            case (null) {return false};
+            case (?ownsership){
+              return ownsership.openForSale;
+            }
+          }
+        };
+      };
+    };
+
+    public func getTokenHolder(assetid : Text, user : Principal) : (Bool, Nat) {
+      switch (ownershipStorage.get(assetid)) {
+        case (null) { return (false, 0) };
+        case (?innermap) {
+          label l for ((_, ownership) in innermap.entries()) {
+            if (ownership.owner == user) {
+              return (true, ownership.tokenhold);
+              break l;
+            };
+          };
+          return (false, 0);
         };
       };
     };

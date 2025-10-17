@@ -115,6 +115,21 @@ module AssetProposalStorage {
       };
 
       return result;
-    }
+    };
+
+    public func validateExpired(assetid: Text, proposalid: Text, maturitytime: Int): (Bool, Bool) {
+      switch (assetproposalStorage.get(assetid)){
+        case (null) {return (false, false)};
+        case (?innermap) {
+          switch (innermap.get(proposalid)){
+            case (null){return (false, false)};
+            case (?proposal){
+              let duration = maturitytime * 24 * 60 * 60 * 1_000_000_000;
+              return (true, Time.now() > (proposal.createdAt + duration));
+            };
+          }
+        }
+      }
+    };
   };
 };

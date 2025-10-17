@@ -151,20 +151,20 @@ persistent actor {
   public shared (msg) func finishPayment(
     assetid : Text,
     proposalid : Text,
-    amount: Nat,
+    amount : Nat,
   ) : async (Bool, Text) {
     let caller = msg.caller;
 
-    // Get proposal
+    // Ambil proposal
     switch (assetproposalStorage.getProposal(assetid, proposalid)) {
       case (null) { return (false, "Proposal not found") };
       case (?proposal) {
-        // Validasi caller adalah pembuat proposal
+        // Validasi bahwa caller adalah pembuat proposal
         if (proposal.from != caller) {
           return (false, "Only proposal creator can finish payment");
         };
 
-        // Get asset untuk validasi
+        // Ambil data asset
         switch (assetStorage.get(assetid)) {
           case (null) { return (false, "Asset not found") };
           case (?asset) {
@@ -174,17 +174,37 @@ persistent actor {
               totalPrice - dpAmount;
             } else { 0 };
 
-            if (remainingPayment != amount){
-              return (false, "Payment failed, because unsuficient amount");
+            // Hitung rasio token terjual
+            let soldRatio : Float = Float.fromInt(asset.totalToken - asset.tokenLeft) / Float.fromInt(asset.totalToken);
+
+            // Hitung total vote value
+            var totalVoteValue : Float = 0;
+            for ((_, value) in proposal.votes.vals()) {
+              totalVoteValue += value;
             };
 
+            let voteRatio : Float = totalVoteValue / Float.fromInt(asset.totalToken);
+
+            // Validasi berdasarkan kondisi voting
+            if (soldRatio < 0.5) {
+              if (voteRatio <= 0.5) {
+                return (false, "Voting approval not enough (< 50%) to continue payment.");
+              };
+            };
+
+            // Validasi jumlah pembayaran
+            if (remainingPayment != amount) {
+              return (false, "Payment failed, because insufficient amount");
+            };
+
+            // Kurangi token di asset
             let (status, reduceTokenMsg) = assetStorage.reduceAssetToken(asset.id, amount);
 
-            if (not status){
+            if (status == false) {
               return (false, reduceTokenMsg);
             };
 
-            // Buat transaksi untuk remaining payment
+            // Buat transaksi pembayaran
             let txInput : InputType.TransactionInput = {
               assetid = assetid;
               to = asset.creator;
@@ -220,9 +240,21 @@ persistent actor {
   public shared (msg) func withdrawDPCashback(
     assetid : Text,
     tsid : Text,
+    proposalid : Text,
     amount : Nat,
   ) : async (Bool, Text) {
     let caller = msg.caller;
+
+    // validasi expiredtime dari proposal by default in 20 days
+    let (validationStatus, isexpiredStatus) = assetproposalStorage.validateExpired(assetid, proposalid, 20);
+
+    if (validationStatus == false){
+      return (false, "Proposal fetching is not valid");
+    };
+
+    if (isexpiredStatus == false){
+      return (false, "Proposal fetching is not expired yet");
+    };
 
     // Ambil DP dari treasury
     let (treasuryMsg, success) = treasuryStorage.takeTreasury(assetid, tsid, amount); // amount 0 untuk query
@@ -254,9 +286,13 @@ persistent actor {
   ) : async (Bool, Text) {
     let caller = msg.caller;
 
-    let result = ownershipStorage.changeOwnershipHolder(caller, to, assetid, ownershipid, 0, true);
+    let (status, resultmsg) = ownershipStorage.changeOwnershipHolder(caller, to, assetid, ownershipid, 0, true);
 
-    if (result == "Succes") {
+    if (status == false){
+      return (status, resultmsg);
+    };
+
+    if (status == true) {
       // Buat transaksi record
       let txInput : InputType.TransactionInput = {
         assetid = assetid;
@@ -270,7 +306,7 @@ persistent actor {
       let _ = transactionStorage.createTransaction(txInput);
     };
 
-    return (true, result);
+    return (true, resultmsg);
   };
 
   public shared (msg) func buyOwnership(
@@ -281,9 +317,19 @@ persistent actor {
   ) : async (Bool, Text) {
     let caller = msg.caller;
 
-    let result = ownershipStorage.changeOwnershipHolder(from, caller, assetid, ownershipid, amount, true);
+    let isForOpen = ownershipStorage.isOwnershipForSale(assetid, ownershipid);
 
-    if (result == "Succes") {
+    if (isForOpen == false){
+      return (false, "Ownership is not for sale");
+    };
+
+    let (status, result) = ownershipStorage.changeOwnershipHolder(from, caller, assetid, ownershipid, amount, true);
+
+    if (status == false) {
+      return (status, result);
+    };
+
+    if (status == true) {
       // Buat transaksi record
       let txInput : InputType.TransactionInput = {
         assetid = assetid;
@@ -303,31 +349,45 @@ persistent actor {
   // 7. User bisa mendapatkan Liquidation sharing (ketika asset bankrupt/fraud)
   public shared (msg) func processLiquidation(
     assetid : Text,
-    liquidationAmount : Nat,
   ) : async (Bool, Text) {
-    let _caller = msg.caller;
+    let caller = msg.caller;
 
     // Hanya creator atau admin yang bisa trigger liquidation
     switch (assetStorage.get(assetid)) {
       case (null) { return (false, "Asset not found") };
       case (?asset) {
         // Update asset status menjadi Inactive
-        let _ = assetStorage.editAssetStatus(assetid, #Inactive);
+        if (asset.assetStatus != #Inactive){
+          return (false, "Asset is Still alive");
+        };
+
+        let (ownershipStatus, tokenHold) = ownershipStorage.getTokenHolder(assetid, caller);
+
+        if (ownershipStatus == false){
+          return (false, "You are not the sharing holder");
+        };
+
+        let liquidationAmount : Nat = treasuryStorage.getTotalAssetFunding(assetid) * tokenHold / asset.totalToken;
+
+        let (fundingStatus, fundingAmount) = treasuryStorage.getFundingFromAssetTreasuryTotal(assetid, liquidationAmount);
+
+        if (fundingStatus == false) {
+          return (false, "Cannot funding from asset support");
+        };
 
         // Create treasury ledger untuk liquidation
         let treasuryInput : InputType.CreateTreasuryLedgerInput = {
           assetid = assetid;
           description = "Liquidation fund distribution";
           treasuryledgerType = #AssetSupport;
-          priceamount = liquidationAmount;
+          priceamount = fundingAmount;
           from = asset.creator;
         };
 
         let _ = treasuryStorage.addNewTreasury(treasuryInput);
 
-        // Note: Distribution ke holders harus dilakukan secara terpisah berdasarkan proporsi token
 
-        return (false, "Liquidation process initiated for asset " # assetid);
+        return (true, "Liquidation process initiated for asset " # assetid);
       };
     };
   };
@@ -438,6 +498,10 @@ persistent actor {
     return assetproposalStorage.getAllProposalAsset(assetid);
   };
 
+  public query func getProposal(assetid : Text, proposalid : Text) : async ?DataType.AssetProposal {
+    return assetproposalStorage.getProposal(assetid, proposalid);
+  };
+
   public query func getAssetComplaints(assetid : Text) : async [DataType.Complaint] {
     return complaintStorage.getComplaintByAssetid(assetid);
   };
@@ -454,6 +518,10 @@ persistent actor {
     return treasuryStorage.getAllTreasuryByAssetId(assetid);
   };
 
+  public query func getTreasuryByAssetId(assetid : Text, treasuryid : Text) : async ?DataType.TreasuryLedger {
+    return treasuryStorage.getTreasurybyId(assetid, treasuryid);
+  };
+
   public query func getOwnershipById(assetid : Text, ownershipid : Text) : async ?DataType.AssetOwnership {
     return ownershipStorage.getOwnershipById(assetid, ownershipid);
   };
@@ -462,7 +530,7 @@ persistent actor {
     return transactionStorage.getTransactionByTransactionId(assetid, transactionid);
   };
 
-  public query func getAssetDividend(assetid : Text) : async [DataType.Transaction]{
+  public query func getAssetDividend(assetid : Text) : async [DataType.Transaction] {
     return transactionStorage.getTransactionByType(assetid, #Dividend);
   };
 

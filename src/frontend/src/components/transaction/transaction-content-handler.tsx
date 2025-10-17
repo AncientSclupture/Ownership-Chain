@@ -3,6 +3,7 @@ export enum transactiondetailopt {
     transfer = "transfer",
     history = "history",
     cashback = "cashback",
+    finishedpayment = "finishedpayment",
 }
 
 interface TransactionTabsProps {
@@ -15,8 +16,8 @@ export const AssetDetailTabs: React.FC<TransactionTabsProps> = ({ selected, onCh
     const options: { key: transactiondetailopt; label: string }[] = [
         { key: transactiondetailopt.buy, label: "Buy" },
         { key: transactiondetailopt.transfer, label: "Transfer" },
-        { key: transactiondetailopt.history, label: "History" },
         { key: transactiondetailopt.cashback, label: "Cashback" },
+        { key: transactiondetailopt.finishedpayment, label: "Proposal Finished Payment" },
     ];
 
     return (

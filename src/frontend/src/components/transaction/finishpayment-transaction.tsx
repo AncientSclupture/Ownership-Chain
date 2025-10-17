@@ -1,50 +1,49 @@
 import React from "react";
 import { AssetOwnershipParsingDataContext } from "../../context/AssetOwnershipParsingContext";
+import { AssetProposal } from "../../types/rwa";
 import { backendService } from "../../services/backendService";
 import { LoaderComponent } from "../LoaderComponent";
-import { AssetOwnership } from "../../types/rwa";
 import { formatMotokoTime } from "../../helper/rwa-helper";
-import { useNavigate } from "react-router-dom";
-import { NotificationContext } from "../../context/NotificationContext";
 
-function CardOwnership({ ownership, isLoading }: { ownership: AssetOwnership, isLoading: boolean }) {
+function CardProposal({ proposal, isLoading }: { proposal: AssetProposal, isLoading: boolean }) {
 
     if (isLoading) return <LoaderComponent />;
 
     return (
         <div className="border border-gray-300 rounded-lg p-4 shadow-sm w-full space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Ownership Details</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Proposal Details</h3>
             <div className="space-y-2">
-                <p className="text-gray-600"><span className="font-medium">Ownership ID:</span> {ownership.id}</p>
-                <p className="text-gray-600"><span className="font-medium">Owner:</span> {ownership.owner.toText()}</p>
-                <p className="text-gray-600"><span className="font-medium">Acquired At:</span> {formatMotokoTime(ownership.holdat)}</p>
-                <p className="text-gray-600"><span className="font-medium">Price:</span> {ownership.buyingprice}</p>
-                <p className="text-gray-600"><span className="font-medium">Status:</span> {ownership.openForSale ? "Open For Sale" : "Not For Sale"}</p>
+                <p className="text-gray-600"><span className="font-medium">Proposal ID:</span> {proposal.id}</p>
+                <p className="text-gray-600"><span className="font-medium">From:</span> {proposal.from.toText()}</p>
+                <p className="text-gray-600"><span className="font-medium">Created At:</span> {formatMotokoTime(proposal.createdAt)}</p>
+                <p className="text-gray-600"><span className="font-medium">Token Amount:</span> {proposal.token}</p>
+                <p className="text-gray-600"><span className="font-medium">Price per Token:</span> {proposal.pricePerToken}</p>
+                {/* <p className="text-gray-600"><span className="font-medium">Status:</span> {getTransactionStatusText(proposal.status)}</p> */}
             </div>
+            <button></button>
         </div>
     );
 }
 
-export function BuyTransaction() {
+
+export function FinishPaymentTransaction() {
     const { assetid, ownershipid, price } = React.useContext(AssetOwnershipParsingDataContext);
 
     const [localassetid, setassetId] = React.useState<string>(assetid || "");
     const [localownershipid, setownershipId] = React.useState<string>(ownershipid || "");
     const [localprice, setPrice] = React.useState<bigint | null>(price);
-    const [loadedOwnership, setLoadedOwnership] = React.useState<AssetOwnership | null>(null);
+
+    const [loadedProposal, setLoadedProposal] = React.useState<AssetProposal | null>(null);
+
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-    const { setNotificationData } = React.useContext(NotificationContext);
-
-    const navigate = useNavigate()
-
-    const handleValidate = async () => {
+    const handleSubmit = async () => {
         try {
             setIsLoading(true);
-            const ownershipRes = await backendService.getOwnershipById(localassetid, localownershipid);
-            console.log("Ownership Res:", ownershipRes);
-            if (ownershipRes.length === 0) throw new Error("No ownership found");
-            setLoadedOwnership(ownershipRes[0]);
+            const proposalRes = await backendService.getProposal(localassetid, localownershipid);
+            console.log("Ownership Res:", proposalRes);
+            if (proposalRes.length === 0) throw new Error("No ownership found");
+            setLoadedProposal(proposalRes[0]);
         } catch (error) {
             console.error("Error fetching ownership:", error);
         } finally {
@@ -52,30 +51,12 @@ export function BuyTransaction() {
         }
     };
 
-    const handleBuy = async () => {
-        try {
-            setIsLoading(true);
-            if (!loadedOwnership) throw new Error("no ownership found");
-            if (!localprice) throw new Error("no amount detected");
-            const transactionRes = await backendService.buyOwnership(loadedOwnership.assetid, loadedOwnership.id, localprice, loadedOwnership.owner);
-            console.log(transactionRes);
-            if (transactionRes[0] === false) throw new Error(transactionRes[1]);
-            setNotificationData({ title: "Success Buying Ownership", description: transactionRes[1], position: "bottom-right" })
-            navigate("/protected-transferandsell");
-        } catch (error) {
-            const msg = error instanceof Error ? error.message : String(error);
-            setNotificationData({ title: "Error Buying Ownership", description: msg, position: "bottom-right" })
-        } finally {
-            setIsLoading(false);
-        }
-    }
-
     React.useEffect(() => {
         async function init() {
             if (!localassetid || !localownershipid) return;
             try {
                 setIsLoading(true);
-                const ownershipRes = await backendService.getOwnershipById(localassetid, localownershipid);
+                const ownershipRes = await backendService.getTransactionByTransactionId(localassetid, localownershipid);
                 if (ownershipRes.length === 0) throw new Error("No ownership found");
             } catch (error) {
                 console.error("Error fetching ownership:", error);
@@ -89,9 +70,9 @@ export function BuyTransaction() {
     return (
         <div className="flex md:flex-row flex-col items-start justify-between">
             <div className="md:w-[50%]">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Buy Ownership</h2>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Finished Your Proposal Payment</h2>
                 <p className="text-gray-600 mb-6">
-                    Enter the details below to purchase a digital asset.
+                    Pay Remaining amount to claim the asset holder or ownership, after the voting process is done.
                 </p>
 
                 <div className="space-y-5 max-w-lg">
@@ -100,23 +81,23 @@ export function BuyTransaction() {
                         <input
                             type="text"
                             placeholder="Enter asset ID"
-                            value={localassetid}
                             className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={localassetid}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setassetId(e.target.value)}
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Ownership ID</label>
+                        <label className="block text-sm font-medium text-gray-700">Proposal ID</label>
                         <input
                             type="text"
-                            placeholder="Enter ownership ID"
-                            value={localownershipid}
+                            placeholder="Enter proposal ID"
                             className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={localownershipid}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setownershipId(e.target.value)}
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Price Amount</label>
+                        <label className="block text-sm font-medium text-gray-700">Remaining Amount</label>
                         <input
                             type="text"
                             placeholder="Enter amount"
@@ -129,17 +110,17 @@ export function BuyTransaction() {
                         />
                     </div>
                     <button
-                        onClick={loadedOwnership ? handleBuy : handleValidate}
+                        onClick={handleSubmit}
                         className="mt-4 w-full background-dark text-white font-semibold py-2 rounded-lg transition"
                     >
-                        {loadedOwnership ? "Confirm Purchased" : "Validate"}
+                        Confirm Purchase
                     </button>
                 </div>
             </div>
 
             {/* card is being here */}
             <div className="md:w-[50%]">
-                {loadedOwnership && <CardOwnership ownership={loadedOwnership} isLoading={isLoading} />}
+                {loadedProposal && <CardProposal proposal={loadedProposal} isLoading={isLoading} />}
             </div>
         </div>
     );

@@ -3,8 +3,8 @@ import { MainLayout } from "../../components/main-layout";
 import { AssetDetailTabs, transactiondetailopt, TransactionWrapper } from "../../components/transaction/transaction-content-handler";
 import { BuyTransaction } from "../../components/transaction/buy-transaction";
 import { TransferTransaction } from "../../components/transaction/transfer-transaction";
-import { TransactionHistory } from "../../components/transaction/transaction-history";
 import { CashbackTransaction } from "../../components/transaction/cahsback-transaction";
+import { FinishPaymentTransaction } from "../../components/transaction/finishpayment-transaction";
 
 export function TransactionScreen() {
     const [selected, setSelected] = React.useState<transactiondetailopt>(transactiondetailopt.buy);
@@ -12,8 +12,8 @@ export function TransactionScreen() {
     const listcontent = [
         { name: transactiondetailopt.buy, component: <BuyTransaction /> },
         { name: transactiondetailopt.transfer, component: <TransferTransaction /> },
-        { name: transactiondetailopt.history, component: <TransactionHistory /> },
         { name: transactiondetailopt.cashback, component: <CashbackTransaction /> },
+        { name: transactiondetailopt.finishedpayment, component: <FinishPaymentTransaction /> },
     ];
 
     return (
@@ -21,7 +21,7 @@ export function TransactionScreen() {
             <div className="max-w-6xl mx-auto px-6 py-10">
                 {/* Header */}
                 <div className="mb-10">
-                    <h1 className="text-3xl font-bold text-gray-900">Ownership Transactions</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">Ownership And Transactions</h1>
                     <p className="text-gray-600 mt-2">
                         Manage your digital asset operations — buy, transfer, or review past transactions.
                     </p>

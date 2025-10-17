@@ -91,5 +91,89 @@ module TreasuryStorage {
       return result;
     };
 
+    public func getTreasurybyId(assetid : Text, treasuryid : Text) : ?DataType.TreasuryLedger {
+      switch (treasuryStorage.get(assetid)) {
+        case (null) { return null };
+        case (?innermap) {
+          switch (innermap.get(treasuryid)) {
+            case (null) { return null };
+            case (?treasurydata) {
+              return ?treasurydata;
+            };
+          };
+        };
+      };
+    };
+
+    public func getTotalAssetFunding(assetid: Text) : Nat {
+      var treasuryTotal : Nat = 0;
+      switch(treasuryStorage.get(assetid)){
+        case (null){return 0};
+        case (?innermap){
+          for ((_, treasury) in innermap.entries()){
+            treasuryTotal := treasuryTotal + treasury.priceamount;
+          };
+        };
+      };
+      return treasuryTotal;
+    };
+
+    public func getFundingFromAssetTreasuryTotal(assetid : Text, amountToTake : Nat) : (Bool, Nat) {
+      var remaining : Nat = amountToTake;
+
+      switch (treasuryStorage.get(assetid)) {
+        case (null) { return (false, 0) };
+        case (?innermap) {
+          label takeLoop for ((_, treasury) in innermap.entries()) {
+            if (remaining == 0) { break takeLoop };
+
+            switch (treasury.treasuryledgerType) {
+              case (#AssetSupport) {
+                if (treasury.priceamount == 0) continue takeLoop;
+
+                if (remaining >= treasury.priceamount) {
+                  remaining := remaining - treasury.priceamount;
+
+                  let updatedTreasury : DataType.TreasuryLedger = {
+                    assetid = treasury.assetid;
+                    tsid = treasury.tsid;
+                    description = treasury.description;
+                    treasuryledgerType = treasury.treasuryledgerType;
+                    priceamount = 0;
+                    from = treasury.from;
+                    createdAt = treasury.createdAt;
+                  };
+
+                  innermap.put(treasury.tsid, updatedTreasury);
+                } else {
+                  let updatedTreasury : DataType.TreasuryLedger = {
+                    assetid = treasury.assetid;
+                    tsid = treasury.tsid;
+                    description = treasury.description;
+                    treasuryledgerType = treasury.treasuryledgerType;
+                    priceamount = treasury.priceamount - remaining;
+                    from = treasury.from;
+                    createdAt = treasury.createdAt;
+                  };
+
+                  innermap.put(treasury.tsid, updatedTreasury);
+                  remaining := 0;
+                };
+              };
+              case (_) {};
+            };
+          };
+
+          treasuryStorage.put(assetid, innermap);
+
+          if (remaining > 0) {
+            return (true, remaining);
+          } else {
+            return (true, amountToTake);
+          };
+        };
+      };
+    }
+
   };
 };

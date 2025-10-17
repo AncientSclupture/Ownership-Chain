@@ -1,24 +1,26 @@
 import React from "react";
 import { AssetOwnershipParsingDataContext } from "../../context/AssetOwnershipParsingContext";
-import { Transaction } from "../../types/rwa";
+import { TreasuryLedger } from "../../types/rwa";
 import { backendService } from "../../services/backendService";
 import { LoaderComponent } from "../LoaderComponent";
-import { formatMotokoTime, getTransactionStatusText, getTransactionText } from "../../helper/rwa-helper";
+import { formatMotokoTime, getTreasuryLedgerText } from "../../helper/rwa-helper";
+import { useNavigate } from "react-router-dom";
+import { NotificationContext } from "../../context/NotificationContext";
 
-function CardTransaction({ transaction, isLoading }: { transaction: Transaction, isLoading: boolean }) {
+function CardTransaction({ treasury, isLoading }: { treasury: TreasuryLedger, isLoading: boolean }) {
 
     if (isLoading) return <LoaderComponent />;
 
     return (
         <div className="border border-gray-300 rounded-lg p-4 shadow-sm w-full space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Ownership Details</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Donepayment Treasury Details</h3>
             <div className="space-y-2">
-                <p className="text-gray-600"><span className="font-medium">Ownership ID:</span> {transaction.id}</p>
-                <p className="text-gray-600"><span className="font-medium">Owner:</span> {transaction.from.toText()}</p>
-                <p className="text-gray-600"><span className="font-medium">Acquired At:</span> {formatMotokoTime(transaction.createdAt)}</p>
-                <p className="text-gray-600"><span className="font-medium">Price:</span> {transaction.totalprice}</p>
-                <p className="text-gray-600"><span className="font-medium">Type:</span> {getTransactionText(transaction.transactionType)}</p>
-                <p className="text-gray-600"><span className="font-medium">Status:</span> {getTransactionStatusText(transaction.status)}</p>
+                <p className="text-gray-600"><span className="font-medium">Ownership ID:</span> {treasury.assetid}</p>
+                <p className="text-gray-600"><span className="font-medium">Description:</span> {treasury.description}</p>
+                <p className="text-gray-600"><span className="font-medium">Owner:</span> {treasury.from.toText()}</p>
+                <p className="text-gray-600"><span className="font-medium">Acquired At:</span> {formatMotokoTime(treasury.createdAt)}</p>
+                <p className="text-gray-600"><span className="font-medium">Price:</span> {treasury.priceamount}</p>
+                <p className="text-gray-600"><span className="font-medium">Type:</span> {getTreasuryLedgerText(treasury.treasuryledgerType)}</p>
             </div>
         </div>
     );
@@ -30,19 +32,23 @@ export function CashbackTransaction() {
 
     const [localassetid, setassetId] = React.useState<string>(assetid || "");
     const [localownershipid, setownershipId] = React.useState<string>(ownershipid || "");
+    const [proposalid, setProposalid] = React.useState<string | null>(null);
     const [localprice, setPrice] = React.useState<bigint | null>(price);
-
-    const [loadedTransaction, setLoadedTransaction] = React.useState<Transaction | null>(null);
-
+    const [loeadedTreasury, setLoadedTreasury] = React.useState<TreasuryLedger | null>(null);
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-    const handleSubmit = async () => {
+    const { setNotificationData } = React.useContext(NotificationContext);
+
+    const navigate = useNavigate()
+
+    const handlevalidate = async () => {
         try {
             setIsLoading(true);
-            const ownershipRes = await backendService.getTransactionByTransactionId(localassetid, localownershipid);
-            console.log("Ownership Res:", ownershipRes);
-            if (ownershipRes.length === 0) throw new Error("No ownership found");
-            setLoadedTransaction(ownershipRes[0]);
+            const transactionRes = await backendService.getTreasuryByAssetId(localassetid, localownershipid);
+            console.log("Transaction Res:", transactionRes);
+            console.log("kontol")
+            if (transactionRes.length === 0) throw new Error("No ownership found");
+            setLoadedTreasury(transactionRes[0]);
         } catch (error) {
             console.error("Error fetching ownership:", error);
         } finally {
@@ -50,15 +56,34 @@ export function CashbackTransaction() {
         }
     };
 
+    const handleDrawCahsBack = async () => {
+        try {
+            setIsLoading(true);
+            if (!loeadedTreasury) throw new Error("no transaction found");
+            if (!localprice) throw new Error("no amount detected");
+            if (!proposalid) throw new Error("no proposal detected");
+            const transactionRes = await backendService.withdrawDPCashback(localassetid, loeadedTreasury.tsid, proposalid, localprice);
+            console.log(transactionRes);
+            if (transactionRes[0] === false) throw new Error(transactionRes[1]);
+            setNotificationData({ title: "Success To Withdraw Done payment Cashback", description: transactionRes[1], position: "bottom-right" })
+            navigate("/protected-transferandsell");
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : String(error);
+            setNotificationData({ title: "Error To Withdraw Done payment Cashback", description: msg, position: "bottom-right" })
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     React.useEffect(() => {
         async function init() {
             if (!localassetid || !localownershipid) return;
             try {
                 setIsLoading(true);
-                const ownershipRes = await backendService.getTransactionByTransactionId(localassetid, localownershipid);
-                if (ownershipRes.length === 0) throw new Error("No ownership found");
+                const ownershipRes = await backendService.getTreasuryByAssetId(localassetid, localownershipid);
+                if (ownershipRes.length === 0) throw new Error("No treasury found");
             } catch (error) {
-                console.error("Error fetching ownership:", error);
+                console.error("Error fetching treasury:", error);
             } finally {
                 setIsLoading(false);
             }
@@ -86,13 +111,23 @@ export function CashbackTransaction() {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Transaction ID</label>
+                        <label className="block text-sm font-medium text-gray-700">Treasury ID</label>
                         <input
                             type="text"
-                            placeholder="Enter transaction ID"
+                            placeholder="Enter Treasury ID"
                             className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value={localownershipid}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setownershipId(e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Proposal ID</label>
+                        <input
+                            type="text"
+                            placeholder="Enter asset ID"
+                            className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={proposalid ?? ""}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProposalid(e.target.value)}
                         />
                     </div>
                     <div>
@@ -109,17 +144,17 @@ export function CashbackTransaction() {
                         />
                     </div>
                     <button
-                        onClick={handleSubmit}
+                        onClick={loeadedTreasury ? handleDrawCahsBack : handlevalidate}
                         className="mt-4 w-full background-dark text-white font-semibold py-2 rounded-lg transition"
                     >
-                        Send Asset
+                        {loeadedTreasury ? "Claim" : "Validate"}
                     </button>
                 </div>
             </div>
 
             {/* card is being here */}
             <div className="md:w-[50%]">
-                {loadedTransaction && <CardTransaction transaction={loadedTransaction} isLoading={isLoading} />}
+                {loeadedTreasury && <CardTransaction treasury={loeadedTreasury} isLoading={isLoading} />}
             </div>
         </div>
     );

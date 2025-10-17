@@ -24,7 +24,8 @@ export const ProposalVotingCard: React.FC<ProposalVotingCardProps> = ({
     setLoading(true)
     try {
       const res = await backendService.voteProposal(proposal.assetid, proposal.id);
-      setNotificationData({ title: "Success", description: String(res), position: "bottom-right" })
+      if (res[0] === false) throw new Error(res[1]);
+      setNotificationData({ title: "Success", description: res[1], position: "bottom-right" })
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : typeof error === "string" ? error : JSON.stringify(error);

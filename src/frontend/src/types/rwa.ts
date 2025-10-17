@@ -140,11 +140,13 @@ export interface _SERVICE {
   'getMyProposals' : ActorMethod<[Principal], Array<AssetProposal>>,
   'getOwnershipById' : ActorMethod<[string, string], [] | [AssetOwnership]>,
   'getPersonalAset' : ActorMethod<[Principal], Array<Asset>>,
+  'getProposal' : ActorMethod<[string, string], [] | [AssetProposal]>,
   'getTotalAsset' : ActorMethod<[], bigint>,
   'getTransactionByTransactionId' : ActorMethod<
     [string, string],
     [] | [Transaction]
   >,
+  'getTreasuryByAssetId' : ActorMethod<[string, string], [] | [TreasuryLedger]>,
   'processLiquidation' : ActorMethod<[string, bigint], [boolean, string]>,
   'proposeAssetPurchase' : ActorMethod<
     [string, bigint, bigint, bigint],
@@ -158,7 +160,7 @@ export interface _SERVICE {
   >,
   'voteProposal' : ActorMethod<[string, string], [boolean, string]>,
   'withdrawDPCashback' : ActorMethod<
-    [string, string, bigint],
+    [string, string, string, bigint],
     [boolean, string]
   >,
   'withdrawFromTreasury' : ActorMethod<[string, string, bigint], string>,
