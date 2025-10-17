@@ -45,6 +45,7 @@ export function CreateAssetScreen() {
 
     async function create() {
         try {
+            setIsLoading(true);
             const insertedInput : CreateAssetInputApi = {
                 name: name,
                 description: description,
@@ -62,7 +63,9 @@ export function CreateAssetScreen() {
             }
             const res = await backendService.createAsset(insertedInput);
 
-            if (!res?.includes("Asset created successfully with id: ")) {
+            console.log(res);
+
+            if (res[0] === false) {
                 throw new Error(res[1] ?? "Unknown error");
             }
             setNotificationData({
@@ -138,14 +141,14 @@ export function CreateAssetScreen() {
                     {/* Submit Button */}
                     <div className="w-full">
                         <button
-                            disabled={!(readygen && readytoken && readyloc && readydoc && readyrule && readytnc)}
+                            disabled={!(readygen && readytoken && readyloc && readydoc && readyrule && readytnc) || isLoading}
                             onClick={() => create()}
                             className={`px-6 py-3 rounded-md text-white font-medium ${readygen && readytoken && readyloc && readydoc && readyrule && readytnc
                                 ? "background-dark hover:brightness-110"
                                 : "bg-gray-400 cursor-not-allowed"
                                 }`}
                         >
-                            Create Asset
+                            {isLoading ? "Loading" : "Create Asset"}
                         </button>
                     </div>
                 </div>
