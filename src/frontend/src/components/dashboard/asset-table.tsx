@@ -1,7 +1,7 @@
 import React from "react";
 import { EmptyResult } from "../empty-result";
 import { Asset } from "../../types/rwa";
-import { getAssetStatusText, getAssetTypeText } from "../../helper/rwa-helper";
+import { formatMotokoTime, getAssetStatusText, getAssetTypeText } from "../../helper/rwa-helper";
 
 export default function AssetTable(
     { assets, setassetid }:
@@ -51,12 +51,12 @@ export default function AssetTable(
                             displayedAssets.map((item, idx) => (
                                 <tr key={idx} className="hover:bg-gray-50 transition">
                                     <td onClick={() => setassetid(item.id)}
-                                        className="px-4 py-3 text-gray-800 font-medium">
+                                        className="px-4 py-3 text-gray-800 font-medium cursor-pointer">
                                         {item.id}
                                     </td>
                                     <td className="px-4 py-3 text-gray-800">{item.name}</td>
                                     <td className="px-4 py-3 text-gray-600">{item.tokenLeft}</td>
-                                    <td className="px-4 py-3 text-gray-600">{item.createdAt}</td>
+                                    <td className="px-4 py-3 text-gray-600">{formatMotokoTime(item.createdAt)}</td>
                                     <td className="px-4 py-3 text-gray-800">{getAssetStatusText(item.assetStatus)}</td>
                                     <td className="px-4 py-3 text-gray-600">{getAssetTypeText(item.assetType)}</td>
                                 </tr>

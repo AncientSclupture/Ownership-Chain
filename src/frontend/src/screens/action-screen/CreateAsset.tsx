@@ -63,11 +63,11 @@ export function CreateAssetScreen() {
             const res = await backendService.createAsset(insertedInput);
 
             if (!res?.includes("Asset created successfully with id: ")) {
-                throw new Error(res ?? "Unknown error");
+                throw new Error(res[1] ?? "Unknown error");
             }
             setNotificationData({
                 title: "Success",
-                description: res,
+                description: res[1],
                 position: "bottom-right",
             });
         } catch (error) {

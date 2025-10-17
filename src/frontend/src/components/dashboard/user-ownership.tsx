@@ -55,12 +55,16 @@ export default function UserOwnershipTable(
                             displayedAssets.map((item, idx) => (
                                 <tr key={idx} className="hover:bg-gray-50 transition">
                                     <td
-                                        onClick={() => setSelectedId?.(item.id)}
-                                        className={`px-4 py-3 text-gray-800 font-medium ${setSelectedId ? "cursor-pointer hover:text-blue-600 transition" : ""
-                                            }`} >
+                                        className="px-4 py-3 text-gray-800">
                                         {item.id}
                                     </td>
-                                    <td className="px-4 py-3 text-gray-800">{item.assetid}</td>
+                                    <td
+                                        onClick={() => setSelectedId?.(item.assetid)}
+                                        className={`px-4 py-3 text-gray-800 font-medium ${setSelectedId ? "cursor-pointer hover:text-blue-600 transition" : ""
+                                            }`}
+                                    >
+                                        {item.assetid}
+                                    </td>
                                     <td className="px-4 py-3 text-gray-800">{item.buyingprice}</td>
                                     <td className="px-4 py-3 text-gray-800">{item.tokenhold}</td>
                                     <td className="px-4 py-3 text-gray-600">{formatMotokoTime(item.holdat)}</td>

@@ -1,5 +1,5 @@
 // import { backend } from "../../../declarations/backend";
-import { Asset, AssetOwnership, AssetProposal, CreateAssetInputApi, Transaction, TreasuryLedger } from "../types/rwa";
+import { Asset, AssetOwnership, AssetProposal, ComplaintType, CreateAssetInputApi, Transaction, TreasuryLedger } from "../types/rwa";
 import type { Principal } from '@dfinity/principal';
 import { idlFactory } from "../../../declarations/backend/backend.did.js";
 import { Actor, HttpAgent } from "@dfinity/agent";
@@ -88,33 +88,10 @@ const getActor = async () => {
 };
 
 export const backendService = {
-    async createAsset(insertedinput: CreateAssetInputApi): Promise<string | null> {
-        try {
-            const actor = await getActor();
-            const res = await actor.createAsset(insertedinput);
-            // const res = await backend.createAsset(insertedinput);
-            return res;
-        } catch (error) {
-            return error instanceof Error ? error.message : String(error);
-        }
-    },
-
-    async proposeAssetPurchase(id: string, token: bigint, pricePerToken: bigint, amount: bigint): Promise<string | null> {
-        try {
-            const actor = await getActor();
-            const res = await actor.proposeAssetPurchase(id, token, pricePerToken, amount);
-            // const res = await backend.proposeAssetPurchase(id, token, pricePerToken, amount);
-            return res;
-        } catch (error) {
-            return error instanceof Error ? error.message : String(error);
-        }
-    },
-
     async getAssetByRange(start: bigint, end: bigint): Promise<Asset[]> {
         try {
             const actor = await getActor();
             const res = await actor.getAssetByRange(start, end);
-            // const res = await backend.getAssetByRange(start, end);
             return res;
         } catch (error) {
             return [];
@@ -125,7 +102,6 @@ export const backendService = {
         try {
             const actor = await getActor();
             const res = await actor.getTotalAsset();
-            // const res = await backend.getTotalAsset();
             return res;
         } catch (error) {
             return BigInt(0);
@@ -136,7 +112,6 @@ export const backendService = {
         try {
             const actor = await getActor();
             const res = await actor.getAllAssets();
-            // const res = await backend.getAllAssets();
             return res;
         } catch (error) {
             return [];
@@ -147,7 +122,6 @@ export const backendService = {
         try {
             const actor = await getActor();
             const res = await actor.getAsset(id);
-            // const res = await backend.getAsset(id);
             return res;
         } catch (error) {
             return [];
@@ -158,7 +132,6 @@ export const backendService = {
         try {
             const actor = await getActor();
             const res = await actor.getAssetOwnerships(id);
-            // const res = await backend.getAssetOwnerships(id);
             return res;
         } catch (error) {
             return [];
@@ -169,7 +142,6 @@ export const backendService = {
         try {
             const actor = await getActor();
             const res = await actor.getAllTreasuryByAssetId(id);
-            // const res = await backend.getAllTreasuryByAssetId(id);
             return res;
         } catch (error) {
             return [];
@@ -180,7 +152,6 @@ export const backendService = {
         try {
             const actor = await getActor();
             const res = await actor.getPersonalAset(user);
-            // const res = await backend.getPersonalAset(user);
             return res;
         } catch (error) {
             return [];
@@ -191,7 +162,6 @@ export const backendService = {
         try {
             const actor = await getActor();
             const res = await actor.getMyProposals(user);
-            // const res = await backend.getMyProposals(user);
             return res;
         } catch (error) {
             return [];
@@ -202,7 +172,6 @@ export const backendService = {
         try {
             const actor = await getActor();
             const res = await actor.getAssetProposals(assetid);
-            // const res = await backend.getAssetProposals(assetid);
             return res;
         } catch (error) {
             return [];
@@ -213,7 +182,6 @@ export const backendService = {
         try {
             const actor = await getActor();
             const res = await actor.getMyOwnerships(user);
-            // const res = await backend.getMyOwnerships(user);
             return res;
         } catch (error) {
             return [];
@@ -224,7 +192,6 @@ export const backendService = {
         try {
             const actor = await getActor();
             const res = await actor.getAllTransactionsByAssetId(id);
-            // const res = await backend.getAllTransactionsByAssetId(id);
             return res;
         } catch (error) {
             return [];
@@ -235,7 +202,6 @@ export const backendService = {
         try {
             const actor = await getActor();
             const res = await actor.getOwnershipById(assetid, ownershipid);
-            // const res = await backend.getOwnershipById(assetid, ownershipid);
             return res;
         } catch (error) {
             return [];
@@ -246,7 +212,6 @@ export const backendService = {
         try {
             const actor = await getActor();
             const res = await actor.getTransactionByTransactionId(assetid, transactionid);
-            // const res = await backend.getTransactionByTransactionId(assetid, transactionid);
             return res;
         } catch (error) {
             return [];
@@ -257,10 +222,109 @@ export const backendService = {
         try {
             const actor = await getActor();
             const res = await actor.getAssetDividend(assetid);
-            // const res = await backend.getAssetDividend(assetid);
             return res;
         } catch (error) {
             return [];
+        }
+    },
+
+    async voteProposal(assetid: string, proposalid: string): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.voteProposal(assetid, proposalid);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    },
+
+    async createAsset(insertedinput: CreateAssetInputApi): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.createAsset(insertedinput);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    },
+
+    async proposeAssetPurchase(id: string, token: bigint, pricePerToken: bigint, amount: bigint): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.proposeAssetPurchase(id, token, pricePerToken, amount);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    },
+
+    async finishPayment(assetid: string, proposalid: string, amount: bigint): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.finishPayment(assetid, proposalid, amount);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    },
+
+    async withdrawDPCashback(assetid: string, tsid: string, amount: bigint): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.withdrawDPCashback(assetid, tsid, amount);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    },
+
+    async transferOwnership(assetid: string, ownershipid: string, to: Principal): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.transferOwnership(assetid, ownershipid, to);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    },
+
+    async buyOwnership(assetid: string, ownershipid: string, amount: bigint, from: Principal): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.buyOwnership(assetid, ownershipid, amount, from);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    },
+
+    async processLiquidation(assetid: string, liquidationAmount: bigint): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.processLiquidation(assetid, liquidationAmount);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    },
+
+    async fileComplaint(assetid: string, reason: string, complaintType: ComplaintType): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.fileComplaint(assetid, reason, complaintType);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    },
+
+    async supportAsset(assetid: string, amount: bigint): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.supportAsset(assetid, amount);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
         }
     },
 };

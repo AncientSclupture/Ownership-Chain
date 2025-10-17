@@ -10,6 +10,7 @@ import Principal "mo:base/Principal";
 import Time "mo:base/Time";
 import Float "mo:base/Float";
 import Buffer "mo:base/Buffer";
+import Bool "mo:base/Bool";
 
 persistent actor {
   private transient let assetStorage = AssetStorage.AssetStorageClass();
@@ -20,7 +21,7 @@ persistent actor {
   private transient let treasuryStorage = TreasuryStorage.TreasuryStorageClass();
 
   // 1. User dapat membuat asset
-  public shared (msg) func createAsset(input : InputType.CreateAssetInputApi) : async Text {
+  public shared (msg) func createAsset(input : InputType.CreateAssetInputApi) : async (Bool, Text) {
     let caller = msg.caller;
 
     let asset : InputType.CreateAssetInput = {
@@ -61,7 +62,7 @@ persistent actor {
 
     let _ = ownershipStorage.addNewHolder(assetId, ownershipInput);
 
-    return "Asset created successfully with id: " # assetId;
+    return (true, "Asset created successfully with id: " # assetId);
   };
 
   // 2. User dapat melakukan proposed asset (untuk membeli token)
@@ -70,21 +71,21 @@ persistent actor {
     token : Nat,
     pricePerToken : Nat,
     amount : Nat,
-  ) : async Text {
+  ) : async (Bool, Text) {
     let caller = msg.caller;
 
     // Validasi asset exist
     switch (assetStorage.get(assetid)) {
-      case (null) { return "Asset not found" };
+      case (null) { return (false, "Asset not found") };
       case (?asset) {
         // Validasi token availability
         if (asset.tokenLeft < token) {
-          return "Insufficient tokens available";
+          return (false, "Insufficient tokens available");
         };
 
         // Validasi min/max token
         if (token < asset.minTokenPurchased or token > asset.maxTokenPurchased) {
-          return "Token amount must be between " # debug_show (asset.minTokenPurchased) # " and " # debug_show (asset.maxTokenPurchased);
+          return (false, "Token amount must be between " # debug_show (asset.minTokenPurchased) # " and " # debug_show (asset.maxTokenPurchased));
         };
 
         // Hitung total DP (misalnya 20% dari total price)
@@ -93,7 +94,7 @@ persistent actor {
 
         // Validasi DP amount
         if (dpAmount > amount) {
-          return "Down payment amount is insufficient. Required: " # debug_show (dpAmount);
+          return (false, "Down payment amount is insufficient. Required: " # debug_show (dpAmount));
         };
 
         // Simpan DP ke treasury
@@ -118,9 +119,9 @@ persistent actor {
         let (msg, success) = assetproposalStorage.initiateProposal(proposalInput);
 
         if (success) {
-          return msg # " - DP of " # debug_show (dpAmount) # " stored in treasury";
+          return (false, msg # " - DP of " # debug_show (dpAmount) # " stored in treasury");
         } else {
-          return msg;
+          return (true, msg);
         };
       };
     };
@@ -130,18 +131,18 @@ persistent actor {
   public shared (msg) func voteProposal(
     assetid : Text,
     proposalid : Text,
-  ) : async Text {
+  ) : async (Bool, Text) {
     let caller = msg.caller;
 
     // Check apakah user adalah holder di asset ini
     switch (ownershipStorage.checkPartOfHolder(assetid, caller)) {
-      case (null) { return "You must be a token holder to vote" };
+      case (null) { return (false, "You must be a token holder to vote") };
       case (?ownership) {
-        // Vote value berdasarkan jumlah token yang dimiliki
         let voteValue = Float.fromInt(ownership.tokenhold);
 
-        let (msg, _success) = assetproposalStorage.voteProposal(assetid, proposalid, caller, voteValue);
-        return msg;
+        let (msg, success) = assetproposalStorage.voteProposal(assetid, proposalid, caller, voteValue);
+
+        return (success, msg);
       };
     };
   };
@@ -150,21 +151,22 @@ persistent actor {
   public shared (msg) func finishPayment(
     assetid : Text,
     proposalid : Text,
-  ) : async Text {
+    amount: Nat,
+  ) : async (Bool, Text) {
     let caller = msg.caller;
 
     // Get proposal
     switch (assetproposalStorage.getProposal(assetid, proposalid)) {
-      case (null) { return "Proposal not found" };
+      case (null) { return (false, "Proposal not found") };
       case (?proposal) {
         // Validasi caller adalah pembuat proposal
         if (proposal.from != caller) {
-          return "Only proposal creator can finish payment";
+          return (false, "Only proposal creator can finish payment");
         };
 
         // Get asset untuk validasi
         switch (assetStorage.get(assetid)) {
-          case (null) { return "Asset not found" };
+          case (null) { return (false, "Asset not found") };
           case (?asset) {
             let totalPrice = proposal.token * proposal.pricePerToken;
             let dpAmount = totalPrice * 20 / 100;
@@ -172,13 +174,23 @@ persistent actor {
               totalPrice - dpAmount;
             } else { 0 };
 
+            if (remainingPayment != amount){
+              return (false, "Payment failed, because unsuficient amount");
+            };
+
+            let (status, reduceTokenMsg) = assetStorage.reduceAssetToken(asset.id, amount);
+
+            if (not status){
+              return (false, reduceTokenMsg);
+            };
+
             // Buat transaksi untuk remaining payment
             let txInput : InputType.TransactionInput = {
               assetid = assetid;
               to = asset.creator;
               from = caller;
               totalprice = remainingPayment;
-              transactionType = #Donepayment;
+              transactionType = #Buy;
               status = #Done;
             };
 
@@ -197,7 +209,7 @@ persistent actor {
 
             let _ = ownershipStorage.addNewHolder(assetid, ownershipInput);
 
-            return "Payment completed successfully. " # txMsg;
+            return (true, "Payment completed successfully. " # txMsg);
           };
         };
       };
@@ -209,14 +221,14 @@ persistent actor {
     assetid : Text,
     tsid : Text,
     amount : Nat,
-  ) : async Text {
+  ) : async (Bool, Text) {
     let caller = msg.caller;
 
     // Ambil DP dari treasury
     let (treasuryMsg, success) = treasuryStorage.takeTreasury(assetid, tsid, amount); // amount 0 untuk query
 
     if (not success) {
-      return treasuryMsg;
+      return (false, treasuryMsg);
     };
 
     // Buat transaksi cashback
@@ -231,7 +243,7 @@ persistent actor {
 
     let _ = transactionStorage.createTransaction(txInput);
 
-    return "DP cashback withdrawn successfully";
+    return (true, "DP cashback withdrawn successfully");
   };
 
   // 6. User bisa transfer ke sesama holder di asset yang sama
@@ -239,7 +251,7 @@ persistent actor {
     assetid : Text,
     ownershipid : Text,
     to : Principal,
-  ) : async Text {
+  ) : async (Bool, Text) {
     let caller = msg.caller;
 
     let result = ownershipStorage.changeOwnershipHolder(caller, to, assetid, ownershipid, 0, true);
@@ -258,7 +270,7 @@ persistent actor {
       let _ = transactionStorage.createTransaction(txInput);
     };
 
-    return result;
+    return (true, result);
   };
 
   public shared (msg) func buyOwnership(
@@ -266,7 +278,7 @@ persistent actor {
     ownershipid : Text,
     amount : Nat,
     from : Principal,
-  ) : async Text {
+  ) : async (Bool, Text) {
     let caller = msg.caller;
 
     let result = ownershipStorage.changeOwnershipHolder(from, caller, assetid, ownershipid, amount, true);
@@ -285,19 +297,19 @@ persistent actor {
       let _ = transactionStorage.createTransaction(txInput);
     };
 
-    return result;
+    return (true, result);
   };
 
   // 7. User bisa mendapatkan Liquidation sharing (ketika asset bankrupt/fraud)
   public shared (msg) func processLiquidation(
     assetid : Text,
     liquidationAmount : Nat,
-  ) : async Text {
+  ) : async (Bool, Text) {
     let _caller = msg.caller;
 
     // Hanya creator atau admin yang bisa trigger liquidation
     switch (assetStorage.get(assetid)) {
-      case (null) { return "Asset not found" };
+      case (null) { return (false, "Asset not found") };
       case (?asset) {
         // Update asset status menjadi Inactive
         let _ = assetStorage.editAssetStatus(assetid, #Inactive);
@@ -315,7 +327,7 @@ persistent actor {
 
         // Note: Distribution ke holders harus dilakukan secara terpisah berdasarkan proporsi token
 
-        return "Liquidation process initiated for asset " # assetid;
+        return (false, "Liquidation process initiated for asset " # assetid);
       };
     };
   };
@@ -325,7 +337,7 @@ persistent actor {
     assetid : Text,
     reason : Text,
     complaintType : DataType.ComplaintType,
-  ) : async Text {
+  ) : async (Bool, Text) {
     let caller = msg.caller;
 
     let input : InputType.ComplaintInput = {
@@ -336,19 +348,19 @@ persistent actor {
       resolved = false;
     };
 
-    return complaintStorage.createComplaint(input);
+    return (true, complaintStorage.createComplaint(input));
   };
 
   // 9. User bisa support asset
   public shared (msg) func supportAsset(
     assetid : Text,
     amount : Nat,
-  ) : async Text {
+  ) : async (Bool, Text) {
     let caller = msg.caller;
 
     // Validasi asset exist
     switch (assetStorage.get(assetid)) {
-      case (null) { return "Asset not found" };
+      case (null) { return (false, "Asset not found") };
       case (?asset) {
         // Simpan support ke treasury
         let treasuryInput : InputType.CreateTreasuryLedgerInput = {
@@ -362,7 +374,7 @@ persistent actor {
         let trsRes = treasuryStorage.addNewTreasury(treasuryInput);
 
         if (trsRes != "Treasury added") {
-          return "Failed to add support to treasury";
+          return (false, "Failed to add support to treasury");
         };
 
         // Buat transaksi record
@@ -377,7 +389,7 @@ persistent actor {
 
         let _ = transactionStorage.createTransaction(txInput);
 
-        return "Support sent successfully to asset " # assetid;
+        return (true, "Support sent successfully to asset " # assetid);
       };
     };
   };

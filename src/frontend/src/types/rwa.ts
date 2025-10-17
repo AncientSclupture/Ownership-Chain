@@ -116,10 +116,16 @@ export interface TreasuryLedger {
 export type TresuryType = { 'AssetSupport' : null } |
   { 'Donepayment' : null };
 export interface _SERVICE {
-  'buyOwnership' : ActorMethod<[string, string, bigint, Principal], string>,
-  'createAsset' : ActorMethod<[CreateAssetInputApi], string>,
-  'fileComplaint' : ActorMethod<[string, string, ComplaintType], string>,
-  'finishPayment' : ActorMethod<[string, string], string>,
+  'buyOwnership' : ActorMethod<
+    [string, string, bigint, Principal],
+    [boolean, string]
+  >,
+  'createAsset' : ActorMethod<[CreateAssetInputApi], [boolean, string]>,
+  'fileComplaint' : ActorMethod<
+    [string, string, ComplaintType],
+    [boolean, string]
+  >,
+  'finishPayment' : ActorMethod<[string, string, bigint], [boolean, string]>,
   'getAllAssets' : ActorMethod<[], Array<Asset>>,
   'getAllTransactionsByAssetId' : ActorMethod<[string], Array<Transaction>>,
   'getAllTreasury' : ActorMethod<[], Array<TreasuryLedger>>,
@@ -139,16 +145,22 @@ export interface _SERVICE {
     [string, string],
     [] | [Transaction]
   >,
-  'processLiquidation' : ActorMethod<[string, bigint], string>,
+  'processLiquidation' : ActorMethod<[string, bigint], [boolean, string]>,
   'proposeAssetPurchase' : ActorMethod<
     [string, bigint, bigint, bigint],
-    string
+    [boolean, string]
   >,
   'resolveComplaint' : ActorMethod<[string, string], string>,
-  'supportAsset' : ActorMethod<[string, bigint], string>,
-  'transferOwnership' : ActorMethod<[string, string, Principal], string>,
-  'voteProposal' : ActorMethod<[string, string], string>,
-  'withdrawDPCashback' : ActorMethod<[string, string, bigint], string>,
+  'supportAsset' : ActorMethod<[string, bigint], [boolean, string]>,
+  'transferOwnership' : ActorMethod<
+    [string, string, Principal],
+    [boolean, string]
+  >,
+  'voteProposal' : ActorMethod<[string, string], [boolean, string]>,
+  'withdrawDPCashback' : ActorMethod<
+    [string, string, bigint],
+    [boolean, string]
+  >,
   'withdrawFromTreasury' : ActorMethod<[string, string, bigint], string>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;

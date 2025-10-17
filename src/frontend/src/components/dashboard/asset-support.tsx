@@ -48,6 +48,7 @@ export default function AssetSupport({ assetid }: { assetid: string }) {
             }
         }
         init();
+        console.log(assetid);
     }, [assetid]);
 
     return (

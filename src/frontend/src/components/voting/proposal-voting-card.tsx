@@ -1,6 +1,10 @@
 import React from "react";
 import { AssetProposal } from "../../types/rwa";
 import { formatMotokoTime } from "../../helper/rwa-helper";
+import { useNavigate } from "react-router-dom";
+import { NotificationContext } from "../../context/NotificationContext";
+import { backendService } from "../../services/backendService";
+import { LoaderComponent } from "../LoaderComponent";
 
 interface ProposalVotingCardProps {
   proposal: AssetProposal;
@@ -11,6 +15,27 @@ export const ProposalVotingCard: React.FC<ProposalVotingCardProps> = ({
 }) => {
   const totalVotes = proposal.votes.length;
   const totalSupport = proposal.votes.reduce((acc, [, v]) => acc + v, 0);
+
+  const navigate = useNavigate();
+  const [loading, setLoading] = React.useState(false);
+  const { setNotificationData } = React.useContext(NotificationContext);
+
+  async function voteHandler() {
+    setLoading(true)
+    try {
+      const res = await backendService.voteProposal(proposal.assetid, proposal.id);
+      setNotificationData({ title: "Success", description: String(res), position: "bottom-right" })
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : typeof error === "string" ? error : JSON.stringify(error);
+      setNotificationData({ title: "Failed", description: errorMessage, position: "bottom-right" })
+    } finally {
+      setLoading(false)
+      navigate("/protected-transferandsell");
+    }
+  }
+
+  if (loading) return <LoaderComponent fullScreen={true} text="processing transaction..." />
 
   return (
     <div className="rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors shadow-sm p-6 mb-5">
@@ -49,6 +74,7 @@ export const ProposalVotingCard: React.FC<ProposalVotingCardProps> = ({
 
       <div className="flex gap-3">
         <button
+          onClick={() => voteHandler()}
           className="px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-800 hover:bg-gray-200 transition-colors text-sm font-medium"
         >
           Approve

@@ -52,7 +52,7 @@ export function VotingScreen() {
             getAssetProposal(assetid);
         }
         console.log(displayedProposals);
-    }, [])
+    }, [assetid])
 
     if (loading) return <LoaderComponent fullScreen={true} />;
 
@@ -71,18 +71,6 @@ export function VotingScreen() {
                     <UserOwnershipTable ownerships={loadedOwnership} setSelectedId={setAssetid} />
                 </div>
                 <div className="mt-10 grid md:grid-cols-2 grid-cols-1 gap-4">
-                    {displayedProposals.length > 0 ? (
-                        displayedProposals.map((p) => (
-                            <ProposalVotingCard
-                                key={p.id}
-                                proposal={p}
-                            />
-                        ))
-                    ) : (
-                        <p className="text-gray-500 mt-4">
-                            No active proposals found for this asset.
-                        </p>
-                    )}
                     {displayedProposals.length > 0 ? (
                         displayedProposals.map((p) => (
                             <ProposalVotingCard

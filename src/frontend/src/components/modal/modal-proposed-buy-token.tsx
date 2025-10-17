@@ -13,7 +13,7 @@ export default function ModalProposedBuyToken() {
     const [pricePerToken, setPricePerToken] = React.useState("");
     const [amount, setAmount] = React.useState("");
     const [loading, setLoading] = React.useState(false);
-    const [result, setResult] = React.useState<string | null>(null);
+    const [result, setResult] = React.useState<[boolean, string]>([false, ""]);
 
     const handleCancel = () => {
         setModalKind(null);
@@ -21,7 +21,7 @@ export default function ModalProposedBuyToken() {
 
     const handlePropose = async () => {
         if (!token || !pricePerToken || !amount || !id) {
-            setResult("All fields are required!");
+            setResult([false, "All fields are required!"]);
             return;
         }
 
@@ -36,12 +36,12 @@ export default function ModalProposedBuyToken() {
             setResult(res);
             setModalKind(null);
         } catch (error) {
-            setResult(error instanceof Error ? error.message : String(error));
+            setResult(error instanceof Error ? [false, error.message] : [false, String(error)]);
         } finally {
             setLoading(false);
             setNotificationData({
-                title: result ? "Proposal Result" : "Error",
-                description: result || "An error occurred",
+                title: result[0] ? "Proposal Result" : "Error",
+                description: result[1] || "An error occurred",
                 position: "bottom-right",
                 duration: 800,
             })

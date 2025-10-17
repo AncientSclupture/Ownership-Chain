@@ -5,6 +5,7 @@ import Buffer "mo:base/Buffer";
 import Nat "mo:base/Nat";
 import Time "mo:base/Time";
 import Iter "mo:base/Iter";
+import Bool "mo:base/Bool";
 import InputType "../data/inputType";
 
 module AssetStorage {
@@ -135,6 +136,45 @@ module AssetStorage {
 
     public func getEntries() : Iter.Iter<(Text, DataType.Asset)> {
       return assetStorage.entries();
+    };
+
+    public func reduceAssetToken(assetid : Text, amount : Nat) : (Bool, Text) {
+      switch (assetStorage.get(assetid)) {
+        case (null) { return (false, "Asset not found") };
+        case (?asset) {
+          if (asset.tokenLeft < amount){
+            return (false, "Failed, unsuficient amount");
+          };
+          let updatedAsset : DataType.Asset = {
+            id = asset.id;
+            creator = asset.creator;
+            name = asset.name;
+            description = asset.description;
+
+            totalToken = asset.totalToken;
+            tokenLeft = asset.tokenLeft - amount;
+            pendingToken = asset.pendingToken;
+            minTokenPurchased = asset.minTokenPurchased;
+            maxTokenPurchased = asset.maxTokenPurchased;
+            pricePerToken = asset.pricePerToken;
+
+            locationInfo = asset.locationInfo;
+            documentHash = asset.documentHash;
+
+            assetType = asset.assetType;
+            assetStatus = asset.assetStatus;
+            rule = asset.rule;
+
+            ownershipMaturityTime = asset.ownershipMaturityTime;
+
+            createdAt = asset.createdAt;
+            updatedAt = asset.updatedAt;
+          };
+
+          assetStorage.put(asset.id, updatedAsset);
+          return (true, "Success");
+        };
+      };
     };
 
   };

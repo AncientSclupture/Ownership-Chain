@@ -90,11 +90,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const login = async () => {
         if (!authClient) return;
 
-        const DFX_NETWORK = import.meta.env.DFX_NETWORK || "local";
+        const DFX_NETWORK = process.env.DFX_NETWORK || "local";
         const identityProvider =
             DFX_NETWORK === "ic"
                 ? "https://identity.ic0.app"
-                : `http://${import.meta.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`;
+                : `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`;
 
         await new Promise<void>((resolve, reject) => {
             authClient.login({
@@ -117,8 +117,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setActor(null);
         setUserPrincipal(null);
 
-        clearBackendActor(); // ✅ pastikan backend pakai anonymous lagi
-        console.log("🚪 Logged out successfully");
+        clearBackendActor();
+        console.log("Logged out successfully");
     };
 
     return (
