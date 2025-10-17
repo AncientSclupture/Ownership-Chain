@@ -3,6 +3,7 @@ import { AuthClient } from "@dfinity/auth-client";
 import { HttpAgent, Actor } from "@dfinity/agent";
 import { idlFactory as backend_idl } from "../../../declarations/backend";
 import { canisterId as backend_id } from "../../../declarations/backend";
+import type { Principal } from '@dfinity/principal';
 // import { setBackendActor, clearBackendActor } from "../services/backendService";
 
 type AuthContextType = {
@@ -13,6 +14,7 @@ type AuthContextType = {
     login: () => Promise<void>;
     logout: () => Promise<void>;
     isLoading: boolean;
+    userPrincipal: Principal | null;
 };
 
 export const AuthContext = createContext<AuthContextType>({
@@ -23,6 +25,7 @@ export const AuthContext = createContext<AuthContextType>({
     login: async () => { },
     logout: async () => { },
     isLoading: true,
+    userPrincipal: null
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -31,6 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [principal, setPrincipal] = useState<string | null>(null);
     const [actor, setActor] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [userPrincipal, setUserPrincipal] = useState<Principal | null>(null);
 
     useEffect(() => {
         (async () => {
@@ -53,6 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const principalText = identity.getPrincipal().toString();
         console.log("✅ Logged in principal:", principalText);
         setPrincipal(identity.getPrincipal().toString());
+        setUserPrincipal(identity.getPrincipal());
 
         const agent = new HttpAgent({ identity });
 
@@ -94,12 +99,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAuthenticated(false);
         setPrincipal(null);
         setActor(null);
+        setUserPrincipal(null);
 
         // clearBackendActor();
     };
 
     return (
         <AuthContext.Provider value={{
+            userPrincipal,
             authClient,
             isAuthenticated,
             principal,

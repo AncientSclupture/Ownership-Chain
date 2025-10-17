@@ -1,58 +1,47 @@
 import HashMap "mo:base/HashMap";
-import DataType "../data/dataType";
-import Iter "mo:base/Iter";
-import Nat "mo:base/Nat";
 import Text "mo:base/Text";
+import Nat "mo:base/Nat";
+import Time "mo:base/Time";
+import Iter "mo:base/Iter";
+import DataType "../data/dataType";
 import InputType "../data/inputType";
 
 module TransactionStorage {
   public class TransactionStorageClass() {
-    private var transactionsStorage = HashMap.HashMap<Text, DataType.Transaction>(100, Text.equal, Text.hash);
-    private var transactionsCounter : Nat = 0;
+    private var transactionStorage = HashMap.HashMap<Text, HashMap.HashMap<Text, DataType.Transaction>>(10, Text.equal, Text.hash);
+    private var transactionCounter : Nat = 0;
 
-    public func create(insertedtransaction : InputType.TransactionInput) : Text {
-      let id = "tnx_" # Nat.toText(transactionsCounter);
-      transactionsCounter += 1;
+    public func createTransaction(insertedinput : InputType.TransactionInput) : Text {
+      let transactionId = "tnx-" # Nat.toText(transactionCounter);
 
-      let transaction : DataType.Transaction = {
-        id = id;
-        assetId = insertedtransaction.assetId;
-        from = insertedtransaction.from;
-        to = insertedtransaction.to;
-        totalPurchasedToken = insertedtransaction.totalPurchasedToken;
-        pricePerToken = insertedtransaction.pricePerToken;
-        totalPrice = insertedtransaction.totalPrice;
-        transactionType = insertedtransaction.transactionType;
-        transactionStatus = insertedtransaction.transactionStatus;
-        details = insertedtransaction.details;
-
-        timestamp = insertedtransaction.timestamp;
+      let newTransaction : DataType.Transaction = {
+        id = transactionId;
+        assetid = insertedinput.assetid;
+        to = insertedinput.to;
+        from = insertedinput.from;
+        totalprice = insertedinput.totalprice;
+        transactionType = insertedinput.transactionType;
+        status = insertedinput.status;
+        createdAt = Time.now();
       };
 
-      transactionsStorage.put(id, transaction);
+      let innerMap = switch (transactionStorage.get(insertedinput.assetid)) {
+        case (?map) map;
+        case (null) HashMap.HashMap<Text, DataType.Transaction>(10, Text.equal, Text.hash);
+      };
 
-      id;
+      innerMap.put(transactionId, newTransaction);
+      transactionStorage.put(insertedinput.assetid, innerMap);
+      transactionCounter += 1;
+      return ("Transaction successfully created with id: " # transactionId);
     };
 
-    public func get(id : Text) : ?DataType.Transaction {
-      transactionsStorage.get(id);
-    };
-
-    public func getAll() : [DataType.Transaction] {
-      Iter.toArray(transactionsStorage.vals());
-    };
-
-    public func getEntries() : Iter.Iter<(Text, DataType.Transaction)> {
-      transactionsStorage.entries();
-    };
-
-    public func update(id : Text, transaction : DataType.Transaction) : Bool {
-      switch (transactionsStorage.get(id)) {
-        case (?_existing) {
-          transactionsStorage.put(id, transaction);
-          true;
+    public func getAllTransactionByAssetId(assetid : Text) : [DataType.Transaction] {
+      switch (transactionStorage.get(assetid)) {
+        case (null) { return [] };
+        case (?innermap) {
+          return Iter.toArray(innermap.vals());
         };
-        case null { false };
       };
     };
   };

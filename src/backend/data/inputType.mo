@@ -1,92 +1,93 @@
+import DataType "dataType";
 import Nat "mo:base/Nat";
 import Text "mo:base/Text";
-import Float "mo:base/Float";
-import HashMap "mo:base/HashMap";
-import DataType "dataType";
+import Principal "mo:base/Principal";
+import Int "mo:base/Int";
+import Bool "mo:base/Bool";
 
 module {
-
-  public type AssetInput = {
+  public type CreateAssetInput = {
     creator : Principal;
     name : Text;
     description : Text;
+
     totalToken : Nat;
     tokenLeft : Nat;
-    providedToken : Nat;
     pendingToken : Nat;
     minTokenPurchased : Nat;
     maxTokenPurchased : Nat;
     pricePerToken : Nat;
-    locationInfo : DataType.LocationType;
-    documentHash : [DataType.DocumentHash];
+
+    locationInfo : ?DataType.LocationType;
+    documentHash : [DataType.AssetDocument];
+
     assetType : DataType.AssetType;
     assetStatus : DataType.AssetStatus;
-    rule : DataType.Rule;
-    riskScore : Float;
+    rule : [DataType.AssetRule];
 
-    createdAt : Int;
-    updatedAt : Int;
+    ownershipMaturityTime : Int;
   };
 
-  public type BuyProposalInput = {
-    assetId : Text;
-    buyer : Principal;
-    amount : Nat;
+  public type CreateAssetInputApi = {
+    name : Text;
+    description : Text;
+
+    totalToken : Nat;
+    tokenLeft : Nat;
+    minTokenPurchased : Nat;
+    maxTokenPurchased : Nat;
     pricePerToken : Nat;
-    totalPrice : Nat;
-    approvals : HashMap.HashMap<Principal, Float>;
-    createdAt : Int;
-    downPaymentStatus : Bool;
-    downPaymentTimeStamp : Int;
+
+    locationInfo : ?DataType.LocationType;
+    documentHash : [DataType.AssetDocument];
+
+    assetType : DataType.AssetType;
+    assetStatus : DataType.AssetStatus;
+    rule : [DataType.AssetRule];
+
+    ownershipMaturityTime : Int;
   };
 
-  public type InvestorProposalInput = {
-    assetId : Text;
-    investor : Principal;
-    amount : Nat;
+  public type CreateOwnershipInput = {
+    assetid : Text;
+    owner : Principal;
+    tokenhold : Nat;
+    openForSale : Bool;
+    buyingprice : Nat; // price per token
+    upuntil : Int;
+    holdat : Int;
+  };
+
+  public type CreateTreasuryLedgerInput = {
+    assetid : Text; // can be done payment transaction id or support asset id
+    description : Text;
+    treasuryledgerType : DataType.TresuryType;
+    priceamount : Nat;
+    from : Principal;
+  };
+
+  public type AssetProposalInput = {
+    from : Principal;
+    assetid : Text;
+    token : Nat;
     pricePerToken : Nat;
-    totalPrice : Nat;
-    approvals : HashMap.HashMap<Principal, Float>;
-    createdAt : Int;
+  };
+
+  public type ComplaintInput = {
+    reporter : Principal;
+    reason : Text;
+    complaintType : DataType.ComplaintType;
+    assetid : Text;
+    resolved : Bool;
   };
 
   public type TransactionInput = {
-    assetId : Text;
-    from : Principal;
+    assetid : Text;
     to : Principal;
-    totalPurchasedToken : Nat;
-    pricePerToken : Nat;
-    totalPrice : Nat;
+    from : Principal;
+    totalprice : Nat; // transaction total price (just the total)
     transactionType : DataType.TransactionType;
-    transactionStatus : DataType.TransactionStatus;
-    details : ?Text;
-
-    timestamp : Int;
+    status : DataType.TransactionStatus;
   };
 
-   public type OwnershipInput = {
-    id : Text;
-    owner : Principal;
-    tokenOwned : Nat;
-    percentage : Float;
-    purchaseDate : Int;
-    purchasePrice : Nat;
-    maturityDate : Int;
-  };
-
-  public type UserInput = {
-    fullName : Text;
-    lastName : Text;
-    phone : Text;
-    country : Text;
-    city : Text;
-    publickey: Text;
-
-    userIDNumber : Text;
-    userIdentity : DataType.IdentityNumberType;
-
-    kyc_level : DataType.UserKyc;
-    timeStamp : Int;
-  };
-  
 };

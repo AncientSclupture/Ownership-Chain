@@ -4,13 +4,13 @@ import type { IDL } from '@dfinity/candid';
 
 export interface Asset {
   'id' : string,
-  'documentHash' : Array<DocumentHash>,
+  'documentHash' : Array<AssetDocument>,
   'creator' : Principal,
   'totalToken' : bigint,
-  'providedToken' : bigint,
+  'ownershipMaturityTime' : bigint,
   'name' : string,
   'createdAt' : bigint,
-  'rule' : Rule,
+  'rule' : Array<AssetRule>,
   'description' : string,
   'maxTokenPurchased' : bigint,
   'updatedAt' : bigint,
@@ -18,193 +18,134 @@ export interface Asset {
   'tokenLeft' : bigint,
   'assetType' : AssetType,
   'pricePerToken' : bigint,
-  'locationInfo' : LocationType,
+  'locationInfo' : [] | [LocationType],
   'pendingToken' : bigint,
   'minTokenPurchased' : bigint,
-  'riskScore' : number,
 }
-export type AssetStatus = { 'Open' : null } |
-  { 'Inactive' : null } |
-  { 'Active' : null } |
-  { 'Pending' : null };
-export type AssetType = { 'Artwork' : null } |
-  { 'Business' : null } |
-  { 'Vehicle' : null } |
-  { 'Property' : null } |
-  { 'Equipment' : null };
-export interface DocumentHash {
+export interface AssetDocument {
+  'signature' : string,
   'hash' : string,
   'name' : string,
-  'description' : string,
 }
-export type IdentityNumberType = { 'IdentityNumber' : null } |
-  { 'LiscenseNumber' : null } |
-  { 'Pasport' : null };
-export type KycStatus = { 'Rejected' : null } |
-  { 'Verivied' : null } |
+export interface AssetOwnership {
+  'id' : string,
+  'buyingprice' : bigint,
+  'assetid' : string,
+  'owner' : Principal,
+  'openForSale' : boolean,
+  'upuntil' : bigint,
+  'tokenhold' : bigint,
+  'holdat' : bigint,
+}
+export interface AssetProposal {
+  'id' : string,
+  'token' : bigint,
+  'assetid' : string,
+  'votes' : Array<[Principal, number]>,
+  'from' : Principal,
+  'createdAt' : bigint,
+  'pricePerToken' : bigint,
+}
+export interface AssetRule { 'content' : string, 'name' : string }
+export type AssetStatus = { 'Inactive' : null } |
+  { 'Active' : null } |
   { 'Pending' : null };
+export type AssetType = { 'Digital' : null } |
+  { 'Physical' : null } |
+  { 'Hybrid' : null };
+export interface Complaint {
+  'id' : string,
+  'resolved' : boolean,
+  'complaintType' : ComplaintType,
+  'assetid' : string,
+  'createdAt' : bigint,
+  'reporter' : Principal,
+  'reason' : string,
+}
+export type ComplaintType = { 'Fraud' : null } |
+  { 'Plagiarism' : null };
+export interface CreateAssetInputApi {
+  'documentHash' : Array<AssetDocument>,
+  'totalToken' : bigint,
+  'ownershipMaturityTime' : bigint,
+  'name' : string,
+  'rule' : Array<AssetRule>,
+  'description' : string,
+  'maxTokenPurchased' : bigint,
+  'assetStatus' : AssetStatus,
+  'tokenLeft' : bigint,
+  'assetType' : AssetType,
+  'pricePerToken' : bigint,
+  'locationInfo' : [] | [LocationType],
+  'minTokenPurchased' : bigint,
+}
 export interface LocationType {
   'lat' : number,
   'long' : number,
   'details' : Array<string>,
 }
-export interface Ownership {
-  'id' : string,
-  'purchasePrice' : bigint,
-  'maturityDate' : bigint,
-  'purchaseDate' : bigint,
-  'owner' : Principal,
-  'tokenOwned' : bigint,
-  'percentage' : number,
-}
-export interface Report {
-  'id' : string,
-  'created' : bigint,
-  'content' : string,
-  'description' : string,
-  'isDone' : bigint,
-  'reputation' : bigint,
-  'reportType' : ReportType,
-  'evidence' : [] | [TypeReportEvidence],
-  'complainer' : Principal,
-  'isDoneTimeStamp' : bigint,
-  'targetid' : string,
-}
-export type ReportType = { 'Scam' : null } |
-  { 'Fraud' : null } |
-  { 'Plagiarism' : null } |
-  { 'Legality' : null } |
-  { 'Bankrupting' : null };
-export type Result = { 'ok' : string } |
-  { 'err' : string };
-export interface Rule {
-  'downPaymentMaturityTime' : bigint,
-  'sellSharing' : boolean,
-  'sellSharingPrice' : bigint,
-  'sellSharingNeedVote' : boolean,
-  'ownerShipMaturityTime' : bigint,
-  'downPaymentCashback' : number,
-  'details' : Array<string>,
-  'paymentMaturityTime' : bigint,
-  'minDownPaymentPercentage' : number,
-  'needDownPayment' : boolean,
-}
 export interface Transaction {
   'id' : string,
   'to' : Principal,
+  'status' : TransactionStatus,
   'transactionType' : TransactionType,
-  'assetId' : string,
+  'assetid' : string,
+  'totalprice' : bigint,
   'from' : Principal,
-  'totalPurchasedToken' : bigint,
-  'timestamp' : bigint,
-  'details' : [] | [string],
-  'pricePerToken' : bigint,
-  'transactionStatus' : TransactionStatus,
-  'totalPrice' : bigint,
+  'createdAt' : bigint,
 }
-export type TransactionStatus = { 'Failed' : null } |
-  { 'Completed' : null } |
-  { 'Pending' : null };
+export type TransactionStatus = { 'Done' : null } |
+  { 'Cancled' : null } |
+  { 'Progress' : null };
 export type TransactionType = { 'Buy' : null } |
   { 'Dividend' : null } |
-  { 'Downpayment' : null } |
-  { 'Redeem' : null } |
-  { 'Sell' : null } |
-  { 'Extending' : null } |
-  { 'DownpaymentCashBack' : null } |
-  { 'Transfer' : null };
-export interface TypeReportEvidence {
-  'hashclarity' : [] | [string],
-  'footPrintFlow' : [] | [bigint],
+  { 'Supportasset' : null } |
+  { 'Liquidation' : null } |
+  { 'Transfer' : null } |
+  { 'Donepayment' : null } |
+  { 'DonepaymentCashback' : null };
+export interface TreasuryLedger {
+  'assetid' : string,
+  'from' : Principal,
+  'createdAt' : bigint,
+  'tsid' : string,
+  'description' : string,
+  'treasuryledgerType' : TresuryType,
+  'priceamount' : bigint,
 }
-export interface User {
-  'id' : string,
-  'country' : string,
-  'timeStamp' : bigint,
-  'publickey' : string,
-  'city' : string,
-  'userIdentity' : IdentityNumberType,
-  'fullName' : string,
-  'kyc_level' : UserKyc,
-  'phone' : string,
-  'lastName' : string,
-  'userIDNumber' : string,
-}
-export interface UserKyc { 'status' : KycStatus, 'riskScore' : bigint }
-export interface UserOverviewResult {
-  'asset' : { 'token' : bigint, 'total' : bigint },
-  'ownership' : { 'token' : bigint, 'total' : bigint },
-  'transaction' : {
-    'buy' : bigint,
-    'total' : bigint,
-    'dividend' : bigint,
-    'sell' : bigint,
-    'transfer' : bigint,
-  },
-  'userIdentity' : User,
-}
+export type TresuryType = { 'AssetSupport' : null } |
+  { 'Donepayment' : null };
 export interface _SERVICE {
-  'approveBuyProposal' : ActorMethod<[string], Result>,
-  'approveInvestorProposal' : ActorMethod<[string], Result>,
-  'askAI' : ActorMethod<[string], string>,
-  'changeAssetStatus' : ActorMethod<[string, AssetStatus], Result>,
-  'createAsset' : ActorMethod<
-    [
-      string,
-      string,
-      bigint,
-      bigint,
-      bigint,
-      bigint,
-      bigint,
-      LocationType,
-      Array<DocumentHash>,
-      AssetType,
-      AssetStatus,
-      Rule,
-    ],
-    Result
-  >,
-  'createIvestorProposal' : ActorMethod<
-    [string, Principal, bigint, bigint],
-    Result
-  >,
-  'finishTheInvitation' : ActorMethod<[string, bigint], Result>,
-  'finishedPayment' : ActorMethod<[string, bigint], Result>,
+  'createAsset' : ActorMethod<[CreateAssetInputApi], string>,
+  'fileComplaint' : ActorMethod<[string, string, ComplaintType], string>,
+  'finishPayment' : ActorMethod<[string, string], string>,
   'getAllAssets' : ActorMethod<[], Array<Asset>>,
-  'getAssetById' : ActorMethod<[string], [] | [Asset]>,
-  'getAssetFullDetails' : ActorMethod<
-    [string],
-    [] | [
-      {
-        'asset' : Asset,
-        'ownerships' : Array<Ownership>,
-        'transactions' : Array<Transaction>,
-        'dividends' : Array<Transaction>,
-      }
-    ]
+  'getAllTransactionsByAssetId' : ActorMethod<[string], Array<Transaction>>,
+  'getAllTreasury' : ActorMethod<[], Array<TreasuryLedger>>,
+  'getAllTreasuryByAssetId' : ActorMethod<[string], Array<TreasuryLedger>>,
+  'getAsset' : ActorMethod<[string], [] | [Asset]>,
+  'getAssetByRange' : ActorMethod<[bigint, bigint], Array<Asset>>,
+  'getAssetComplaints' : ActorMethod<[string], Array<Complaint>>,
+  'getAssetOwnerships' : ActorMethod<[string], Array<AssetOwnership>>,
+  'getAssetProposals' : ActorMethod<[string], Array<AssetProposal>>,
+  'getMyOwnerships' : ActorMethod<[Principal], Array<AssetOwnership>>,
+  'getMyProposals' : ActorMethod<[Principal], Array<AssetProposal>>,
+  'getPersonalAset' : ActorMethod<[Principal], Array<Asset>>,
+  'getTotalAsset' : ActorMethod<[], bigint>,
+  'processLiquidation' : ActorMethod<[string, bigint], string>,
+  'proposeAssetPurchase' : ActorMethod<
+    [string, bigint, bigint, bigint],
+    string
   >,
-  'getAssetSignature' : ActorMethod<[string], [] | [Array<DocumentHash>]>,
-  'getMyAssetReport' : ActorMethod<[], Array<Report>>,
-  'getMyAssets' : ActorMethod<[], Array<Asset>>,
-  'getMyOwnerShip' : ActorMethod<[], Array<Ownership>>,
-  'getMyProfiles' : ActorMethod<[], [] | [UserOverviewResult]>,
-  'getUserPublicSignature' : ActorMethod<[], [] | [string]>,
-  'proceedDownPayment' : ActorMethod<[bigint, string], Result>,
-  'proposedBuyToken' : ActorMethod<[string, bigint, bigint], Result>,
-  'registUser' : ActorMethod<
-    [
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      IdentityNumberType,
-      string,
-    ],
-    Result
+  'resolveComplaint' : ActorMethod<[string, string], string>,
+  'supportAsset' : ActorMethod<[string, bigint], string>,
+  'transferOwnership' : ActorMethod<
+    [string, string, bigint, Principal],
+    string
   >,
+  'voteProposal' : ActorMethod<[string, string], string>,
+  'withdrawDPCashback' : ActorMethod<[string, string, bigint], string>,
+  'withdrawFromTreasury' : ActorMethod<[string, string, bigint], string>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

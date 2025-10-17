@@ -1,52 +1,37 @@
 import React from "react";
-import { NavigationBar } from "./navbar";
-import { FooterNavigation } from "./footer";
+import Forbidden from "./forbiden";
 import { Notification } from "./notification";
-import ModalWrapper from "./modal/modal-wrapper";
-import { ModalKindEnum } from "../context/ModalContext";
-import FindAssetModal from "./modal/modal-find-asset";
-import AskToLogoutModal from "./modal/modal-ask-logout";
+import { NavigationBar } from "./navbar";
 import { AuthContext } from "../context/AuthContext";
-import ProtectedPage from "./protected-component";
-import { LoaderComponent } from "./LoaderComponent";
-import { RegistUserModal } from "./modal/modal-regist-user";
-import AddDocumentModal from "./modal/modal-add-document";
-import AddRuleDetailsModal from "./modal/modal-add-rule-details";
-import AddLocationDetailsModal from "./modal/modal-add-locaion";
-import ChangeAssetStatusModal from "./modal/modal-change-asset-status";
+import ModalWrapper from "./modal/modal-wrapper";
+import { FooterNavigation } from "./footer";
+import { ModalKindEnum } from "../context/ModalContext";
+import ModalLogout from "./modal/modal-logout";
+import ModalProposedBuyToken from "./modal/modal-proposed-buy-token";
+import ModalAddAssetRule from "./modal/modal-addrule";
 
-export function MainLayout({ index = false, children }: { index?: boolean, children: React.ReactNode }) {
+export function MainLayout({ needProtection = true, children }: { needProtection?: boolean, children: React.ReactNode }) {
+    const { isAuthenticated, userPrincipal } = React.useContext(AuthContext);
 
-    const { isAuthenticated, isLoading, actor, authClient } = React.useContext(AuthContext);
-
-    if (isLoading) {
-        return (
-            <LoaderComponent fullScreen text="Please Wait" />
-        );
-    }
-
-    if ((isAuthenticated === false && !actor && !authClient) && !index && !isLoading) {
-        return <ProtectedPage />
-    }
+    if (needProtection && (!isAuthenticated || !userPrincipal)) return <Forbidden />
 
     return (
-        <div className="w-full overflow-hidden min-h-screen">
+        <div className="flex flex-col w-full min-h-screen">
             <NavigationBar />
-            <div className="min-h-screen">{children}</div>
+            <div className="min-h-screen">
+                {children}
+            </div>
             <FooterNavigation />
 
             <ModalWrapper
                 listcontent={[
-                    { name: ModalKindEnum.findassetsearch, component: <FindAssetModal /> },
-                    { name: ModalKindEnum.logout, component: <AskToLogoutModal /> },
-                    { name: ModalKindEnum.registuser, component: <RegistUserModal /> },
-                    { name: ModalKindEnum.adddocument, component: <AddDocumentModal /> },
-                    { name: ModalKindEnum.addruledetails, component: <AddRuleDetailsModal /> },
-                    { name: ModalKindEnum.addlocationdetails, component: <AddLocationDetailsModal /> },
-                    { name: ModalKindEnum.changeassetstatus, component: <ChangeAssetStatusModal /> },
+                    { name: ModalKindEnum.logout, component: <ModalLogout /> },
+                    { name: ModalKindEnum.proposedbuy, component: <ModalProposedBuyToken /> },
+                    { name: ModalKindEnum.addrule, component: <ModalAddAssetRule /> },
                 ]}
             />
+
             <Notification />
         </div>
-    );
-}
+    )
+};

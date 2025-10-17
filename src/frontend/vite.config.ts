@@ -36,6 +36,10 @@ export default defineConfig({
     environment("all", { prefix: "CANISTER_" }),
     environment("all", { prefix: "DFX_" }),
   ],
+
+  assetsInclude: ["**/*.glb", "**/*.gltf"],
+
+
   resolve: {
     alias: [
       {

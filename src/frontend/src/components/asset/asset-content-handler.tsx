@@ -1,9 +1,8 @@
 export enum assetdetailopt {
     overview = "overview",
-    token = "token",
-    devidendholder = "devidendholder",
-    totaldevidend = "totaldevidend",
-    accessinfo = "accessinfo",
+    ownership = "ownership",
+    devidendhistory = "devidendhistory",
+    support = "support",
 }
 
 interface AssetDetailTabsProps {
@@ -15,10 +14,9 @@ interface AssetDetailTabsProps {
 export const AssetDetailTabs: React.FC<AssetDetailTabsProps> = ({ selected, onChange }) => {
     const options: { key: assetdetailopt; label: string }[] = [
         { key: assetdetailopt.overview, label: "Overview" },
-        { key: assetdetailopt.token, label: "Token" },
-        { key: assetdetailopt.devidendholder, label: "Devidend Holder" },
-        { key: assetdetailopt.totaldevidend, label: "Total Devidend" },
-        { key: assetdetailopt.accessinfo, label: "Access Info" },
+        { key: assetdetailopt.ownership, label: "Ownership" },
+        { key: assetdetailopt.devidendhistory, label: "Devidend History" },
+        { key: assetdetailopt.support, label: "Asset Suport" },
     ];
 
     return (

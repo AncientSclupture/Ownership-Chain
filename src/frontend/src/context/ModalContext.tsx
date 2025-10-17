@@ -1,175 +1,66 @@
 import React, { createContext, useState } from "react";
-import { Asset, DocumentHash } from "../types/rwa";
+import { AssetRule } from "../types/rwa";
 
 export enum ModalKindEnum {
-    findassetsearch = "findassetsearch",
     logout = "logout",
-    registuser = "registuser",
-    adddocument = "adddocument",
-    addruledetails = "addruledetails",
-    addlocationdetails = "addlocationdetails",
-    changeassetstatus = "changeassetstatus",
+    proposedbuy = "proposedbuy",
+    addrule = "addrule",
 }
 
 export type ModalContextType = {
     modalKind: ModalKindEnum | null,
     setModalKind: (d: ModalKindEnum | null) => void;
-    isDoneRegist: boolean | null;
-    setIsdoneRegist: (d: boolean | null) => void;
-    findassetmanagement: {
-        data: [] | [Asset];
-        setter: (d: [Asset] | []) => void;
-        reseter: () => void;
+    addrulemanagement: {
+        data: AssetRule[];
+        setter: (d: AssetRule) => void;
+        remover: (index: number) => void;
+        resetter: () => void;
     };
-    adddocumentmanagement: {
-        data: Array<DocumentHash>;
-        setter: (d: DocumentHash) => void;
-        remover: (d: string) => void;
-        reseter: () => void;
-    },
-    adddruledetailmanagement: {
-        data: Array<string>;
-        setter: (d: string) => void;
-        remover: (d: string) => void;
-        reseter: () => void;
-    },
-    locationdetailmanagement: {
-        data: Array<string>;
-        setter: (d: string) => void;
-        remover: (d: string) => void;
-        reseter: () => void;
-    },
-    assetidmanagement: {
-        data: string,
-        setter: (id: string) => void,
-        reseter: () => void;
-    },
 }
 
 export const ModalContext = createContext<ModalContextType>({
     modalKind: null,
     setModalKind: () => { },
-    isDoneRegist: null,
-    setIsdoneRegist: () => { },
-    findassetmanagement: {
-        data: [],
-        setter: () => { },
-        reseter: () => { }
-    },
-    adddocumentmanagement: {
-        data: [{ name: '', description: '', hash: '' }],
-        setter: () => { },
-        remover: () => { },
-        reseter: () => { }
-    },
-    adddruledetailmanagement: {
+    addrulemanagement: {
         data: [],
         setter: () => { },
         remover: () => { },
-        reseter: () => { }
-    },
-    locationdetailmanagement: {
-        data: [],
-        setter: () => { },
-        remover: () => { },
-        reseter: () => { }
-    },
-    assetidmanagement: {
-        data: "",
-        setter: () => { },
-        reseter: () => { }
+        resetter: () => { },
     },
 })
 
 export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [modalKind, setModalKind] = useState<ModalKindEnum | null>(null);
-    const [findassetmanagementData, setFindassetmanagementData] = React.useState<[] | [Asset]>([]);
-    const [isDoneRegist, setIsDoneRegist] = React.useState<boolean | null>(null);
-    const [adddocumentmanagementData, setAdddocumentmanagementData] = React.useState<Array<DocumentHash> | []>([]);
-    const [adddruledetailmanagementData, setAdddruledetailmanagementData] = React.useState<Array<string> | []>([]);
-    const [locationdetailmanagementdata, setLocationdetailmanagementdata] = React.useState<Array<string> | []>([]);
-    const [assetidmanagementData, setChangestatusassetData] = React.useState<string>("")
+    const [addruleData, setAddruleData] = useState<AssetRule[]>([]);
 
     function setModalShowUp(d: ModalKindEnum | null) {
         setModalKind(d);
     }
 
-    const setterfindassetmanagement = (d: [Asset] | []) => {
-        setFindassetmanagementData(d);
-    };
-
-    const changeregiststatus = (d: boolean | null) => {
-        setIsDoneRegist(d)
+    function addruleSetter(d: AssetRule) {
+        setAddruleData((prev) => [...prev, d]);
     }
 
-    const setadddocumentdata = (d: DocumentHash) => {
-        console.log(d);
-        setAdddocumentmanagementData(prev => [...prev, d])
+    function addruleRemover(index: number) {
+        setAddruleData((prev) => prev.filter((_, i) => i !== index));
     }
 
-    const removeadddocumentdata = (name: string) => {
-        setAdddocumentmanagementData(prev => prev.filter(doc => doc.name !== name));
+    function addruleResetter() {
+        setAddruleData([]);
     }
 
-    const setruledetaildata = (d: string) => {
-        setAdddruledetailmanagementData(prev => [...prev, d])
-    }
-
-    const removeruledetaildata = (targetName: string) => {
-        setAdddruledetailmanagementData(prev =>
-            prev.filter(item => item !== targetName)
-        );
-    };
-
-    const setlocationdetaildata = (d: string) => {
-        setLocationdetailmanagementdata(prev => [...prev, d])
-    }
-
-    const removelocationdetaildata = (targetName: string) => {
-        setLocationdetailmanagementdata(prev =>
-            prev.filter(item => item !== targetName)
-        );
-    };
-
-    const setchangestatusassetdata = (id: string) => {
-        setChangestatusassetData(id);
-    }
 
     return (
         <ModalContext.Provider
             value={{
-                findassetmanagement: {
-                    data: findassetmanagementData,
-                    reseter: () => setFindassetmanagementData([]),
-                    setter: setterfindassetmanagement
-                },
-                adddocumentmanagement: {
-                    data: adddocumentmanagementData,
-                    setter: setadddocumentdata,
-                    remover: removeadddocumentdata,
-                    reseter: () => setAdddocumentmanagementData([])
-                },
-                adddruledetailmanagement: {
-                    data: adddruledetailmanagementData,
-                    setter: setruledetaildata,
-                    remover: removeruledetaildata,
-                    reseter: () => setAdddruledetailmanagementData([]),
-                },
-                locationdetailmanagement: {
-                    data: locationdetailmanagementdata,
-                    setter: setlocationdetaildata,
-                    remover: removelocationdetaildata,
-                    reseter: () => setAdddruledetailmanagementData([]),
-                },
-                assetidmanagement: {
-                    data: assetidmanagementData,
-                    setter: setchangestatusassetdata,
-                    reseter: () => setChangestatusassetData(""),
-                },
                 modalKind,
                 setModalKind: setModalShowUp,
-                isDoneRegist: isDoneRegist,
-                setIsdoneRegist: changeregiststatus
+                addrulemanagement: {
+                    data: addruleData,
+                    setter: addruleSetter,
+                    remover: addruleRemover,
+                    resetter: addruleResetter,
+                }
             }}
         >
             {children}

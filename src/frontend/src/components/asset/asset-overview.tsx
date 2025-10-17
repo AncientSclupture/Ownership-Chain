@@ -1,21 +1,21 @@
-import { Check, HardDriveDownload, OctagonAlert, X } from "lucide-react";
-import { Asset, Rule, Transaction } from "../../types/rwa";
 import React from "react";
+import { Asset, AssetRule } from "../../types/rwa";
 import { NotificationContext } from "../../context/NotificationContext";
-import { formatMotokoTime } from "../../helper/rwa-helper";
+import { FileText, HardDriveDownload, MapPin, Radar } from "lucide-react";
+import { MapsLocation } from "../map-component";
 
 function DocumentComponent({ name, hash }: { name: string, hash: string }) {
-
     const { setNotificationData } = React.useContext(NotificationContext);
 
     function handleCopy() {
         navigator.clipboard.writeText(hash);
         setNotificationData({
-            title: `${name} hash successfully copy`,
-            description: "you can use the hash to verify the document assets",
+            title: `${name} hash successfully copied`,
+            description: "You can use the hash to verify the document assets",
             position: "bottom-right"
         })
     }
+
     return (
         <div className="p-3 bg-gray-200 rounded-md flex justify-between items-center">
             <p className="text-sm">{name}</p>
@@ -26,103 +26,146 @@ function DocumentComponent({ name, hash }: { name: string, hash: string }) {
     );
 }
 
-function RuleComponent({ rule }: { rule: Rule }) {
-    const sellSharingText = rule.sellSharing ? `This asset is allowing you to sell the ownership, with maximum price ${rule.sellSharingPrice} ICP`
-        : `This asset is not allowing the holder to sell their ownership asset token, instead you can transfer to the creator or event to the other ownership asset holder.`;
-
-    const needDonePayemntText = rule.needDownPayment ? `This asset need done payment first to propose buy token ownership, with done payment is ${rule.minDownPaymentPercentage}% of the total payment. `
-        : ``;
-
-    const donePaymentMaturityTime = `This Done payment mustbe done with in ${rule.downPaymentMaturityTime} days.`
-
-    const donePaymentCashback = `The cahsback is ${rule.downPaymentCashback * 100}% from your done payment price that you have been paid.`
-
-    const maturityTime = rule.ownerShipMaturityTime !== BigInt(0) ? `This asset ownership maturity time is ${rule.ownerShipMaturityTime} days`
-        : `You owned this ownership with no maturity time`;
+function RuleComponent({ rules, maturityTime, mintoken, maxtoken }: { rules: AssetRule[], maturityTime: bigint, mintoken:bigint, maxtoken:bigint }) {
+    if (!rules || rules.length === 0) {
+        return (
+            <div className="text-gray-500 text-sm italic">
+                No additional rules have been defined for this asset.
+            </div>
+        );
+    }
 
     return (
-        <div className="text-gray-800 space-y-2">
-            <div className="flex items-center space-x-2">
-                <div>{rule.sellSharing ? <Check size={20} /> : <X size={20} />}</div>
-                <p>{sellSharingText}</p>
-            </div>
-            <div className="flex items-center space-x-2">
-                <div>{rule.needDownPayment ? <Check size={20} /> : <X size={20} />}</div>
-                <p>{needDonePayemntText}</p>
-            </div>
-            {rule.needDownPayment &&
-                <div className="flex items-center space-x-2">
-                    <div>{rule.needDownPayment ? <Check size={20} /> : <X size={20} />}</div>
-                    <p>{donePaymentMaturityTime}</p>
+        <div className="space-y-4">
+            <div
+                className="flex items-center p-3 bg-gray-100 rounded-md border border-gray-200 shadow-sm"
+            >
+                <div className="flex-shrink-0 mt-1 text-gray-500">
+                    <FileText size={20} />
                 </div>
-            }
-            {rule.needDownPayment &&
-                <div className="flex items-center space-x-2">
-                    <div>{rule.needDownPayment ? <Check size={20} /> : <X size={20} />}</div>
-                    <p>{donePaymentCashback}</p>
+                <div className="ml-3">
+                    <h3 className="font-medium text-gray-800">Done Payment (default)</h3>
+                    <p className="text-gray-600 text-sm mt-1">Done Payment must be 20% from total payment</p>
                 </div>
-            }
-            <div className="flex items-center space-x-2">
-                <div>{rule.needDownPayment ? <Check size={20} /> : <X size={20} />}</div>
-                <p>{maturityTime}</p>
             </div>
-            {rule.details.map((d, idx) =>
-                <div className="flex items-center space-x-2" key={idx}>
-                    <OctagonAlert size={20} />
-                    <p>{d}</p>
+            <div
+                className="flex items-center p-3 bg-gray-100 rounded-md border border-gray-200 shadow-sm"
+            >
+                <div className="flex-shrink-0 mt-1 text-gray-500">
+                    <FileText size={20} />
                 </div>
-            )}
-
+                <div className="ml-3">
+                    <h3 className="font-medium text-gray-800">Ownership Maturity Time</h3>
+                    <p className="text-gray-600 text-sm mt-1">{maturityTime === BigInt(0) ? "This asset allowed you to own the asset forever" : `This asset allowed you to own the asset ${maturityTime} days`}</p>
+                </div>
+            </div>
+            <div
+                className="flex items-center p-3 bg-gray-100 rounded-md border border-gray-200 shadow-sm"
+            >
+                <div className="flex-shrink-0 mt-1 text-gray-500">
+                    <FileText size={20} />
+                </div>
+                <div className="ml-3">
+                    <h3 className="font-medium text-gray-800">Minimal Token Purchased</h3>
+                    <p className="text-gray-600 text-sm mt-1">{`Minimal token purchased you should buy in this asset ${mintoken} token`}</p>
+                </div>
+            </div>
+            <div
+                className="flex items-center p-3 bg-gray-100 rounded-md border border-gray-200 shadow-sm"
+            >
+                <div className="flex-shrink-0 mt-1 text-gray-500">
+                    <FileText size={20} />
+                </div>
+                <div className="ml-3">
+                    <h3 className="font-medium text-gray-800">Maximal Token Purchased</h3>
+                    <p className="text-gray-600 text-sm mt-1">{`Maximal token purchased you can buy in this asset ${maxtoken} token`}</p>
+                </div>
+            </div>
+            {rules.map((rule, index) => (
+                <div
+                    key={index}
+                    className="flex items-center p-3 bg-gray-100 rounded-md border border-gray-200 shadow-sm"
+                >
+                    <div className="flex-shrink-0 mt-1 text-gray-500">
+                        <FileText size={20} />
+                    </div>
+                    <div className="ml-3">
+                        <h3 className="font-medium text-gray-800">{rule.name}</h3>
+                        <p className="text-gray-600 text-sm mt-1">{rule.content}</p>
+                    </div>
+                </div>
+            ))}
         </div>
     );
 }
 
-export default function OverviewAsset(
-    { assetData, dividendData }: { assetData: Asset, dividendData: Array<Transaction> | undefined }
-) {
-    console.log(assetData, dividendData);
+export default function AssetOverview({ data }: { data: Asset }) {
+    const locations = data.locationInfo || [];
+
     return (
         <div className="space-y-8">
             <div className="p-4 md:px-8 border border-gray-300 rounded-md">
                 <h1 className="text-xl text-gray-500 py-5">Description</h1>
                 <div className="text-gray-800">
-                    {assetData.description}
+                    {data.description}
                 </div>
             </div>
 
             <div className="p-4 md:px-8 border border-gray-300 rounded-md">
-                <h1 className="text-xl text-gray-500 py-5">Rules & Legalities</h1>
-                <RuleComponent rule={assetData.rule} />
+                <h1 className="text-xl text-gray-500 py-5">Rules</h1>
+                <RuleComponent rules={data.rule} maturityTime={data.ownershipMaturityTime} mintoken={data.minTokenPurchased} maxtoken={data.maxTokenPurchased} />
             </div>
 
             <div className="p-4 md:px-8 border border-gray-300 rounded-md">
-                <h1 className="text-xl text-gray-500 py-5">Documentation</h1>
+                <h1 className="text-xl text-gray-500 py-5">Documentation Legality</h1>
                 <div className="w-full space-y-2">
-                    {assetData.documentHash.map((doc, idx) =>
+                    {data.documentHash.map((doc, idx) =>
                         <DocumentComponent key={idx} hash={doc.hash} name={doc.name} />
                     )}
                 </div>
             </div>
 
-            <div className="p-4 md:px-8 border border-gray-300 rounded-md">
-                <h1 className="text-xl text-gray-500 py-5">Last 5 Dividends</h1>
-                <div className="w-full space-y-2">
-                    {/* heaader */}
-                    <div className="text-gray-600 border-b border-gray-300 grid grid-cols-3">
-                        <p>Date</p>
-                        <p>Amount</p>
-                        <p>Details</p>
-                    </div>
-                    {!dividendData || dividendData.length === 0 && <div>No Dividend yet</div>}
-                    {dividendData?.map((d, idx) => (
-                        <div className="text-gray-600 grid grid-cols-3" key={idx}>
-                            <p>{formatMotokoTime(d.timestamp)}</p>
-                            <p>{d.totalPrice}</p>
-                            <p>{d.details[0]}</p>
+            {locations.length > 0 ? (
+                locations.map((loc, index) => (
+                    <div key={index} className="space-y-8">
+                        {/* Access Details */}
+                        <div className="p-4 md:px-8 border border-gray-300 rounded-md">
+                            <div className="flex items-center justify-between pb-3">
+                                <h1 className="text-xl text-gray-500">Access Details #{index + 1}</h1>
+                                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                                    <MapPin size={16} />
+                                    <span>{`${loc.lat}, ${loc.long}`}</span>
+                                </div>
+                            </div>
+
+                            {loc.details && loc.details.length > 0 ? (
+                                <div className="space-y-2">
+                                    {loc.details.map((d: string, idx: number) => (
+                                        <div key={idx} className="flex items-center space-x-2 text-gray-700">
+                                            <Radar size={20} className="text-blue-500" />
+                                            <p>{d}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-gray-500 italic">No access details available.</p>
+                            )}
                         </div>
-                    ))}
+
+                        {/* Map */}
+                        <div className="p-4 md:px-8 border border-gray-300 rounded-md">
+                            <h1 className="text-xl text-gray-500 py-5">Asset Location Map #{index + 1}</h1>
+                            <div className="w-full">
+                                <MapsLocation lat={loc.lat} long={loc.long} />
+                            </div>
+                        </div>
+                    </div>
+                ))
+            ) : (
+                <div className="p-4 md:px-8 border border-gray-300 rounded-md">
+                    <p className="text-gray-500 italic">No location data available.</p>
                 </div>
-            </div>
+            )}
         </div>
-    )
+    );
 }

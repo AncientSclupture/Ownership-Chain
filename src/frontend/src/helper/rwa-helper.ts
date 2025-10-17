@@ -1,4 +1,5 @@
-import { AssetStatus, AssetType, IdentityNumberType, KycStatus } from "../types/rwa";
+import { AssetStatus, AssetType, ComplaintType, TransactionType, TresuryType } from "../types/rwa";
+import type { Principal } from '@dfinity/principal';
 
 export function ReduceCharacters(d: string, num: number = 20): string {
   if (d.length <= num) return d;
@@ -14,18 +15,41 @@ export function getAssetStatusText(status: AssetStatus | undefined): string {
   return 'Unknown';
 }
 
+export function getAssetTypeText(assettype: AssetType | undefined): string {
+  if (!assettype) return "Unknown";
+  if ('Digital' in assettype) return 'Digital';
+  if ('Physical' in assettype) return 'Physical';
+  if ('Hybrid' in assettype) return 'Hybrid';
+  return 'Unknown';
+}
+
+export function getTreasuryLedgerText(treasuryledger: TresuryType | undefined): string {
+  if (!treasuryledger) return "Unknown";
+  if ('AssetSupport' in treasuryledger) return 'AssetSupport';
+  if ('Donepayment' in treasuryledger) return 'Donepayment';
+  return 'Unknown';
+}
+
+export function getTransactionText(assettype: TransactionType | undefined): string {
+  if (!assettype) return "Unknown";
+  if ('Dividend' in assettype) return 'Dividend';
+  if ('Buy' in assettype) return 'Buy';
+  if ('Supportasset' in assettype) return 'Supportasset';
+  if ('Liquidation' in assettype) return 'Liquidation';
+  if ('Transfer' in assettype) return 'Transfer';
+  if ('Donepayment' in assettype) return 'Donepayment';
+  if ('DonepaymentCashback' in assettype) return 'DonepaymentCashback';
+  return 'Unknown';
+}
+
 export function text2AssetType(status: string): AssetType {
-  switch (status.toLowerCase()) {
-    case "artwork":
-      return { "Artwork": null }
-    case "business":
-      return { "Business": null }
-    case "vehicle":
-      return { "Vehicle": null }
-    case "property":
-      return { "Property": null }
-    case "equipment":
-      return { "Equipment": null }
+  switch (status) {
+    case "Digital":
+      return { "Digital": null }
+    case "Physical":
+      return { "Physical": null }
+    case "Hybrid":
+      return { "Hybrid": null }
     default:
       throw new Error(`Invalid asset status: ${status}`);
   }
@@ -33,8 +57,6 @@ export function text2AssetType(status: string): AssetType {
 
 export function text2AssetStatus(status: string): AssetStatus {
   switch (status.toLowerCase()) {
-    case "open":
-      return { "Open": null }
     case "inactive":
       return { "Inactive": null }
     case "active":
@@ -46,32 +68,11 @@ export function text2AssetStatus(status: string): AssetStatus {
   }
 }
 
-export function getIdentityTypeText(identitytype: IdentityNumberType): string {
-  if (!identitytype) return "Unknown";
-  if ('IdentityNumber' in identitytype) return 'Identity Number';
-  if ('LiscenseNumber' in identitytype) return 'Liscense Number';
-  if ('Pasport' in identitytype) return 'Pasport';
-  return 'Unknown';
-}
 
-export function text2IdentityType(value: string): IdentityNumberType {
-  switch (value.toLowerCase()) {
-    case "identitynumber":
-      return { "IdentityNumber": null }
-    case "liscensenumber":
-      return { "LiscenseNumber": null }
-    case "pasport":
-      return { "Pasport": null }
-    default:
-      throw null;
-  }
-}
-
-export function getKYCSstatusText(kycstatus: KycStatus): string {
-  if (!kycstatus) return "Unknown";
-  if ('Rejected' in kycstatus) return 'Rejected';
-  if ('Verivied' in kycstatus) return 'Verivied';
-  if ('Pending' in kycstatus) return 'Pending';
+export function getReportTypeText(value: ComplaintType): string {
+  if (!value) return "Unknown";
+  if ('Fraud' in value) return 'fraud';
+  if ('Plagiarism' in value) return 'plagiarism';
   return 'Unknown';
 }
 
@@ -88,6 +89,22 @@ export function formatMotokoTime(nanoseconds: bigint): string {
     month: "long",
     year: "numeric",
   }).toString();
+}
+
+export function formatMotokoTimeSpecific(nanoseconds: bigint): string {
+  const ms = Number(nanoseconds / 1000000n);
+  return new Date(ms).toLocaleString("en-GB", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).replace(",", "");
+}
+
+export function calculateTotalVotes(votes: Array<[Principal, number]>): number {
+  return votes.reduce((total, [_, voteCount]) => total + voteCount, 0);
 }
 
 export async function exportKey(key: CryptoKey, type: "private" | "public"): Promise<string> {
@@ -138,3 +155,28 @@ export const signDocument = async (file: File, privatePemFile: File) => {
   return signatureBase64;
 };
 
+export async function hashFile(file: File): Promise<string> {
+  const arrayBuffer = await file.arrayBuffer();
+
+  const hashBuffer = await crypto.subtle.digest("SHA-256", arrayBuffer);
+
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+
+  return hashHex;
+}
+
+export const verifyDocument = async (file: File, publicPemFile: string, signatureBase64: string): Promise<boolean> => {
+  const publicKey = await importKey(publicPemFile, "public");
+
+  const arrayBuffer = await file.arrayBuffer();
+  const signatureBytes = Uint8Array.from(atob(signatureBase64), (c) => c.charCodeAt(0));
+
+  const valid = await crypto.subtle.verify(
+    { name: "RSASSA-PKCS1-v1_5" },
+    publicKey,
+    signatureBytes,
+    arrayBuffer
+  );
+  return valid;
+};

@@ -1,274 +1,145 @@
 import Nat "mo:base/Nat";
 import Float "mo:base/Float";
+import Text "mo:base/Text";
 import Principal "mo:base/Principal";
-import HashMap "mo:base/HashMap";
+import Int "mo:base/Int";
+import Bool "mo:base/Bool";
 
 module {
-
-  // assets and it's things
-
   public type AssetType = {
-    #Property;
-    #Business;
-    #Artwork;
-    #Vehicle;
-    #Equipment;
-  };
-
-  public type TransactionType = {
-    #Buy;
-    #Sell;
-    #Transfer;
-    #Dividend;
-    #Downpayment;
-    #DownpaymentCashBack;
-
-    // extend is used when the assets has maturity date
-    // and the owner extend it
-    #Extending;
-
-    // redeem is used when the owner not extend it
-    // and it's cameback to the provided assets
-    #Redeem;
+    #Physical;
+    #Digital;
+    #Hybrid;
   };
 
   public type AssetStatus = {
     #Active;
+    #Pending;
     #Inactive;
-    #Pending;
-    #Open;
   };
 
-  public type TransactionStatus = {
-    #Completed;
-    #Pending;
-    #Failed;
-  };
-
-  public type DocumentHash = {
+  public type AssetDocument = {
     name : Text;
-    description : Text;
     hash : Text;
+    signature : Text;
   };
 
-  public type Rule = {
-    sellSharing : Bool;
-    sellSharingNeedVote : Bool;
-    sellSharingPrice : Nat;
-    needDownPayment : Bool;
-    minDownPaymentPercentage : Float;
-    downPaymentCashback : Float;
-    downPaymentMaturityTime: Nat;
-
-    paymentMaturityTime : Int;
-    ownerShipMaturityTime : Int;
-    details : [Text];
+  public type AssetRule = {
+    name : Text;
+    content : Text;
   };
 
   public type LocationType = {
-    lat: Float;
-    long: Float;
-    details: [Text];
+    lat : Float;
+    long : Float;
+    details : [Text];
   };
 
   public type Asset = {
     id : Text;
     creator : Principal;
-    name : Text;
+    name: Text;
     description : Text;
+
     totalToken : Nat;
     tokenLeft : Nat;
-    providedToken : Nat;
     pendingToken : Nat;
     minTokenPurchased : Nat;
     maxTokenPurchased : Nat;
     pricePerToken : Nat;
-    locationInfo : LocationType;
-    documentHash : [DocumentHash];
+
+    locationInfo : ?LocationType;
+    documentHash : [AssetDocument];
+
     assetType : AssetType;
     assetStatus : AssetStatus;
-    rule : Rule;
-    riskScore : Float;
+    rule : [AssetRule];
+
+    ownershipMaturityTime : Int;    
 
     createdAt : Int;
     updatedAt : Int;
   };
 
-  public type Ownership = {
+  public type AssetOwnership = {
     id : Text;
+    assetid : Text;
     owner : Principal;
-    tokenOwned : Nat;
-    percentage : Float;
-    purchaseDate : Int;
-    purchasePrice : Nat;
-    maturityDate : Int;
+    tokenhold : Nat;
+    openForSale : Bool;
+    buyingprice : Nat; // price per token
+    upuntil : Int;
+    holdat : Int;
   };
 
-  public type BuyProposal = {
-    id : Text;
-    assetId : Text;
-    buyer : Principal;
-    amount : Nat;
-    pricePerToken : Nat;
-    totalPrice : Nat;
-    approvals : HashMap.HashMap<Principal, Float>;
-    createdAt : Int;
-    downPaymentStatus : Bool;
-    downPaymentTimeStamp : Int;
+  public type TransactionStatus = {
+    #Done;
+    #Progress;
+    #Cancled;
   };
 
-  public type InvestorProposal = {
-    id : Text;
-    assetId : Text;
-    investor : Principal;
-    amount : Nat;
-    pricePerToken : Nat;
-    totalPrice : Nat;
-    approvals : HashMap.HashMap<Principal, Float>;
-    createdAt : Int;
+  public type TransactionType = {
+    // current ownership open the ownership status into open and the seller will buy
+    #Buy;
+    #Transfer;
+    #Donepayment;
+    #DonepaymentCashback;
+    #Supportasset;
+    #Liquidation;
+    #Dividend;
   };
 
   public type Transaction = {
     id : Text;
-    assetId : Text;
-    from : Principal;
+    assetid : Text;
     to : Principal;
-    totalPurchasedToken : Nat;
-    pricePerToken : Nat;
-    totalPrice : Nat;
+    from : Principal;
+    totalprice : Nat; // transaction total price (just the total)
     transactionType : TransactionType;
-    transactionStatus : TransactionStatus;
-    details: ?Text;
-
-    timestamp : Int;
+    status : TransactionStatus;
+    createdAt : Int;
   };
 
-  // user and it's things
-
-  public type KycStatus = {
-    #Pending;
-    #Verivied;
-    #Rejected;
-  };
-
-  public type IdentityNumberType = {
-    #IdentityNumber;
-    #LiscenseNumber;
-    #Pasport;
-  };
-
-  public type UserKyc = {
-    status : KycStatus;
-    riskScore : Nat;
-  };
-
-  public type User = {
+  // by default just set into 1 week
+  public type AssetProposal = {
     id : Text;
-    fullName : Text;
-    lastName : Text;
-    phone : Text;
-    country : Text;
-    city : Text;
-    publickey: Text;
+    from : Principal;
+    assetid : Text;
+    token : Nat;
+    pricePerToken : Nat;
+    votes: [(Principal, Float)]; // principal voting value is based on token that they're holding
 
-    userIDNumber : Text;
-    userIdentity : IdentityNumberType;
-
-    kyc_level : UserKyc;
-    timeStamp : Int;
+    createdAt : Int;
   };
 
-  // reporting and it's things
-
-  public type AssetMetaData = {
-    assetId : Text;
-    documentHash : [DocumentHash];
+  public type TresuryType = {
+    #Donepayment;
+    #AssetSupport;
   };
 
-  public type ReportType = {
-    #Scam;
+  public type TreasuryLedger = {
+    assetid : Text; // can be done payment transaction id or support asset id
+    tsid: Text;
+    description : Text;
+    treasuryledgerType: TresuryType;
+    priceamount : Nat;
+    from: Principal;
+    createdAt : Int;
+  };
+
+  public type ComplaintType = {
     #Fraud;
-    #Legality;
     #Plagiarism;
-    #Bankrupting;
   };
 
-  public type TypeReportEvidence = {
-    hashclarity: ?Text;
-    footPrintFlow: ?Int;
-  };
-
-  public type Report = {
-    id: Text;
-    complainer : Principal;
-    targetid : Text;
-    reportType : ReportType;
-    content: Text;
-    description: Text;
-    // reputation is based on assets risk score or user kyc riskscore
-    reputation : Nat;
-    isDone : Int;
-    isDoneTimeStamp : Int;
-    evidence: ?TypeReportEvidence;
-
-    created : Int;
-  };
-
-  public type ReportActionType = {
-    #Freeze;
-    #Pending;
-    #Cancled;
-
-    // not guilty is for pass the target reporting
-    // may be because the target is not false or the
-    // proove is not enough
-    #NotGuilty;
-  };
-
-  public type ReportAction = {
+  public type Complaint = {
     id : Text;
-    reportId : Text;
-    reportActionType : ReportActionType;
-
-    created : Int;
-  };
-
-  // custom result type
-  public type MyProposalResult = {
-    assetId : Text;
-    downPaymentStatus : Bool;
-    isApprove : Bool;
-    approvals : [(Principal, Float)];
-  };
-
-  public type MyVotablePoroposalResult = {
-    proposalId: Text;
-    assetId : Text;
-    asstName: Text;
-    buyer: Principal;
-    tokenAmount : Nat;
-    pricePerToken: Nat;
-    approvalResult : Float;
-    myVotePercentage: Float;
-  };
-
-  public type UserOverviewResult = {
-    userIdentity: User;
-    transaction: {
-      total: Int;
-      buy: Int;
-      sell: Int;
-      transfer: Int;
-      dividend: Int;
-    };
-    ownership: {
-      total: Int;
-      token: Int;
-    };
-    asset: {
-      total: Int;
-      token: Int;
-    }
+    reporter : Principal;
+    reason : Text;
+    complaintType: ComplaintType;
+    assetid : Text;
+    resolved : Bool;
+    createdAt : Int;
   };
 
 };
