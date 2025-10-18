@@ -46,7 +46,7 @@ module {
     pendingToken : Nat;
     minTokenPurchased : Nat;
     maxTokenPurchased : Nat;
-    pricePerToken : Nat;
+    pricePerToken : Float;
 
     locationInfo : ?LocationType;
     documentHash : [AssetDocument];
@@ -55,7 +55,7 @@ module {
     assetStatus : AssetStatus;
     rule : [AssetRule];
 
-    ownershipMaturityTime : Int;    
+    ownershipMaturityTime : Int;
 
     createdAt : Int;
     updatedAt : Int;
@@ -67,7 +67,7 @@ module {
     owner : Principal;
     tokenhold : Nat;
     openForSale : Bool;
-    buyingprice : Nat; // price per token
+    buyingprice : Float; // price per token
     upuntil : Int;
     holdat : Int;
   };
@@ -94,7 +94,7 @@ module {
     assetid : Text;
     to : Principal;
     from : Principal;
-    totalprice : Nat; // transaction total price (just the total)
+    totalprice : Float; // transaction total price (just the total)
     transactionType : TransactionType;
     status : TransactionStatus;
     createdAt : Int;
@@ -106,7 +106,7 @@ module {
     from : Principal;
     assetid : Text;
     token : Nat;
-    pricePerToken : Nat;
+    pricePerToken : Float;
     votes: [(Principal, Float)]; // principal voting value is based on token that they're holding
 
     createdAt : Int;
@@ -122,7 +122,7 @@ module {
     tsid: Text;
     description : Text;
     treasuryledgerType: TresuryType;
-    priceamount : Nat;
+    priceamount : Float;
     from: Principal;
     createdAt : Int;
   };
@@ -150,7 +150,7 @@ module {
   public type User = {
     principalAddress: Principal;
     surname: Text;
-    mockBalance: Nat;
+    mockBalance: Float;
     publickey: ?Text;
     userStatus: UserStatus;
   };

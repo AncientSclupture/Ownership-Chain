@@ -30,8 +30,8 @@ export default function ModalProposedBuyToken() {
             const res = await backendService.proposeAssetPurchase(
                 id,
                 BigInt(token),
-                BigInt(pricePerToken),
-                BigInt(amount)
+                Number(pricePerToken),
+                Number(amount)
             );
             setResult(res);
             setModalKind(null);

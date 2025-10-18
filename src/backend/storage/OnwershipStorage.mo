@@ -4,6 +4,7 @@ import Nat "mo:base/Nat";
 import Principal "mo:base/Principal";
 import Time "mo:base/Time";
 import Buffer "mo:base/Buffer";
+import Float "mo:base/Float";
 import DataType "../data/dataType";
 import InputType "../data/inputType";
 
@@ -40,7 +41,7 @@ module OwnershipStorage {
       return "Ownership added for asset " # assetId # " by ownership " # id;
     };
 
-    public func changeOwnershipHolder(from : Principal, to : Principal, assetid : Text, ownershipid : Text, amount : Nat, allowZeroAmount : Bool) : (Bool, Text) {
+    public func changeOwnershipHolder(from : Principal, to : Principal, assetid : Text, ownershipid : Text, amount : Float, allowZeroAmount : Bool) : (Bool, Text) {
       switch (ownershipStorage.get(assetid)) {
         case (null) { return (false, "Asset Not Found") };
         case (?innermap) {

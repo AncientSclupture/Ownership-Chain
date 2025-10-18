@@ -48,7 +48,7 @@ persistent actor {
       ownershipMaturityTime = input.ownershipMaturityTime;
     };
 
-    let fee = userStorage.calcPercentage(input.pricePerToken * input.totalToken, 0.05);
+    let fee = userStorage.calcPercentage(input.pricePerToken * Float.fromInt(input.totalToken), 0.05);
     let (chargeStatus, chargeMsg) = userStorage.chargeTo(caller, fee);
     if (chargeStatus == false) {
       return (false, chargeMsg);
@@ -77,8 +77,8 @@ persistent actor {
   public shared (msg) func proposeAssetPurchase(
     assetid : Text,
     token : Nat,
-    pricePerToken : Nat,
-    amount : Nat,
+    pricePerToken : Float,
+    amount : Float,
   ) : async (Bool, Text) {
     let caller = msg.caller;
 
@@ -97,7 +97,7 @@ persistent actor {
         };
 
         // Hitung total DP (misalnya 20% dari total price)
-        let totalPrice = token * pricePerToken;
+        let totalPrice = Float.fromInt(token) * pricePerToken;
         let dpAmount = totalPrice * 20 / 100;
 
         // Validasi DP amount
@@ -159,7 +159,7 @@ persistent actor {
   public shared (msg) func finishPayment(
     assetid : Text,
     proposalid : Text,
-    amount : Nat,
+    amount : Float,
   ) : async (Bool, Text) {
     let caller = msg.caller;
 
@@ -176,11 +176,9 @@ persistent actor {
         switch (assetStorage.get(assetid)) {
           case (null) { return (false, "Asset not found") };
           case (?asset) {
-            let totalPrice = proposal.token * proposal.pricePerToken;
+            let totalPrice = Float.fromInt(proposal.token) * proposal.pricePerToken;
             let dpAmount = totalPrice * 20 / 100;
-            let remainingPayment : Nat = if (totalPrice >= dpAmount) {
-              totalPrice - dpAmount;
-            } else { 0 };
+            let remainingPayment = totalPrice - dpAmount;
 
             // Hitung rasio token terjual
             let soldRatio : Float = Float.fromInt(asset.totalToken - asset.tokenLeft) / Float.fromInt(asset.totalToken);
@@ -206,7 +204,7 @@ persistent actor {
             };
 
             // Kurangi token di asset
-            let (status, reduceTokenMsg) = assetStorage.reduceAssetToken(asset.id, amount);
+            let (status, reduceTokenMsg) = assetStorage.reduceAssetToken(asset.id, proposal.token);
 
             if (status == false) {
               return (false, reduceTokenMsg);
@@ -255,7 +253,7 @@ persistent actor {
     assetid : Text,
     tsid : Text,
     proposalid : Text,
-    amount : Nat,
+    amount : Float,
   ) : async (Bool, Text) {
     let caller = msg.caller;
 
@@ -338,7 +336,7 @@ persistent actor {
   public shared (msg) func buyOwnership(
     assetid : Text,
     ownershipid : Text,
-    amount : Nat,
+    amount : Float,
     from : Principal,
   ) : async (Bool, Text) {
     let caller = msg.caller;
@@ -355,8 +353,8 @@ persistent actor {
       return (status, result);
     };
 
-    if (amount == 0) {
-      let fee = userStorage.calcPercentage(1, 1.0);
+    if (amount == 0.0) {
+      let fee = userStorage.calcPercentage(1.0, 1.0);
       let (chargeStatus, chargeMsg) = userStorage.chargeTo(caller, fee);
       if (chargeStatus == false) {
         return (false, chargeMsg);
@@ -416,7 +414,7 @@ persistent actor {
           return (false, "You are not the sharing holder");
         };
 
-        let liquidationAmount : Nat = treasuryStorage.getTotalAssetFunding(assetid) * tokenHold / asset.totalToken;
+        let liquidationAmount : Float = treasuryStorage.getTotalAssetFunding(assetid) * Float.fromInt(tokenHold) / Float.fromInt(asset.totalToken);
 
         let fee = userStorage.calcPercentage(liquidationAmount, 0.02);
         let (chargeStatus, chargeMsg) = userStorage.chargeTo(caller, fee);
@@ -479,7 +477,7 @@ persistent actor {
         if (asset.creator != caller) {
           return (false, "You are not the asset creator");
         };
-        let fee = userStorage.calcPercentage(asset.pricePerToken * asset.totalToken, 0.5);
+        let fee = userStorage.calcPercentage(asset.pricePerToken * Float.fromInt(asset.totalToken), 0.5);
         let (chargeStatus, chargeMsg) = userStorage.chargeTo(caller, fee);
         if (chargeStatus == false) {
           return (false, chargeMsg);
@@ -492,7 +490,7 @@ persistent actor {
   // 9. User bisa support asset
   public shared (msg) func supportAsset(
     assetid : Text,
-    amount : Nat,
+    amount : Float,
   ) : async (Bool, Text) {
     let caller = msg.caller;
 
@@ -542,6 +540,35 @@ persistent actor {
   public shared (msg) func openMyOwnership(assetid : Text, ownershipid : Text) : async (Bool, Text) {
     let caller = msg.caller;
     return ownershipStorage.openMyOwnership(assetid, ownershipid, caller);
+  };
+
+  public shared (msg) func shareDevidend(assetid : Text, totalDevidend : Float) : async (Bool, Text) {
+    switch (assetStorage.get(assetid)) {
+      case (null) { return (false, "Asset not found") };
+      case (?asset) {
+        if (asset.creator != msg.caller) {
+          return (false, "You are not the asset holder");
+        };
+        let tokenHoldInTotal : Nat = asset.totalToken - asset.tokenLeft;
+        let holders : [DataType.AssetOwnership] = ownershipStorage.getAllOwnershipByAssetId(assetid);
+        for (ownershipHolder in holders.vals()) {
+          let proportion = Float.fromInt(ownershipHolder.tokenhold) / Float.fromInt(tokenHoldInTotal);
+          let amount = totalDevidend * proportion;
+
+          let transactionInput : InputType.TransactionInput = {
+            assetid = asset.id;
+            to = ownershipHolder.owner;
+            from = msg.caller;
+            totalprice = amount;
+            transactionType = #Dividend;
+            status = #Done;
+          };
+
+          ignore transactionStorage.createTransaction(transactionInput);
+        };
+        return (true, "Success");
+      };
+    };
   };
 
   // Query functions
@@ -628,7 +655,7 @@ persistent actor {
   public shared (msg) func withdrawFromTreasury(
     assetid : Text,
     tsid : Text,
-    amount : Nat,
+    amount : Float,
   ) : async Text {
     let caller = msg.caller;
 
@@ -679,11 +706,11 @@ persistent actor {
     return userStorage.addPublicKey(msg.caller, publickey);
   };
 
-  public query func getDevBalance() : async Nat {
+  public query func getDevBalance() : async Float {
     return userStorage.getDevBalance();
   };
 
-  public shared (msg) func myBalance() : async Nat {
+  public shared (msg) func myBalance() : async Float {
     return userStorage.getUserBalance(msg.caller);
   };
 

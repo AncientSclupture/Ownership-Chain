@@ -12,7 +12,7 @@ module {
     private var userKycStorage = HashMap.HashMap<Principal, DataType.User>(10, Principal.equal, Principal.hash);
     private var userKycCounter : Nat = 0;
 
-    private var devMockBalance : Nat = 0;
+    private var devMockBalance : Float = 0;
 
     public func createUser(
       principal : Principal,
@@ -81,7 +81,7 @@ module {
       };
     };
 
-    public func mockTransferBalance(from : Principal, to : Principal, amount : Nat) : (Bool, Text) {
+    public func mockTransferBalance(from : Principal, to : Principal, amount : Float) : (Bool, Text) {
       if (amount == 0) {
         return (false, "Transaction Amount must be greater than zero be greater than 0");
       };
@@ -136,7 +136,7 @@ module {
       return userKycCounter;
     };
 
-    public func getUserBalance(user : Principal) : Nat {
+    public func getUserBalance(user : Principal) : Float {
       switch (userKycStorage.get(user)) {
         case (null) { return 0 };
         case (?existuser) {
@@ -145,7 +145,7 @@ module {
       };
     };
 
-    public func mockTransferTo(to : Principal, amount : Nat) : (Bool, Text) {
+    public func mockTransferTo(to : Principal, amount : Float) : (Bool, Text) {
       if (amount == 0) {
         return (false, "Transaction Amount must be greater than zero be greater than zero");
       };
@@ -170,7 +170,7 @@ module {
       };
     };
 
-    public func chargeTo(to : Principal, amount : Nat) : (Bool, Text) {
+    public func chargeTo(to : Principal, amount : Float) : (Bool, Text) {
       switch (userKycStorage.get(to)) {
         case (null) {
           return (false, "Recipient not found");
@@ -199,17 +199,17 @@ module {
       };
     };
 
-    public func getDevBalance() : Nat {
+    public func getDevBalance() : Float {
       return devMockBalance;
     };
 
-    public func addDevBalance(amount : Nat) : Nat {
+    public func addDevBalance(amount : Float) : Float {
       devMockBalance := amount;
       return devMockBalance;
     };
 
-    public func calcPercentage(amount : Nat, prc : Float) : Nat {
-      let fee : Nat = Int.abs(Float.toInt(Float.fromInt(amount) * prc));
+    public func calcPercentage(amount : Float, prc : Float) : Float {
+      let fee : Float = amount * prc;
       return fee;
     };
 

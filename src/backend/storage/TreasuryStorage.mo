@@ -5,6 +5,7 @@ import Time "mo:base/Time";
 import Bool "mo:base/Bool";
 import Iter "mo:base/Iter";
 import Array "mo:base/Array";
+import Float "mo:base/Float";
 import DataType "../data/dataType";
 import InputType "../data/inputType";
 
@@ -40,7 +41,7 @@ module TreasuryStorage {
       return "Treasury added";
     };
 
-    public func takeTreasury(assetid : Text, tsid : Text, amount : Nat) : (Text, Bool) {
+    public func takeTreasury(assetid : Text, tsid : Text, amount : Float) : (Text, Bool) {
       switch (treasuryStorage.get(assetid)) {
         case (null) { return ("Treaseury by your assetid is not found", false) };
         case (?innermap) {
@@ -105,8 +106,8 @@ module TreasuryStorage {
       };
     };
 
-    public func getTotalAssetFunding(assetid: Text) : Nat {
-      var treasuryTotal : Nat = 0;
+    public func getTotalAssetFunding(assetid: Text) : Float {
+      var treasuryTotal : Float = 0.0;
       switch(treasuryStorage.get(assetid)){
         case (null){return 0};
         case (?innermap){
@@ -118,8 +119,8 @@ module TreasuryStorage {
       return treasuryTotal;
     };
 
-    public func getFundingFromAssetTreasuryTotal(assetid : Text, amountToTake : Nat) : (Bool, Nat) {
-      var remaining : Nat = amountToTake;
+    public func getFundingFromAssetTreasuryTotal(assetid : Text, amountToTake : Float) : (Bool, Float) {
+      var remaining : Float = amountToTake;
 
       switch (treasuryStorage.get(assetid)) {
         case (null) { return (false, 0) };

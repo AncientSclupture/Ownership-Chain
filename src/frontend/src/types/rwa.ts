@@ -17,7 +17,7 @@ export interface Asset {
   'assetStatus' : AssetStatus,
   'tokenLeft' : bigint,
   'assetType' : AssetType,
-  'pricePerToken' : bigint,
+  'pricePerToken' : number,
   'locationInfo' : [] | [LocationType],
   'pendingToken' : bigint,
   'minTokenPurchased' : bigint,
@@ -29,7 +29,7 @@ export interface AssetDocument {
 }
 export interface AssetOwnership {
   'id' : string,
-  'buyingprice' : bigint,
+  'buyingprice' : number,
   'assetid' : string,
   'owner' : Principal,
   'openForSale' : boolean,
@@ -44,7 +44,7 @@ export interface AssetProposal {
   'votes' : Array<[Principal, number]>,
   'from' : Principal,
   'createdAt' : bigint,
-  'pricePerToken' : bigint,
+  'pricePerToken' : number,
 }
 export interface AssetRule { 'content' : string, 'name' : string }
 export type AssetStatus = { 'Inactive' : null } |
@@ -75,7 +75,7 @@ export interface CreateAssetInputApi {
   'assetStatus' : AssetStatus,
   'tokenLeft' : bigint,
   'assetType' : AssetType,
-  'pricePerToken' : bigint,
+  'pricePerToken' : number,
   'locationInfo' : [] | [LocationType],
   'minTokenPurchased' : bigint,
 }
@@ -90,7 +90,7 @@ export interface Transaction {
   'status' : TransactionStatus,
   'transactionType' : TransactionType,
   'assetid' : string,
-  'totalprice' : bigint,
+  'totalprice' : number,
   'from' : Principal,
   'createdAt' : bigint,
 }
@@ -111,7 +111,7 @@ export interface TreasuryLedger {
   'tsid' : string,
   'description' : string,
   'treasuryledgerType' : TresuryType,
-  'priceamount' : bigint,
+  'priceamount' : number,
 }
 export type TresuryType = { 'AssetSupport' : null } |
   { 'Donepayment' : null };
@@ -119,7 +119,7 @@ export interface User {
   'principalAddress' : Principal,
   'publickey' : [] | [string],
   'surname' : string,
-  'mockBalance' : bigint,
+  'mockBalance' : number,
   'userStatus' : UserStatus,
 }
 export type UserStatus = { 'Approve' : null } |
@@ -127,7 +127,7 @@ export type UserStatus = { 'Approve' : null } |
 export interface _SERVICE {
   'addPublicKey' : ActorMethod<[string], [boolean, string]>,
   'buyOwnership' : ActorMethod<
-    [string, string, bigint, Principal],
+    [string, string, number, Principal],
     [boolean, string]
   >,
   'createAsset' : ActorMethod<[CreateAssetInputApi], [boolean, string]>,
@@ -135,7 +135,7 @@ export interface _SERVICE {
     [string, string, ComplaintType],
     [boolean, string]
   >,
-  'finishPayment' : ActorMethod<[string, string, bigint], [boolean, string]>,
+  'finishPayment' : ActorMethod<[string, string, number], [boolean, string]>,
   'getAllAssets' : ActorMethod<[], Array<Asset>>,
   'getAllTransactionsByAssetId' : ActorMethod<[string], Array<Transaction>>,
   'getAllTreasury' : ActorMethod<[], Array<TreasuryLedger>>,
@@ -147,7 +147,7 @@ export interface _SERVICE {
   'getAssetOwnerships' : ActorMethod<[string], Array<AssetOwnership>>,
   'getAssetProposals' : ActorMethod<[string], Array<AssetProposal>>,
   'getBalanceForDemo' : ActorMethod<[], [boolean, string]>,
-  'getDevBalance' : ActorMethod<[], bigint>,
+  'getDevBalance' : ActorMethod<[], number>,
   'getMyOwnerships' : ActorMethod<[Principal], Array<AssetOwnership>>,
   'getMyProposals' : ActorMethod<[Principal], Array<AssetProposal>>,
   'getOwnershipById' : ActorMethod<[string, string], [] | [AssetOwnership]>,
@@ -161,16 +161,17 @@ export interface _SERVICE {
   >,
   'getTreasuryByAssetId' : ActorMethod<[string, string], [] | [TreasuryLedger]>,
   'inactiveAsset' : ActorMethod<[string], [boolean, string]>,
-  'myBalance' : ActorMethod<[], bigint>,
+  'myBalance' : ActorMethod<[], number>,
   'openMyOwnership' : ActorMethod<[string, string], [boolean, string]>,
   'processLiquidation' : ActorMethod<[string], [boolean, string]>,
   'proposeAssetPurchase' : ActorMethod<
-    [string, bigint, bigint, bigint],
+    [string, bigint, number, number],
     [boolean, string]
   >,
   'registKyc' : ActorMethod<[string, [] | [string]], [boolean, string]>,
   'resolveComplaint' : ActorMethod<[string, string], string>,
-  'supportAsset' : ActorMethod<[string, bigint], [boolean, string]>,
+  'shareDevidend' : ActorMethod<[string, number], [boolean, string]>,
+  'supportAsset' : ActorMethod<[string, number], [boolean, string]>,
   'totalRegisteredUser' : ActorMethod<[], bigint>,
   'transferOwnership' : ActorMethod<
     [string, string, Principal],
@@ -178,10 +179,10 @@ export interface _SERVICE {
   >,
   'voteProposal' : ActorMethod<[string, string], [boolean, string]>,
   'withdrawDPCashback' : ActorMethod<
-    [string, string, string, bigint],
+    [string, string, string, number],
     [boolean, string]
   >,
-  'withdrawFromTreasury' : ActorMethod<[string, string, bigint], string>,
+  'withdrawFromTreasury' : ActorMethod<[string, string, number], string>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

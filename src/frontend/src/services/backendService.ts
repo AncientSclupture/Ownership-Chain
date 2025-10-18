@@ -248,23 +248,23 @@ export const backendService = {
         }
     },
 
-    async getDevBalance(): Promise<bigint> {
+    async getDevBalance(): Promise<number> {
         try {
             const actor = await getActor();
             const res = await actor.getDevBalance();
             return res;
         } catch (error) {
-            return BigInt(0);
+            return 0.0;
         }
     },
 
-    async myBalance(): Promise<bigint> {
+    async myBalance(): Promise<number> {
         try {
             const actor = await getActor();
             const res = await actor.myBalance();
             return res;
         } catch (error) {
-            return BigInt(0);
+            return 0.0;
         }
     },
 
@@ -338,7 +338,7 @@ export const backendService = {
         }
     },
 
-    async proposeAssetPurchase(id: string, token: bigint, pricePerToken: bigint, amount: bigint): Promise<[boolean, string]> {
+    async proposeAssetPurchase(id: string, token: bigint, pricePerToken: number, amount: number): Promise<[boolean, string]> {
         try {
             const actor = await getActor();
             const res = await actor.proposeAssetPurchase(id, token, pricePerToken, amount);
@@ -358,7 +358,7 @@ export const backendService = {
         }
     },
 
-    async withdrawDPCashback(assetid: string, tsid: string, proposalid: string, amount: bigint): Promise<[boolean, string]> {
+    async withdrawDPCashback(assetid: string, tsid: string, proposalid: string, amount: number): Promise<[boolean, string]> {
         try {
             const actor = await getActor();
             const res = await actor.withdrawDPCashback(assetid, tsid, proposalid, amount);
@@ -378,7 +378,7 @@ export const backendService = {
         }
     },
 
-    async buyOwnership(assetid: string, ownershipid: string, amount: bigint, from: Principal): Promise<[boolean, string]> {
+    async buyOwnership(assetid: string, ownershipid: string, amount: number, from: Principal): Promise<[boolean, string]> {
         try {
             const actor = await getActor();
             const res = await actor.buyOwnership(assetid, ownershipid, amount, from);
@@ -388,7 +388,7 @@ export const backendService = {
         }
     },
 
-    async processLiquidation(assetid: string, liquidationAmount: bigint): Promise<[boolean, string]> {
+    async processLiquidation(assetid: string, liquidationAmount: number): Promise<[boolean, string]> {
         try {
             const actor = await getActor();
             const res = await actor.processLiquidation(assetid, liquidationAmount);
@@ -408,7 +408,7 @@ export const backendService = {
         }
     },
 
-    async supportAsset(assetid: string, amount: bigint): Promise<[boolean, string]> {
+    async supportAsset(assetid: string, amount: number): Promise<[boolean, string]> {
         try {
             const actor = await getActor();
             const res = await actor.supportAsset(assetid, amount);

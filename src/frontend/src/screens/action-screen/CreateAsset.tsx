@@ -34,7 +34,7 @@ export function CreateAssetScreen() {
     const [tokenLeft, setTokenLeft] = React.useState<bigint>(BigInt(0));
     const [minTokenPurchased, setMinTokenPurchased] = React.useState<bigint>(BigInt(0));
     const [maxTokenPurchased, setMaxTokenPurchased] = React.useState<bigint>(BigInt(0));
-    const [pricePerToken, setPricePerToken] = React.useState<bigint>(BigInt(0));
+    const [pricePerToken, setPricePerToken] = React.useState<number>(0.0);
 
     const [locationInfo, setLocationInfo] = React.useState<[LocationType] | []>([]);
 

@@ -4,6 +4,7 @@ import Text "mo:base/Text";
 import Principal "mo:base/Principal";
 import Int "mo:base/Int";
 import Bool "mo:base/Bool";
+import Float "mo:base/Float";
 
 module {
   public type CreateAssetInput = {
@@ -16,7 +17,7 @@ module {
     pendingToken : Nat;
     minTokenPurchased : Nat;
     maxTokenPurchased : Nat;
-    pricePerToken : Nat;
+    pricePerToken : Float;
 
     locationInfo : ?DataType.LocationType;
     documentHash : [DataType.AssetDocument];
@@ -36,7 +37,7 @@ module {
     tokenLeft : Nat;
     minTokenPurchased : Nat;
     maxTokenPurchased : Nat;
-    pricePerToken : Nat;
+    pricePerToken : Float;
 
     locationInfo : ?DataType.LocationType;
     documentHash : [DataType.AssetDocument];
@@ -53,7 +54,7 @@ module {
     owner : Principal;
     tokenhold : Nat;
     openForSale : Bool;
-    buyingprice : Nat; // price per token
+    buyingprice : Float; // price per token
     upuntil : Int;
     holdat : Int;
   };
@@ -62,7 +63,7 @@ module {
     assetid : Text; // can be done payment transaction id or support asset id
     description : Text;
     treasuryledgerType : DataType.TresuryType;
-    priceamount : Nat;
+    priceamount : Float;
     from : Principal;
   };
 
@@ -70,7 +71,7 @@ module {
     from : Principal;
     assetid : Text;
     token : Nat;
-    pricePerToken : Nat;
+    pricePerToken : Float;
   };
 
   public type ComplaintInput = {
@@ -85,7 +86,7 @@ module {
     assetid : Text;
     to : Principal;
     from : Principal;
-    totalprice : Nat; // transaction total price (just the total)
+    totalprice : Float; // transaction total price (just the total)
     transactionType : DataType.TransactionType;
     status : DataType.TransactionStatus;
   };

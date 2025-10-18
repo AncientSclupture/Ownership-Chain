@@ -7,7 +7,7 @@ import { getAssetStatusText, ReduceCharacters } from "../../helper/rwa-helper";
 
 export default function MarketPlaceAssetCard(
     {name, description, tokenLeft, totalToken, price, status, id}: 
-    {name: string, description: string, tokenLeft: bigint, totalToken: bigint, price: bigint, status: AssetStatus, id: string}
+    {name: string, description: string, tokenLeft: bigint, totalToken: bigint, price: number, status: AssetStatus, id: string}
 ) {
     const { isAuthenticated } = useAuth();
     const { setNotificationData } = React.useContext(NotificationContext)

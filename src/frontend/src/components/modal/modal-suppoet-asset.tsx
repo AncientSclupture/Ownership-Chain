@@ -9,11 +9,11 @@ export default function ModalSupportAsset() {
     const { setModalKind } = React.useContext(ModalContext);
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const { setNotificationData } = React.useContext(NotificationContext);
-    const [amount, setAmount] = React.useState<bigint>(BigInt(0));
+    const [amount, setAmount] = React.useState<number>(0);
     const { id } = useParams<{ id: string }>();
 
     const handleClose = () => {
-        setAmount(BigInt(0));
+        setAmount(0);
         setModalKind(null);
     };
 
@@ -60,7 +60,7 @@ export default function ModalSupportAsset() {
                     <input
                         type="text"
                         value={amount.toString()}
-                        onChange={(e) => setAmount(BigInt(e.target.value))}
+                        onChange={(e) => setAmount(Number(e.target.value))}
                         placeholder="Content and description of the rule"
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-1 focus:ring-blue-400 focus:outline-none"
                     />

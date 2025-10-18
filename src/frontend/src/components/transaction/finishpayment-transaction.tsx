@@ -31,7 +31,7 @@ export function FinishPaymentTransaction() {
 
     const [localassetid, setassetId] = React.useState<string>(assetid || "");
     const [localownershipid, setownershipId] = React.useState<string>(ownershipid || "");
-    const [localprice, setPrice] = React.useState<bigint | null>(price);
+    const [localprice, setPrice] = React.useState<number | null>(price);
 
     const [loadedProposal, setLoadedProposal] = React.useState<AssetProposal | null>(null);
 
@@ -105,7 +105,7 @@ export function FinishPaymentTransaction() {
                             className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                 const v = e.target.value;
-                                setPrice(v === "" ? null : BigInt(v));
+                                setPrice(v === "" ? null : Number(v));
                             }}
                         />
                     </div>

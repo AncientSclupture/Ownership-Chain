@@ -20,12 +20,12 @@ export default function TokenAsset({
   tokenLeft: bigint;
   minTokenPurchased: bigint;
   maxTokenPurchased: bigint;
-  pricePerToken: bigint;
+  pricePerToken: number;
   setTotalToken: React.Dispatch<React.SetStateAction<bigint>>;
   setTokenLeft: React.Dispatch<React.SetStateAction<bigint>>;
   setMinTokenPurchased: React.Dispatch<React.SetStateAction<bigint>>;
   setMaxTokenPurchased: React.Dispatch<React.SetStateAction<bigint>>;
-  setPricePerToken: React.Dispatch<React.SetStateAction<bigint>>;
+  setPricePerToken: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -167,7 +167,7 @@ export default function TokenAsset({
             <input
               type="text"
               value={pricePerToken.toString()}
-              onChange={(e) => handleBigIntChange(e.target.value, setPricePerToken)}
+              onChange={(e) => setPricePerToken(Number(e.target.value))}
               className="w-full border rounded-md px-3 py-2"
             />
           </div>
