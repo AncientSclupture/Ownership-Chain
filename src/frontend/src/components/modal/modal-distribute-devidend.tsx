@@ -1,16 +1,17 @@
 import React from "react";
 import { ModalContext } from "../../context/ModalContext";
 import { NotificationContext } from "../../context/NotificationContext";
-import { useParams } from "react-router-dom";
 import { LoaderComponent } from "../LoaderComponent";
 import { backendService } from "../../services/backendService";
+import { AssetOwnershipParsingDataContext } from "../../context/AssetOwnershipParsingContext";
 
-export default function ModalSupportAsset() {
+export default function ModalDistributeDevidendAsset() {
     const { setModalKind } = React.useContext(ModalContext);
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const { setNotificationData } = React.useContext(NotificationContext);
     const [amount, setAmount] = React.useState<number>(0);
-    const { id } = useParams<{ id: string }>();
+    const { assetid } = React.useContext(AssetOwnershipParsingDataContext);
+
 
     const handleClose = () => {
         setAmount(0);
@@ -20,14 +21,14 @@ export default function ModalSupportAsset() {
     const handleSendSupport = async () => {
         try {
             setIsLoading(true);
-            if (!id) throw new Error("asset id is not setted up well");
-            const res = await backendService.supportAsset(id, amount);
+            if (!assetid) throw new Error("asset id is not setted up well");
+            const res = await backendService.shareDevidend(assetid, amount);
             if (res[0] === false) throw new Error(res[1]);
-            setNotificationData({ title: "Success Support Asset", description: res[1], position: "bottom-right" })
+            setNotificationData({ title: "Success Distribute Asset Devidend", description: res[1], position: "bottom-right" })
             handleClose();
         } catch (error) {
             const msg = error instanceof Error ? error.message : String(error);
-            setNotificationData({ title: "Error Support Asset", description: msg, position: "bottom-right" })
+            setNotificationData({ title: "Error Distribute Asset Devidend", description: msg, position: "bottom-right" })
         } finally {
             setIsLoading(false);
         }
@@ -38,7 +39,7 @@ export default function ModalSupportAsset() {
     return (
         <div className="bg-white rounded-2xl shadow-lg w-[90%] max-w-md p-6 space-y-5">
             <h2 className="text-xl font-semibold text-gray-800 text-center">
-                Support This asset
+                Distribute devidend asset
             </h2>
 
             <div className="space-y-3">
@@ -47,7 +48,7 @@ export default function ModalSupportAsset() {
                     <input
                         type="text"
                         disabled={true}
-                        value={id ?? "not-settedup"}
+                        value={assetid ?? "not-settedup"}
                         placeholder="Enter asset ID"
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-1 focus:ring-blue-400 focus:outline-none"
                     />
@@ -55,7 +56,7 @@ export default function ModalSupportAsset() {
 
                 <div>
                     <label className="block text-sm text-gray-700 mb-1">
-                        Support Amount (ICP Coin)
+                        Amount (ICP Coin)
                     </label>
                     <input
                         type="number"
@@ -79,7 +80,7 @@ export default function ModalSupportAsset() {
                         disabled={isLoading}
                         className="px-4 py-2 rounded-xl background-dark transition text-white disabled:opacity-50"
                     >
-                        {isLoading ? "loading" : "Send Support Asset"}
+                        {isLoading ? "loading" : "Distrubute"}
                     </button>
                 </div>
             </div>

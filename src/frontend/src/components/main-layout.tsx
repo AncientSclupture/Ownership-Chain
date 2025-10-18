@@ -13,6 +13,7 @@ import ModalCreateAssetComplaint from "./modal/modal-create-complaint";
 import ModalSupportAsset from "./modal/modal-suppoet-asset";
 import ModalCreateKyc from "./modal/modal-create-kyc";
 import ModalAddPubKey from "./modal/modal-add-pubkey";
+import ModalDistributeDevidendAsset from "./modal/modal-distribute-devidend";
 
 export function MainLayout({ needProtection = true, children }: { needProtection?: boolean, children: React.ReactNode }) {
     const { isAuthenticated, userPrincipal } = React.useContext(AuthContext);
@@ -36,6 +37,7 @@ export function MainLayout({ needProtection = true, children }: { needProtection
                     { name: ModalKindEnum.supportasset, component: <ModalSupportAsset /> },
                     { name: ModalKindEnum.createkyc, component: <ModalCreateKyc /> },
                     { name: ModalKindEnum.addpubkey, component: <ModalAddPubKey /> },
+                    { name: ModalKindEnum.distributedividend, component: <ModalDistributeDevidendAsset /> },
                 ]}
             />
 

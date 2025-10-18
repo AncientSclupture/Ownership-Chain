@@ -88,7 +88,7 @@ export default function ModalProposedBuyToken() {
                 <div>
                     <label className="block text-sm text-gray-700 mb-1">Done Payment</label>
                     <input
-                        type="text"
+                        type="number"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                         placeholder="Enter amount"

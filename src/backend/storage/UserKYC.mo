@@ -3,7 +3,6 @@ import Text "mo:base/Text";
 import Bool "mo:base/Bool";
 import Principal "mo:base/Principal";
 import Float "mo:base/Float";
-import Int "mo:base/Int";
 import DataType "../data/dataType";
 
 module {

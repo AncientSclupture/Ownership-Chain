@@ -4,6 +4,7 @@ import { AssetProposal } from "../../types/rwa";
 import { backendService } from "../../services/backendService";
 import { LoaderComponent } from "../LoaderComponent";
 import { formatMotokoTime } from "../../helper/rwa-helper";
+import { NotificationContext } from "../../context/NotificationContext";
 
 function CardProposal({ proposal, isLoading }: { proposal: AssetProposal, isLoading: boolean }) {
 
@@ -34,10 +35,10 @@ export function FinishPaymentTransaction() {
     const [localprice, setPrice] = React.useState<number | null>(price);
 
     const [loadedProposal, setLoadedProposal] = React.useState<AssetProposal | null>(null);
-
+    const { setNotificationData } = React.useContext(NotificationContext);
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-    const handleSubmit = async () => {
+    const handleConfirm = async () => {
         try {
             setIsLoading(true);
             const proposalRes = await backendService.getProposal(localassetid, localownershipid);
@@ -51,15 +52,32 @@ export function FinishPaymentTransaction() {
         }
     };
 
+    const handleFinishedPayment = async () => {
+        try {
+            setIsLoading(true);
+            if (!localprice) throw new Error("Price is not setted");
+            const actionres = await backendService.finishPayment(localassetid, localownershipid, localprice);
+            console.log("Ownership actionRes:", actionres);
+            if (actionres[0] === false) throw new Error(actionres[1]);
+            setNotificationData({ title: "Success Finished Payment", description: actionres[1], position: "bottom-right" })
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : String(error);
+            setNotificationData({ title: "Failed Finished Payment", description: msg, position: "bottom-right" })
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     React.useEffect(() => {
         async function init() {
             if (!localassetid || !localownershipid) return;
             try {
                 setIsLoading(true);
-                const ownershipRes = await backendService.getTransactionByTransactionId(localassetid, localownershipid);
-                if (ownershipRes.length === 0) throw new Error("No ownership found");
+                const proposal = await backendService.getTransactionByTransactionId(localassetid, localownershipid);
+                if (proposal.length === 0 || !proposal) throw new Error("No Proposal found");
             } catch (error) {
-                console.error("Error fetching ownership:", error);
+                const msg = error instanceof Error ? error.message : String(error);
+                setNotificationData({ title: "", description: msg, position: "bottom-right" })
             } finally {
                 setIsLoading(false);
             }
@@ -110,10 +128,10 @@ export function FinishPaymentTransaction() {
                         />
                     </div>
                     <button
-                        onClick={handleSubmit}
+                        onClick={loadedProposal ? handleFinishedPayment : handleConfirm}
                         className="mt-4 w-full background-dark text-white font-semibold py-2 rounded-lg transition"
                     >
-                        Confirm Purchase
+                        {loadedProposal ? "Confirm Purchase" : "Validate Proposal"}
                     </button>
                 </div>
             </div>

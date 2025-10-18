@@ -165,7 +165,7 @@ export default function TokenAsset({
               Price Per Token
             </label>
             <input
-              type="text"
+              type="number"
               value={pricePerToken.toString()}
               onChange={(e) => setPricePerToken(Number(e.target.value))}
               className="w-full border rounded-md px-3 py-2"

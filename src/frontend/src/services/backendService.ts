@@ -348,7 +348,7 @@ export const backendService = {
         }
     },
 
-    async finishPayment(assetid: string, proposalid: string, amount: bigint): Promise<[boolean, string]> {
+    async finishPayment(assetid: string, proposalid: string, amount: number): Promise<[boolean, string]> {
         try {
             const actor = await getActor();
             const res = await actor.finishPayment(assetid, proposalid, amount);
@@ -418,6 +418,16 @@ export const backendService = {
         }
     },
 
+    async shareDevidend(assetid: string, amount: number): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.shareDevidend(assetid, amount);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    },
+
     async inactiveAsset(assetid: string): Promise<[boolean, string]> {
         try {
             const actor = await getActor();
@@ -436,5 +446,5 @@ export const backendService = {
         } catch (error) {
             return error instanceof Error ? [false, error.message] : [false, String(error)];
         }
-    }
+    },
 };

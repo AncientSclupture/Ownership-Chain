@@ -6,6 +6,7 @@ import Bool "mo:base/Bool";
 import Iter "mo:base/Iter";
 import Array "mo:base/Array";
 import Float "mo:base/Float";
+import Principal "mo:base/Principal";
 import DataType "../data/dataType";
 import InputType "../data/inputType";
 
@@ -106,12 +107,12 @@ module TreasuryStorage {
       };
     };
 
-    public func getTotalAssetFunding(assetid: Text) : Float {
+    public func getTotalAssetFunding(assetid : Text) : Float {
       var treasuryTotal : Float = 0.0;
-      switch(treasuryStorage.get(assetid)){
-        case (null){return 0};
-        case (?innermap){
-          for ((_, treasury) in innermap.entries()){
+      switch (treasuryStorage.get(assetid)) {
+        case (null) { return 0 };
+        case (?innermap) {
+          for ((_, treasury) in innermap.entries()) {
             treasuryTotal := treasuryTotal + treasury.priceamount;
           };
         };
@@ -174,7 +175,23 @@ module TreasuryStorage {
           };
         };
       };
-    }
+    };
+
+    public func getTreasuryForDonePayment(assetid : Text, sender : Principal) : (Bool, Text) {
+      switch (treasuryStorage.get(assetid)) {
+        case (null) {
+          return (false, "no treasury found");
+        };
+        case (?innermap) {
+          for ((_, treasury) in innermap.entries()) {
+            if (treasury.from == sender and treasury.treasuryledgerType == #Donepayment) {
+              return (true, treasury.tsid);
+            };
+          };
+          return (false, "user has no treasury");
+        };
+      };
+    };
 
   };
 };

@@ -2,6 +2,24 @@ import React from "react";
 import { EmptyResult } from "../empty-result";
 import { Asset } from "../../types/rwa";
 import { formatMotokoTime, getAssetStatusText, getAssetTypeText } from "../../helper/rwa-helper";
+import { AssetOwnershipParsingDataContext } from "../../context/AssetOwnershipParsingContext";
+import { ModalContext, ModalKindEnum } from "../../context/ModalContext";
+
+function ShareDevidend({ assetid }: { assetid: string }) {
+    const { setassetid } = React.useContext(AssetOwnershipParsingDataContext);
+    const { setModalKind } = React.useContext(ModalContext);
+    return (
+        <button
+            onClick={() => {
+                setassetid(assetid);
+                setModalKind(ModalKindEnum.distributedividend);
+            }}
+            className="p-2 rounded-md background-dark text-white text-sm"
+        >
+            dividend
+        </button>
+    );
+}
 
 export default function AssetTable(
     { assets, setassetid }:
@@ -44,6 +62,7 @@ export default function AssetTable(
                             <th className="px-4 py-3 text-left">Created</th>
                             <th className="px-4 py-3 text-left">Status</th>
                             <th className="px-4 py-3 text-left">Type</th>
+                            <th className="px-4 py-3 text-left">Distrubute</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -59,6 +78,7 @@ export default function AssetTable(
                                     <td className="px-4 py-3 text-gray-600">{formatMotokoTime(item.createdAt)}</td>
                                     <td className="px-4 py-3 text-gray-800">{getAssetStatusText(item.assetStatus)}</td>
                                     <td className="px-4 py-3 text-gray-600">{getAssetTypeText(item.assetType)}</td>
+                                    <td className="px-4 py-3 text-gray-600"><ShareDevidend assetid={item.id} /></td>
                                 </tr>
                             ))
                         ) : (

@@ -9,6 +9,7 @@ export enum ModalKindEnum {
     supportasset = "supportasset",
     createkyc = "createkyc",
     addpubkey = "addpubkey",
+    distributedividend = "distributedividend",
 }
 
 export type ModalContextType = {

@@ -4,14 +4,15 @@ import ComplaintStorage "storage/ComplaintStorage";
 import OnwershipStorage "storage/OnwershipStorage";
 import TransactionStorage "storage/TransactionStorage";
 import TreasuryStorage "storage/TreasuryStorage";
+import UserKyc "storage/UserKYC";
 import DataType "data/dataType";
 import InputType "data/inputType";
+
 import Principal "mo:base/Principal";
 import Time "mo:base/Time";
 import Float "mo:base/Float";
 import Buffer "mo:base/Buffer";
 import Bool "mo:base/Bool";
-import UserKyc "storage/UserKYC";
 
 persistent actor {
   private transient let assetStorage = AssetStorage.AssetStorageClass();
@@ -127,6 +128,16 @@ persistent actor {
         let (msg, success) = assetproposalStorage.initiateProposal(proposalInput);
 
         if (success) {
+          let txInput : InputType.TransactionInput = {
+            assetid = assetid;
+            to = asset.creator;
+            from = caller;
+            totalprice = amount;
+            transactionType = #Dividend;
+            status = #Done;
+          };
+
+          let _txMsg = transactionStorage.createTransaction(txInput);
           return (false, msg # " - DP of " # debug_show (dpAmount) # " stored in treasury");
         } else {
           return (true, msg);
@@ -193,8 +204,21 @@ persistent actor {
 
             // Validasi berdasarkan kondisi voting
             if (soldRatio < 0.5) {
+              if (voteRatio < soldRatio) {
+                let percentage : Text = Float.toText(voteRatio * Float.fromInt(100));
+                return (
+                  false,
+                  "Voting approval not enough (" # percentage # "%) to continue payment.",
+                );
+              };
+            };
+
+            if (soldRatio >= 0.5) {
               if (voteRatio <= 0.5) {
-                return (false, "Voting approval not enough (< 50%) to continue payment.");
+                return (
+                  false,
+                  "Voting approval not enough (<50%) to continue payment.",
+                );
               };
             };
 
@@ -208,6 +232,18 @@ persistent actor {
 
             if (status == false) {
               return (false, reduceTokenMsg);
+            };
+
+            let (tsIdStatus, tsFoundedMsg) = treasuryStorage.getTreasuryForDonePayment(assetid, caller);
+
+            if (tsIdStatus == false) {
+              return (false, tsFoundedMsg);
+            };
+
+            let (treasuryMsg, success) = treasuryStorage.takeTreasury(assetid, tsFoundedMsg, dpAmount);
+
+            if (not success) {
+              return (false, treasuryMsg);
             };
 
             let fee = userStorage.calcPercentage(amount, 0.05);
