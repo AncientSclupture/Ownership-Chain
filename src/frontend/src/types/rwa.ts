@@ -115,7 +115,17 @@ export interface TreasuryLedger {
 }
 export type TresuryType = { 'AssetSupport' : null } |
   { 'Donepayment' : null };
+export interface User {
+  'principalAddress' : Principal,
+  'publickey' : [] | [string],
+  'surname' : string,
+  'mockBalance' : bigint,
+  'userStatus' : UserStatus,
+}
+export type UserStatus = { 'Approve' : null } |
+  { 'Suspended' : null };
 export interface _SERVICE {
+  'addPublicKey' : ActorMethod<[string], [boolean, string]>,
   'buyOwnership' : ActorMethod<
     [string, string, bigint, Principal],
     [boolean, string]
@@ -136,11 +146,14 @@ export interface _SERVICE {
   'getAssetDividend' : ActorMethod<[string], Array<Transaction>>,
   'getAssetOwnerships' : ActorMethod<[string], Array<AssetOwnership>>,
   'getAssetProposals' : ActorMethod<[string], Array<AssetProposal>>,
+  'getBalanceForDemo' : ActorMethod<[], [boolean, string]>,
+  'getDevBalance' : ActorMethod<[], bigint>,
   'getMyOwnerships' : ActorMethod<[Principal], Array<AssetOwnership>>,
   'getMyProposals' : ActorMethod<[Principal], Array<AssetProposal>>,
   'getOwnershipById' : ActorMethod<[string, string], [] | [AssetOwnership]>,
   'getPersonalAset' : ActorMethod<[Principal], Array<Asset>>,
   'getProposal' : ActorMethod<[string, string], [] | [AssetProposal]>,
+  'getRegisteredUser' : ActorMethod<[Principal], [] | [User]>,
   'getTotalAsset' : ActorMethod<[], bigint>,
   'getTransactionByTransactionId' : ActorMethod<
     [string, string],
@@ -148,14 +161,17 @@ export interface _SERVICE {
   >,
   'getTreasuryByAssetId' : ActorMethod<[string, string], [] | [TreasuryLedger]>,
   'inactiveAsset' : ActorMethod<[string], [boolean, string]>,
+  'myBalance' : ActorMethod<[], bigint>,
   'openMyOwnership' : ActorMethod<[string, string], [boolean, string]>,
   'processLiquidation' : ActorMethod<[string], [boolean, string]>,
   'proposeAssetPurchase' : ActorMethod<
     [string, bigint, bigint, bigint],
     [boolean, string]
   >,
+  'registKyc' : ActorMethod<[string, [] | [string]], [boolean, string]>,
   'resolveComplaint' : ActorMethod<[string, string], string>,
   'supportAsset' : ActorMethod<[string, bigint], [boolean, string]>,
+  'totalRegisteredUser' : ActorMethod<[], bigint>,
   'transferOwnership' : ActorMethod<
     [string, string, Principal],
     [boolean, string]

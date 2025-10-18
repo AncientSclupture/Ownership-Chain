@@ -1,4 +1,4 @@
-import { AssetStatus, AssetType, ComplaintType, TransactionStatus, TransactionType, TresuryType } from "../types/rwa";
+import { AssetStatus, AssetType, ComplaintType, TransactionStatus, TransactionType, TresuryType, UserStatus } from "../types/rwa";
 import type { Principal } from '@dfinity/principal';
 
 export function ReduceCharacters(d: string, num: number = 20): string {
@@ -12,6 +12,13 @@ export function getAssetStatusText(status: AssetStatus | undefined): string {
   if ('Inactive' in status) return 'Inactive';
   if ('Active' in status) return 'Active';
   if ('Pending' in status) return 'Pending';
+  return 'Unknown';
+}
+
+export function getUserStatusText(status: UserStatus | undefined): string {
+  if (!status) return "Unknown";
+  if ('Approve' in status) return 'Approve';
+  if ('Suspended' in status) return 'Suspended';
   return 'Unknown';
 }
 
@@ -135,7 +142,7 @@ export async function exportKey(key: CryptoKey, type: "private" | "public"): Pro
   return pem;
 }
 
-async function importKey(pem: string, type: "private" | "public"): Promise<CryptoKey> {
+export async function importKey(pem: string, type: "private" | "public"): Promise<CryptoKey> {
   const pemHeader = type === "private" ? "PRIVATE KEY" : "PUBLIC KEY";
   const pemContents = pem.replace(`-----BEGIN ${pemHeader}-----`, "")
     .replace(`-----END ${pemHeader}-----`, "")

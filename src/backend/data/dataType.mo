@@ -142,4 +142,17 @@ module {
     createdAt : Int;
   };
 
+  public type UserStatus = {
+    #Approve;
+    #Suspended;
+  };
+
+  public type User = {
+    principalAddress: Principal;
+    surname: Text;
+    mockBalance: Nat;
+    publickey: ?Text;
+    userStatus: UserStatus;
+  };
+
 };

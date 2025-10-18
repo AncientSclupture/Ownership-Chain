@@ -11,6 +11,7 @@ import Time "mo:base/Time";
 import Float "mo:base/Float";
 import Buffer "mo:base/Buffer";
 import Bool "mo:base/Bool";
+import UserKyc "storage/UserKYC";
 
 persistent actor {
   private transient let assetStorage = AssetStorage.AssetStorageClass();
@@ -19,6 +20,7 @@ persistent actor {
   private transient let ownershipStorage = OnwershipStorage.OwnershipStorageClass();
   private transient let transactionStorage = TransactionStorage.TransactionStorageClass();
   private transient let treasuryStorage = TreasuryStorage.TreasuryStorageClass();
+  private transient let userStorage = UserKyc.UserKycStorageClass();
 
   // 1. User dapat membuat asset
   public shared (msg) func createAsset(input : InputType.CreateAssetInputApi) : async (Bool, Text) {
@@ -44,6 +46,12 @@ persistent actor {
       rule = input.rule;
 
       ownershipMaturityTime = input.ownershipMaturityTime;
+    };
+
+    let fee = userStorage.calcPercentage(input.pricePerToken * input.totalToken, 0.05);
+    let (chargeStatus, chargeMsg) = userStorage.chargeTo(caller, fee);
+    if (chargeStatus == false) {
+      return (false, chargeMsg);
     };
 
     // Buat asset baru
@@ -85,7 +93,7 @@ persistent actor {
 
         // Validasi min/max token
         if (token < asset.minTokenPurchased or token > asset.maxTokenPurchased) {
-          return (false, "Token amount must be between " # debug_show (asset.minTokenPurchased) # " and " # debug_show (asset.maxTokenPurchased));
+          return (false, "Token Transaction Amount must be greater than zero be between " # debug_show (asset.minTokenPurchased) # " and " # debug_show (asset.maxTokenPurchased));
         };
 
         // Hitung total DP (misalnya 20% dari total price)
@@ -204,6 +212,12 @@ persistent actor {
               return (false, reduceTokenMsg);
             };
 
+            let fee = userStorage.calcPercentage(amount, 0.05);
+            let (chargeStatus, chargeMsg) = userStorage.chargeTo(caller, fee);
+            if (chargeStatus == false) {
+              return (false, chargeMsg);
+            };
+
             // Buat transaksi pembayaran
             let txInput : InputType.TransactionInput = {
               assetid = assetid;
@@ -263,6 +277,12 @@ persistent actor {
       return (false, treasuryMsg);
     };
 
+    let fee = userStorage.calcPercentage(amount, 0.02);
+    let (chargeStatus, chargeMsg) = userStorage.chargeTo(caller, fee);
+    if (chargeStatus == false) {
+      return (false, chargeMsg);
+    };
+
     // Buat transaksi cashback
     let txInput : InputType.TransactionInput = {
       assetid = assetid;
@@ -292,11 +312,17 @@ persistent actor {
       return (status, resultmsg);
     };
 
+    let fee = userStorage.calcPercentage(1, 1.0);
+    let (chargeStatus, chargeMsg) = userStorage.chargeTo(caller, fee);
+    if (chargeStatus == false) {
+      return (false, chargeMsg);
+    };
+
     if (status == true) {
       // Buat transaksi record
       let txInput : InputType.TransactionInput = {
         assetid = assetid;
-        to = caller; // akan diganti dengan actual buyer di storage
+        to = to;
         from = caller;
         totalprice = 0;
         transactionType = #Transfer;
@@ -327,6 +353,29 @@ persistent actor {
 
     if (status == false) {
       return (status, result);
+    };
+
+    if (amount == 0) {
+      let fee = userStorage.calcPercentage(1, 1.0);
+      let (chargeStatus, chargeMsg) = userStorage.chargeTo(caller, fee);
+      if (chargeStatus == false) {
+        return (false, chargeMsg);
+      };
+
+      let (mockTransferStatus, mockTransferMsg) = userStorage.mockTransferBalance(caller, from, fee);
+      if (mockTransferStatus == false) {
+        return (false, mockTransferMsg);
+      };
+    };
+
+    let fee = userStorage.calcPercentage(amount, 0.2);
+    let (chargeStatus, chargeMsg) = userStorage.chargeTo(caller, fee);
+    if (chargeStatus == false) {
+      return (false, chargeMsg);
+    };
+    let (mockTransferStatus, mockTransferMsg) = userStorage.mockTransferBalance(caller, from, fee);
+    if (mockTransferStatus == false) {
+      return (false, mockTransferMsg);
     };
 
     if (status == true) {
@@ -368,6 +417,12 @@ persistent actor {
         };
 
         let liquidationAmount : Nat = treasuryStorage.getTotalAssetFunding(assetid) * tokenHold / asset.totalToken;
+
+        let fee = userStorage.calcPercentage(liquidationAmount, 0.02);
+        let (chargeStatus, chargeMsg) = userStorage.chargeTo(caller, fee);
+        if (chargeStatus == false) {
+          return (false, chargeMsg);
+        };
 
         let (fundingStatus, fundingAmount) = treasuryStorage.getFundingFromAssetTreasuryTotal(assetid, liquidationAmount);
 
@@ -424,6 +479,11 @@ persistent actor {
         if (asset.creator != caller) {
           return (false, "You are not the asset creator");
         };
+        let fee = userStorage.calcPercentage(asset.pricePerToken * asset.totalToken, 0.5);
+        let (chargeStatus, chargeMsg) = userStorage.chargeTo(caller, fee);
+        if (chargeStatus == false) {
+          return (false, chargeMsg);
+        };
       };
     };
     return assetStorage.editAssetStatus(assetid, #Inactive);
@@ -440,6 +500,13 @@ persistent actor {
     switch (assetStorage.get(assetid)) {
       case (null) { return (false, "Asset not found") };
       case (?asset) {
+
+        let fee = userStorage.calcPercentage(amount, 0.02);
+        let (chargeStatus, chargeMsg) = userStorage.chargeTo(caller, fee);
+        if (chargeStatus == false) {
+          return (false, chargeMsg);
+        };
+
         // Simpan support ke treasury
         let treasuryInput : InputType.CreateTreasuryLedgerInput = {
           assetid = assetid;
@@ -601,5 +668,35 @@ persistent actor {
   ) : async Text {
     let (msg, _success) = complaintStorage.solveComplain(assetid, complaintid);
     return msg;
+  };
+
+  // demo purposes
+  public shared (msg) func registKyc(surname : Text, publickey : ?Text) : async (Bool, Text) {
+    return userStorage.createUser(msg.caller, surname, publickey);
+  };
+
+  public shared (msg) func addPublicKey(publickey : Text) : async (Bool, Text) {
+    return userStorage.addPublicKey(msg.caller, publickey);
+  };
+
+  public query func getDevBalance() : async Nat {
+    return userStorage.getDevBalance();
+  };
+
+  public shared (msg) func myBalance() : async Nat {
+    return userStorage.getUserBalance(msg.caller);
+  };
+
+  public query func totalRegisteredUser() : async Nat {
+    return userStorage.getUserCount();
+  };
+
+  public query func getRegisteredUser(user : Principal) : async ?DataType.User {
+    return userStorage.getRegisteredUser(user);
+  };
+
+  // THIS IS FOR DEMO ONLY!!!!
+  public shared (msg) func getBalanceForDemo() : async (Bool, Text) {
+    return userStorage.mockTransferTo(msg.caller, 20);
   };
 };

@@ -1,5 +1,5 @@
 // import { backend } from "../../../declarations/backend";
-import { Asset, AssetOwnership, AssetProposal, ComplaintType, CreateAssetInputApi, Transaction, TreasuryLedger } from "../types/rwa";
+import { Asset, AssetOwnership, AssetProposal, ComplaintType, CreateAssetInputApi, Transaction, TreasuryLedger, User } from "../types/rwa";
 import type { Principal } from '@dfinity/principal';
 import { idlFactory } from "../../../declarations/backend/backend.did.js";
 import { Actor, HttpAgent } from "@dfinity/agent";
@@ -245,6 +245,76 @@ export const backendService = {
             return res;
         } catch (error) {
             return [];
+        }
+    },
+
+    async getDevBalance(): Promise<bigint> {
+        try {
+            const actor = await getActor();
+            const res = await actor.getDevBalance();
+            return res;
+        } catch (error) {
+            return BigInt(0);
+        }
+    },
+
+    async myBalance(): Promise<bigint> {
+        try {
+            const actor = await getActor();
+            const res = await actor.myBalance();
+            return res;
+        } catch (error) {
+            return BigInt(0);
+        }
+    },
+
+    async totalRegisteredUser(): Promise<bigint> {
+        try {
+            const actor = await getActor();
+            const res = await actor.totalRegisteredUser();
+            return res;
+        } catch (error) {
+            return BigInt(0);
+        }
+    },
+
+    async getRegisteredUser(user: Principal): Promise<[User] | []> {
+        try {
+            const actor = await getActor();
+            const res = await actor.getRegisteredUser(user);
+            return res;
+        } catch (error) {
+            return [];
+        }
+    },
+
+    async registKyc(surname: string, publickey: [] | [string]): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.registKyc(surname, publickey);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    },
+
+    async addPublicKey(publickey: string): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.addPublicKey(publickey);
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    },
+
+    async getBalanceForDemo(): Promise<[boolean, string]> {
+        try {
+            const actor = await getActor();
+            const res = await actor.getBalanceForDemo();
+            return res;
+        } catch (error) {
+            return error instanceof Error ? [false, error.message] : [false, String(error)];
         }
     },
 

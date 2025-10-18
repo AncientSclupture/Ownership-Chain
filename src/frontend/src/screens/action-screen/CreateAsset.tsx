@@ -68,20 +68,21 @@ export function CreateAssetScreen() {
             if (res[0] === false) {
                 throw new Error(res[1] ?? "Unknown error");
             }
+            navigate("/market-place");
             setNotificationData({
                 title: "Success",
                 description: res[1],
                 position: "bottom-right",
             });
         } catch (error) {
+            const msg = error instanceof Error ? error.message : String(error);
             setNotificationData({
                 title: "Error",
-                description: "Failed to create documents.",
+                description: msg,
                 position: "bottom-right",
             });
         } finally {
             setIsLoading(false);
-            navigate("/market-place");
         }
     }
 
