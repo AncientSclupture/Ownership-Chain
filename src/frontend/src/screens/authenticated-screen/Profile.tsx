@@ -16,6 +16,41 @@ export function ProfileScreen() {
     const { setModalKind } = React.useContext(ModalContext);
     const { setNotificationData } = React.useContext(NotificationContext);
 
+    const [flag, setFlag] = React.useState(false);
+
+    const handleGetBalance = async () => {
+        try {
+            setIsloading(true);
+            const res = await backendService.getBalanceForDemo();
+            if (res[0] === false) throw Error(res[1]);
+            setNotificationData({ title: "top up success", description: res[1], position: "bottom-right" })
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : String(error);
+            setNotificationData({ title: "top up failed", description: msg, position: "bottom-right" })
+        } finally {
+            setIsloading(false)
+            setFlag(!flag)
+        }
+    }
+
+    React.useEffect(() => {
+        async function init() {
+            try {
+                setIsloading(true);
+                if (!userPrincipal) throw new Error("User Principal is not set up");
+                const userRes = await backendService.getRegisteredUser(userPrincipal);
+                if (!userRes || userRes.length === 0) throw new Error("User Principal is not set up");
+                setLoadedUserData(userRes[0] ?? null);
+            } catch (error) {
+                setLoadedUserData(null);
+            } finally {
+                setIsloading(false)
+                setFlag(!flag);
+            }
+        }
+        init();
+    }, [userPrincipal]);
+
     React.useEffect(() => {
         async function init() {
             try {
@@ -31,7 +66,7 @@ export function ProfileScreen() {
             }
         }
         init();
-    }, [userPrincipal]);
+    }, [flag])
 
     async function generatekey() {
         try {
@@ -118,7 +153,10 @@ export function ProfileScreen() {
                                     }
                                     {!loadedUserData &&
                                         <button
-                                            onClick={() => setModalKind(ModalKindEnum.createkyc)}
+                                            onClick={() => {
+                                                setModalKind(ModalKindEnum.createkyc);
+                                                setFlag(!flag);
+                                            }}
                                             className="background-dark p-2 text-white rounded-md cursor-pointer w-fit"
                                         >
                                             Register
@@ -140,19 +178,7 @@ export function ProfileScreen() {
                                 <h1>Top Up Mock Balance to do Actifities</h1>
                                 <div className="mt-5 space-y-1 flex flex-col">
                                     <button
-                                        onClick={async () => {
-                                            try {
-                                                setIsloading(true);
-                                                const res = await backendService.getBalanceForDemo();
-                                                if (res[0] === false) throw Error(res[1]);
-                                                setNotificationData({ title: "top up success", description: res[1], position: "bottom-right" })
-                                            } catch (error) {
-                                                const msg = error instanceof Error ? error.message : String(error);
-                                                setNotificationData({ title: "top up failed", description: msg, position: "bottom-right" })
-                                            } finally {
-                                                setIsloading(false)
-                                            }
-                                        }}
+                                        onClick={handleGetBalance}
                                         disabled={isloading}
                                         className="background-dark p-2 text-white rounded-md cursor-pointer w-fit"
                                     >

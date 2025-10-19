@@ -3,6 +3,7 @@ import { Asset, AssetOwnership, AssetProposal, ComplaintType, CreateAssetInputAp
 import type { Principal } from '@dfinity/principal';
 import { idlFactory } from "../../../declarations/backend/backend.did.js";
 import { Actor, HttpAgent } from "@dfinity/agent";
+import { generatePrompt, getAssetTypeText } from "../helper/rwa-helper";
 
 // Updated environment variable names and fallback values
 const BACKEND_CANISTER_ID =
@@ -445,6 +446,45 @@ export const backendService = {
             return res;
         } catch (error) {
             return error instanceof Error ? [false, error.message] : [false, String(error)];
+        }
+    },
+
+    async getAiReview(assetid: string): Promise<string> {
+        try {
+            const actor = await getActor();
+            const asetMetaData = await actor.getAsset(assetid);
+            const assetComplaint = await actor.getAssetComplaints(assetid);
+            const assetTransaction = await actor.getAllTransactionsByAssetId(assetid);
+            console.log("Asset Metadata:", asetMetaData);
+            console.log("Asset Complaints:", assetComplaint);
+            console.log("Asset Transactions:", assetTransaction);
+            const userGeneratedPrompt = generatePrompt(asetMetaData, assetComplaint, assetTransaction);
+            const aiResult = await fetch('https://llm.asoatram.my.id/summarize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_prompt: userGeneratedPrompt,
+                    asset: {
+                        name: asetMetaData && asetMetaData[0] ? asetMetaData[0].name : "",
+                        description: asetMetaData && asetMetaData[0] ? asetMetaData[0].description : "",
+                        riskScore: Number(Number(asetMetaData[0].tokenLeft) / Number(asetMetaData[0].tokenLeft)),
+                        location: asetMetaData && asetMetaData[0] ? asetMetaData[0].locationInfo : "",
+                        propertyType: asetMetaData && asetMetaData[0] ? getAssetTypeText(asetMetaData[0].assetType) : "",
+                        tokenLeft: asetMetaData && asetMetaData[0] ? Number(asetMetaData[0].tokenLeft) : "",
+                        totalToken: asetMetaData && asetMetaData[0] ? Number(asetMetaData[0].totalToken) : "",
+                        pricePerToken: asetMetaData && asetMetaData[0] ? asetMetaData[0].rule : [],
+                    },
+                }),
+            });
+            if (aiResult.status !== 200) throw new Error("Failed to get AI review");
+            const aiData = await aiResult.json();
+            console.log("AI Review Data:", aiData.response);
+            return aiData.response;
+        } catch (error) {
+            console.log(error);
+            return error instanceof Error ? error.message : String(error);
         }
     },
 };

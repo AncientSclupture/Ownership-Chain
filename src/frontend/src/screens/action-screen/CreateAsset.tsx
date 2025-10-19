@@ -12,6 +12,7 @@ import { backendService } from "../../services/backendService";
 import { text2AssetStatus, text2AssetType } from "../../helper/rwa-helper";
 import { useNavigate } from "react-router-dom";
 import { LoaderComponent } from "../../components/LoaderComponent";
+import { ModalContext } from "../../context/ModalContext";
 
 export function CreateAssetScreen() {
     const { setNotificationData } = React.useContext(NotificationContext)
@@ -43,6 +44,8 @@ export function CreateAssetScreen() {
     const [rule, setRule] = React.useState<AssetRule[]>([]);
     const [ownershipMaturityTime, setOwnershipMaturityTime] = React.useState<bigint>(BigInt(0));
 
+    const {addrulemanagement} = React.useContext(ModalContext);
+
     async function create() {
         try {
             setIsLoading(true);
@@ -68,6 +71,8 @@ export function CreateAssetScreen() {
             if (res[0] === false) {
                 throw new Error(res[1] ?? "Unknown error");
             }
+
+            addrulemanagement.resetter();
             navigate("/market-place");
             setNotificationData({
                 title: "Success",
@@ -81,6 +86,7 @@ export function CreateAssetScreen() {
                 description: msg,
                 position: "bottom-right",
             });
+            addrulemanagement.resetter();
         } finally {
             setIsLoading(false);
         }

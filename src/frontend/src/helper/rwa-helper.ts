@@ -1,4 +1,4 @@
-import { AssetStatus, AssetType, ComplaintType, TransactionStatus, TransactionType, TresuryType, UserStatus } from "../types/rwa";
+import { AssetStatus, AssetType, Complaint, ComplaintType, Transaction, TransactionStatus, TransactionType, TresuryType, UserStatus } from "../types/rwa";
 import type { Principal } from '@dfinity/principal';
 
 export function ReduceCharacters(d: string, num: number = 20): string {
@@ -206,3 +206,63 @@ export const verifyDocument = async (file: File, publicPemFile: string, signatur
   );
   return valid;
 };
+
+export function safeStringify(obj: any, space: number = 2): string {
+  return JSON.stringify(
+    obj,
+    (_, value) => (typeof value === "bigint" ? value.toString() : value),
+    space
+  );
+}
+
+export function generatePrompt(
+  assetMetaData: any[],
+  complaints: Complaint[],
+  transactions: Transaction[]
+): string {
+  const asset = assetMetaData[0];
+
+  const complaintText =
+    complaints.length > 0
+      ? complaints
+        .map((c) => `• ${Object.keys(c.complaintType)[0]} - ${c.reason}`)
+        .join("\n")
+      : "No complaints have been reported.";
+
+  const transactionText =
+    transactions.length > 0
+      ? transactions
+        .map(
+          (t) =>
+            `• ${Object.keys(t.transactionType)[0]} (${Object.keys(t.status)[0]})`
+        )
+        .join("\n")
+      : "No transactions have been recorded for this asset.";
+
+  return `
+You are an AI analyst reviewing a digital asset.
+
+Asset details:
+Name: ${asset?.name ?? "Unknown"}
+Description: ${asset?.description ?? "No description available"}
+Location: ${asset?.locationInfo ?? "No location information"}
+
+Reported complaints:
+${complaintText}
+
+Transaction history:
+${transactionText}
+
+Write a concise AI analysis summarizing the asset's reputation and its potential risk level.
+  `.trim();
+}
+
+export function formatAiReview(text: string): string {
+  return text
+    .replace(/^### (.*$)/gim, "<h3>$1</h3>")
+    .replace(/^## (.*$)/gim, "<h2>$1</h2>")
+    .replace(/^# (.*$)/gim, "<h1>$1</h1>")
+    .replace(/\*\*(.*?)\*\*/gim, "<strong>$1</strong>")
+    .replace(/\*(.*?)\*/gim, "<em>$1</em>")
+    .replace(/\n$/gim, "<br />");
+}

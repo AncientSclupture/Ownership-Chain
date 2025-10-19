@@ -66,7 +66,10 @@ export function AssetMainInfo(
                     <ShoppingCart />
                     <p>Proposed to Buy</p>
                 </button>
-                <button className="flex items-center space-x-3 p-2 w-full justify-center border border-gray-300">
+                <button
+                    onClick={() => setModalKind(ModalKindEnum.aireview)}
+                    className="flex items-center space-x-3 p-2 w-full justify-center border border-gray-300"
+                >
                     <Bot color="gray" />
                     <p className="text-gray-700">AI Examiner</p>
                 </button>
