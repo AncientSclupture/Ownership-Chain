@@ -6,12 +6,14 @@
 
 High-value assets like land, buildings, businesses, and art often face issues such as theft through document fraud, unclear ownership records, and the absence of transparent systems for shared ownership leading to legal disputes and limiting fair, inclusive access to investment and co-ownership.
 
-See This Page For Further Problem Case: https://ancientsclupture.github.io/Ownership-Chain/
+See This Page For Further Devined Problem: https://ancientsclupture.github.io/Ownership-Chain/
+
+See The Pritch Deck Presentation Here : https://youtu.be/C7PQ_rVZyAo
 
 ### Target Solution
 The problem is addressed through tokenization of real-world assets using Internet Computer Protocol (ICP) technology. This solution aims to:
 
-- **Secure ownership data** by recording it on an immutable blockchain, protecting it from manipulation or forgery.
+- **Secure ownership data** by recording it on an immutable blockchain, protecting it from manipulation or forgery by tokenize that asset into stackable token.
 
 - **Increase transparency and accountability** in every transaction or change in ownership status.
 
@@ -21,77 +23,135 @@ The problem is addressed through tokenization of real-world assets using Interne
 
 With this approach, assets like properties, businesses, or artworks can be managed in a modern, secure, and inclusive way, both locally and globally.
 
-
 ## Features
 
 This Web3 application is designed to tokenize and manage real-world assets using the Internet Computer Protocol (ICP). It provides an end-to-end decentralized system for asset registration, fractional ownership, marketplace trading, and transparent ownership history.
 
-### 🔐 Secure Ownership & Asset Management
+### 1. Asset Tokenization
+Create and mint digital representations of physical and digital assets with fractional ownership through token distribution. The system supports multiple asset types including Physical, Digital, and Hybrid assets with immutable ownership records stored on the blockchain.
 
-* Assets (e.g. properties, businesses, artworks) are registered and stored securely on-chain via the `createAsset` function.
-* Each asset is uniquely identified and linked to an owner (principal) with a record of ownership shares.
+### 2. Marketplace Trading
+A decentralized marketplace where users can buy and sell asset tokens with real-time price discovery. The platform enables secure peer-to-peer transactions with advanced filtering and browsing capabilities for discovering investment opportunities.
 
-### 📈 Dashboard Overview (`/`)
+### 3. Asset Management Dashboard
+Comprehensive dashboard for tracking owned assets, monitoring token holdings and their performance, and managing overall portfolio value. Users can view detailed analytics and access quick actions for asset management operations.
 
-* Displays a **summary of all tokenized assets**.
-* Shows metrics such as number of assets, total ownership shares, and potential earnings from dividends.
+### 4. Governance & Voting
+Token-based governance system allowing asset owners to create proposals and participate in democratic decision-making. All voting records are transparent and immutably stored on the blockchain, ensuring fair and verifiable governance processes.
 
-### 🧾 Personal Asset View (`/assets`)
+### 5. Asset Liquidation
+Community-driven liquidation process where asset owners can request liquidation with transparent approval workflows. The system ensures fair distribution of liquidation proceeds based on token ownership percentages.
 
-* Lists all assets owned by the logged-in user, including:
+### 6. Transaction Management
+Complete transaction history tracking for all buy, sell, and transfer operations. Users can monitor transaction status, review past activities, and manage active orders through an intuitive interface.
 
-  * Status of buy/sell proposals.
-  * Vote on existing proposals (if already a shareholder).
-  * Dividend payout history.
-* Connected to the backend via `getUserAssets`, `getUserProfile`, and `getDividendHistory`.
+### 7. Complaint System
+Decentralized dispute resolution mechanism where users can report issues with assets or transactions. The community-driven review process ensures transparent handling of complaints with immutable records of resolutions.
 
-### 🏪 Marketplace (`/marketplace`)
-
-* Browse available assets for sale or fractional purchase.
-* Enables tokenized **buying of ownership shares** via `buyTokens`, pending voting approval.
-* Real-time updates of proposals using `getBuyProposals` and `approveBuyProposal`.
-
-### 🔍 Marketplace Asset Detail (`/marketplace/:id`)
-
-* Shows **detailed information** for a selected asset:
-  * Ownership share percentage breakdown.
-  * Dividend distribution history via `getDividendHistory`.
-  * Active and past buy proposals via `getBuyProposals` & `getProposalStatus`.
-* Allows user to:
-
-  * Submit buy proposals (`createBuyProposal`).
-  * View transaction history and ownership timeline (`getAssetHistory`).
-
-### 📊 Proposal Voting & Governance
-
-* Every transaction involving share transfer must go through a decentralized approval process:
-
-  * Token purchase requests are subject to **voting by existing shareholders** (≥50% approval required).
-  * The `approveBuyProposal` function supports secure multi-party governance.
-
-### 🤝 Dividend & Revenue Sharing
-
-* Enables asset owners to **distribute dividends** to shareholders.
-* Shareholders can track and claim their dividends securely on-chain.
-
-### 🔄 Full ICP Integration
-
-* Built using Internet Computer (ICP) smart contracts (canisters).
-* Assets and ownership data are immutable, transparent, and cryptographically secure.
-
-### Future Development
-
-* I propose an `historical summary of the assets owner` using llm, because of the limited time provided to me. I only inject the llm inside the web3, but not using it.
-This Fututure development will help user to see the asset credibelity transparently, so the user can decided whether to buy or sell or cancle to buy the assets.
-* I propose the further kyc too, with implementation of using wallet sign-in so the feature before `historical summary of the assets owner`, will be approved and work well.
-
-We Use:
-
-- 💻 **Motoko-based Canister** backend
-- 🔥 **React + Tailwind + Typescript** frontend
-- 🤖  **IC LLM Canister** integration of Agentic AI as a helpfull agent ai.
+### 8. Profile & Portfolio
+User identity management via Internet Identity with comprehensive portfolio analytics and ownership history. The system provides reputation tracking and personalized transaction records for each user.
 
 ---
+
+## Public Screen
+
+### 1. Home Screen (/)
+The landing page showcases the platform's features, benefits, and statistics to introduce new users to the decentralized asset marketplace. Visitors can explore featured assets, understand the tokenization process, and access the marketplace without authentication. This screen serves as the primary entry point with clear call-to-action buttons for getting started and connecting wallets.
+
+### 2. Asset Marketplace Screen (/market-place)
+A public browsing interface displaying all available assets with search, filter, and sorting capabilities. Users can explore assets by type, price range, and other criteria without needing authentication. Clicking on an asset redirects to the detail page, which requires login for purchasing or trading actions.
+
+#### 3. Asset Detail Screen (/protected-asset/:id)
+Comprehensive information page displaying detailed asset data including token availability, pricing, documents, and ownership history. Users can review location information, asset rules, and view the complete ownership chain visualization. This screen requires authentication and provides purchase/trade functionality for token acquisition.
+
+---
+
+## Authentication Screen
+
+Internet Identity Login
+Secure wallet connection using Internet Computer's Internet Identity protocol for decentralized authentication. Users can create new accounts or authenticate existing ones with cryptographic security. The system maintains secure session management without storing passwords or sensitive data.
+
+---
+
+## Private/Protected Screens
+
+### 1. Dashboard Screen (/protected-dashboard)
+Central hub displaying portfolio overview, owned assets summary, and recent activities in one comprehensive view. Users can quickly access performance metrics, monitor token holdings, and navigate to key actions. The dashboard provides real-time updates on asset values and portfolio performance with interactive charts and quick action buttons.
+
+### 2. Create Asset Screen (/action-create)
+Multi-step wizard for registering and tokenizing new assets with six progressive batches covering all required information. Users input basic details, token economics, location data, upload documents, set asset type/status, and define ownership rules. The form includes validation, dynamic document/rule management, and preview functionality before blockchain submission.
+
+### 3. Transaction Screen (/action-transaction)
+Interface for initiating buy or sell transactions with asset selection, token amount specification, and price calculation. Users can review transaction details, see estimated costs, and confirm trades before execution. The screen provides real-time feedback and transaction status updates throughout the process.
+
+### 4. Voting Screen (/action-voting)
+Governance interface displaying active proposals with detailed information and voting options for token holders. Users can cast votes (Yes/No/Abstain), view real-time voting results, and track proposal status. The screen shows voting power based on token holdings and maintains a complete voting history for transparency.
+
+### 5. Liquidation Screen (/action-luquidation)
+Request interface for asset liquidation with detailed forms for specifying terms and justification. Users select assets they own, provide reasons for liquidation, and submit requests for community approval. The screen tracks liquidation status through the entire approval workflow with transparent progress indicators.
+
+### 6. Complaint Asset Screen (/protected-complaint)
+Filing system for reporting issues with assets or transactions, including evidence upload and detailed issue description. Users reference specific assets, provide documentation, and track complaint status through resolution. The interface maintains transparent communication between complainants and resolution teams.
+
+### 7. Dashboard Transaction Screen (/protected-transaction)
+Comprehensive transaction history viewer with filtering, searching, and sorting capabilities for all user activities. Users can view detailed information for each transaction, export records, and analyze trading patterns. The screen provides pagination and advanced filtering by type, date, status, and amount.
+
+### 8. Dashboard Proposal Screen (/protected-proposal)
+Management interface for viewing, creating, and participating in proposals related to owned assets. Users can draft new proposals, edit pending ones, vote on active proposals, and track outcomes. The screen displays proposal timelines, voting distributions, and historical records for complete governance transparency.
+
+### 9. Dashboard Buy and Sell Screen (/protected-transferandsell)
+Unified interface for managing token transfers, creating sell orders, and browsing buy opportunities. Users can initiate transfers to other users, list tokens for sale, manage active orders, and cancel pending transactions. The screen includes price calculators and transaction preview functionality for informed decision-making.
+
+### 10. Dashboard Liquidation Screen (/protected-liquidation)
+Monitoring dashboard for tracking all liquidation requests, voting on liquidation proposals, and viewing distribution of proceeds. Users can see liquidation progress, participate in approval voting, and download detailed reports. The screen maintains complete liquidation history with transparent records of all liquidation events.
+
+### 11. Profile Screen (/protected-profile)
+Personal account management page displaying user information, portfolio statistics, and complete ownership history. Users can view connected wallet status, manage notification preferences, and check reputation scores. The interface provides comprehensive activity feeds and analytics for tracking user engagement and asset performance.
+
+---
+
+## FLOW
+```
+[dApps]
+├── Home Page  
+|
+├── [Browse] Marketplace
+│   ├── Assets
+│   └── [actionable] => take look button [to /protected-asset:id]
+|
+├── [Browse] Asset Details
+│   ├── Overview
+│   ├── Ownership
+│   ├── Devidend History
+│   ├── Support / Treasury
+│   └── [actionable] => propose buy asset
+│   └── [actionable] => support asset
+|
+├── Dashboard
+|
+├── [Action] Create Asset
+│   ├── Create Asset Form
+│   └── [actionable] => create button
+|
+├── [Action] Liquidation Resolve
+│   ├── Find And Check Asset That Inative to processing the liquidation
+│   └── [actionable] =>  button liquidation
+|
+├── [Action] Transaction
+│   ├── Buy
+│   ├── Transfer
+│   ├── Done Payment Cashback
+│   └── Finsihed Proposal Payments
+|
+├── [Action] Voting
+│   ├── Table user ownership
+│   └── [actionable] => click ownership id [if porposal founded then proposal card will be showed up correspond to ownership]
+│   └── [actionable] => approve [if porposal founded you can approve or just ignore it]
+|
+└── [Action] Complaint
+    ├── Complain Step Form
+    └── [actionable] => send complain [if the evidence is legit then you can complaint the asset as a fraud or plagiarism]
+```
 
 ## 📜 Table of Contents
 
@@ -107,7 +167,7 @@ We Use:
 
 ## 🎥 Recording
 
-You can see here the full recording: [yt link]
+You can see here the full recording: https://youtu.be/C7PQ_rVZyAo
 
 ---
 
@@ -211,8 +271,6 @@ chmod +x ./scripts/dev-container-setup.sh
 ### 6. Granted setup Helper and simulation helper
 ```bash
 chmod +x ./scripts/dev-container-setup.sh 
-chmod +x ./scripts/simulation_agent_create_assets.sh 
-chmod +x ./scripts/simulation_helper.sh 
 ```
 
 ---
@@ -225,14 +283,20 @@ Ownership-Chain/
 ├── .github/workflows/                    # GitHub CI/CD pipelines
 ├── src/
 │   ├── backend/                          # Motoko backend canister
+│   │   └── data/                         # Data Typpe for data storage and input type
+│   │   └── storage/                      # Storage and service to manage RWA data
 │   │   └── main.mo                       # Main Motoko file
 │   ├── frontend/                         # React + Tailwind + TypeScript frontend
 │   │   ├── src/
 │   │   │   ├── App.tsx                   # Main App component
 │   │   │   ├── index.css                 # Global styles with Tailwind
-│   │   │   ├── components/               # Reusable UI components
+│   │   │   ├── components/               # Reusable UI components (modal, notification, screen component)
+│   │   │   ├── context/                  # Data Context And Provider
+│   │   │   ├── hook/                     # Reuseable custom hook
+│   │   │   ├── helper/                   # Helper to parsing data, convert data type, and validate hash
 │   │   │   ├── services/                 # Canister service layers
-│   │   │   └── screens/                  # Page-level components
+│   │   │   ├── screens/                  # UI for screens
+│   │   │   └── types/                    # RWA Data types
 │   │   ├── assets/                       # Static assets (images, icons)
 │   │   ├── tests/                        # Frontend unit tests
 │   │   ├── index.html                    # Frontend entry point
@@ -276,6 +340,9 @@ npm test
 
 ## 🤝 **Teams**
 
+- Alex Cinatra
+- Muhammad Daffa Azfa Rabani
+- Arkananta Fihratullah
 
 ---
 
